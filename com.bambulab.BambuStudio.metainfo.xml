@@ -36,8 +36,20 @@
       </p>
     </description>
     <releases>
+        <release version="1.8.4" date="2024-01-17">
+            <url>https://github.com/bambulab/BambuStudio/releases/tag/v01.08.04.51</url>
+        </release>
+        <release version="1.8.3" date="2024-01-10">
+            <url>https://github.com/bambulab/BambuStudio/releases/tag/v01.08.03.89</url>
+        </release>
+        <release version="1.8.2" date="2023-12-14">
+            <url>https://github.com/bambulab/BambuStudio/releases/tag/v01.08.02.56</url>
+        </release>
+        <release version="1.8.0 Public Beta 3" date="2023-12-05">
+            <url>https://github.com/bambulab/BambuStudio/releases/tag/v01.08.01.57</url>
+        </release>
         <release version="1.8.0 Public Beta 2" date="2023-11-23">
-            <url>https://github.com/bambulab/BambuStudio/releases</url>
+            <url>https://github.com/bambulab/BambuStudio/releases/tag/v01.08.00.62</url>
         </release>
     </releases>
 </component>
