@@ -149,7 +149,6 @@ modules:
       - -DwxUSE_WEBREQUEST=ON
       - -DwxUSE_WEBVIEW=ON
       - -DwxUSE_REGEX=sys
-      - -DwxUSE_LIBXPM=builtin
       - -DwxUSE_LIBSDL=OFF
       - -DwxUSE_XTEST=OFF
       - -DwxUSE_STC=OFF
