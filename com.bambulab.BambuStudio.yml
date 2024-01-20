@@ -316,6 +316,10 @@ modules:
       - type: patch
         path: patches/use-sysdeps.patch
 
+      # Correction for klipper print estimation
+      - type: patch
+        path: patches/0008-correct-klipper-estimator.patch
+
       # AppData metainfo for Gnome Software & Co.
       - type: file
         path: com.bambulab.BambuStudio.metainfo.xml
