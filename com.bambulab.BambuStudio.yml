@@ -314,6 +314,9 @@ modules:
       - type: patch
         path: patches/0001-FIX-fix-the-compiling-error-under-macos-for-previous.patch
 
+      - type: patch
+        path: patches/0001-Revert-Fix-garbled-text-when-display-scalling-300.patch
+
       # Use system deps instead of building them within BambuStudio
       # https://github.com/hadess/BambuStudio/tree/wip/hadess/use-sysdeps
       - type: patch
