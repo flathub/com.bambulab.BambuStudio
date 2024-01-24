@@ -121,13 +121,9 @@ modules:
     sources:
       - type: git
         url: https://github.com/glfw/glfw.git
-        commit: 3fa2360720eeba1964df3c0ecf4b5df8648a8e52
+        tag: 3.3.9
       - type: patch
-        path: patches/0003-Don-t-crash-on-calls-to-focus-or-icon.patch
-      - type: patch
-        path: patches/0005-Add-warning-about-being-an-unofficial-patch.patch
-      - type: patch
-        path: patches/0007-Platform-Prefer-Wayland-over-X11.patch
+        path: patches/glfw-Don-t-crash-on-calls-to-focus-or-icon.patch
     cleanup:
       - /include
       - /lib/cmake
