@@ -157,11 +157,17 @@ modules:
       - -DwxUSE_EXPAT=sys
     sources:
       - type: archive
-        url: https://github.com/wxWidgets/wxWidgets/releases/download/v3.2.4/wxWidgets-3.2.4.tar.bz2
-        sha256: 0640e1ab716db5af2ecb7389dbef6138d7679261fbff730d23845ba838ca133e
+        url: https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.5/wxWidgets-3.1.5.tar.bz2
+        sha256: d7b3666de33aa5c10ea41bb9405c40326e1aeb74ee725bb88f90f1d50270a224
       # https://github.com/bambulab/BambuStudio/issues/3279
       - type: patch
         path: patches/disable-gstplayer.patch
+      # https://github.com/wxWidgets/wxWidgets/issues/23630
+      - type: patch
+        path: patches/0001-Add-support-for-building-WebView-with-libwebkit2gtk-.patch
+      # wx-config/build fixes between 3.1.5 and 3.1.6
+      - type: patch
+        path: patches/wxwidgets-not-found.patch
     cleanup:
       - /include
       - /lib/cmake
