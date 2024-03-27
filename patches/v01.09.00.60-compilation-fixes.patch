@@ -1,0 +1,414 @@
+From 57b17618e615cf77ffc7c257eb26e8213591bee2 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 26 Mar 2024 21:41:36 +0100
+Subject: [PATCH 01/11] libslic3r: Fix missing DBL_MAX constant
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+/run/ccache/bin/c++ -DBOOST_ATOMIC_NO_LIB -DBOOST_CHRONO_NO_LIB -DBOOST_DATE_TIME_NO_LIB -DBOOST_FILESYSTEM_NO_LIB -DBOOST_IOSTREAMS_NO_LIB -DBOOST_LOCALE_NO_LIB -DBOOST_LOG_NO_LIB -DBOOST_REGEX_NO_LIB -DBOOST_SYSTEM_NO_LIB -DBOOST_THREAD_NO_LIB -DHAVE_FREETYPE -DHAVE_OPENGL_EXT -DHAVE_XLIB -DLIBNEST2D_GEOMETRIES_libslic3r -DLIBNEST2D_OPTIMIZER_nlopt -DLIBNEST2D_STATIC -DLIBNEST2D_THREADING_tbb -DOCC_CONVERT_SIGNALS -DOPENVDB_OPENEXR_STATICLIB -DOPENVDB_STATICLIB -DSLIC3R_GUI -DTBB_USE_CAPTURED_EXCEPTION=0 -DUNICODE -DUSE_TBB -DWXINTL_NO_GETTEXT_MACRO -D_UNICODE -DwxNO_UNSAFE_WXSTRING_CONV -DwxUSE_UNICODE -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/run/build/BambuStudio/src -I/run/build/BambuStudio/build/src/platform -I/run/build/BambuStudio/src/libslic3r -I/run/build/BambuStudio/build/src/libslic3r -I/run/build/BambuStudio/deps/build/destdir/usr/local/include/opencascade -I/run/build/BambuStudio/src/libnest2d/include -I/run/build/BambuStudio/src/miniz -I/run/build/BambuStudio/src/glu-libtess/include -I/run/build/BambuStudio/src/clipper2/Clipper2Lib/include -isystem /run/build/BambuStudio/src/eigen -isystem /run/build/BambuStudio/src/libigl -isystem /run/build/BambuStudio/deps/build/destdir/usr/local/include -isystem /run/build/BambuStudio/deps/build/destdir/usr/local/include/OpenEXR -std=gnu++20 -fext-numeric-literals -Wall -Wno-reorder -O3 -DNDEBUG -std=gnu++17 -fPIC -fsigned-char -Werror=return-type -Wno-ignored-attributes -Wno-unknown-pragmas -DOPENVDB_ABI_VERSION_NUMBER=8 -MD -MT src/libslic3r/CMakeFiles/libslic3r.dir/GCode/CoolingBuffer.cpp.o -MF src/libslic3r/CMakeFiles/libslic3r.dir/GCode/CoolingBuffer.cpp.o.d -o src/libslic3r/CMakeFiles/libslic3r.dir/GCode/CoolingBuffer.cpp.o -c /run/build/BambuStudio/src/libslic3r/GCode/CoolingBuffer.cpp
+In file included from /run/build/BambuStudio/src/libslic3r/GCode/CoolingBuffer.cpp:1:
+/run/build/BambuStudio/src/libslic3r/GCode/../GCode.hpp:413:99: error: ‘DBL_MAX’ was not declared in this scope
+  413 |     std::string travel_to(const Point &point, ExtrusionRole role, std::string comment, double z = DBL_MAX);
+      |                                                                                                   ^~~~~~~
+/run/build/BambuStudio/src/libslic3r/GCode/../GCode.hpp:22:1: note: ‘DBL_MAX’ is defined in header ‘<cfloat>’; did you forget to ‘#include <cfloat>’?
+   21 | #include "libslic3r/ObjectID.hpp"
+  +++ |+#include <cfloat>
+   22 |
+---
+ src/libslic3r/GCode.hpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/libslic3r/GCode.hpp b/src/libslic3r/GCode.hpp
+index 79ee6dcbc34a..361e45fe618c 100644
+--- a/src/libslic3r/GCode.hpp
++++ b/src/libslic3r/GCode.hpp
+@@ -20,6 +20,7 @@
+ #include "GCode/ThumbnailData.hpp"
+ #include "libslic3r/ObjectID.hpp"
+ 
++#include <cfloat>
+ #include <memory>
+ #include <map>
+ #include <set>
+-- 
+2.44.0
+
+
+From 92b2982f570ee51ff7941c32e99dda272ca1c557 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 26 Mar 2024 23:58:51 +0100
+Subject: [PATCH 02/11] libslic3r: Fix missing assert() definition
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+FAILED: src/libslic3r/CMakeFiles/libslic3r.dir/ParameterUtils.cpp.o
+/usr/bin/c++ -DBOOST_ATOMIC_NO_LIB -DBOOST_CHRONO_NO_LIB -DBOOST_DATE_TIME_NO_LIB -DBOOST_FILESYSTEM_NO_LIB -DBOOST_IOSTREAMS_NO_LIB -DBOOST_LOCALE_NO_LIB -DBOOST_LOG_NO_LIB -DBOOST_REGEX_NO_LIB -DBOOST_SYSTEM_NO_LIB -DBOOST_THREAD_NO_LIB -DHAVE_FREETYPE -DHAVE_OPENGL_EXT -DHAVE_XLIB -DLIBNEST2D_GEOMETRIES_libslic3r -DLIBNEST2D_OPTIMIZER_nlopt -DLIBNEST2D_STATIC -DLIBNEST2D_THREADING_tbb -DOCC_CONVERT_SIGNALS -DOPENVDB_OPENEXR_STATICLIB -DOPENVDB_STATICLIB -DSLIC3R_GUI -DTBB_USE_CAPTURED_EXCEPTION=0 -DUNICODE -DUSE_TBB -DWXINTL_NO_GETTEXT_MACRO -D_UNICODE -DwxNO_UNSAFE_WXSTRING_CONV -DwxUSE_UNICODE -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/run/build/BambuStudio/src -I/run/build/BambuStudio/build/src/platform -I/run/build/BambuStudio/src/libslic3r -I/run/build/BambuStudio/build/src/libslic3r -I/run/build/BambuStudio/deps/build/destdir/usr/local/include/opencascade -I/run/build/BambuStudio/src/libnest2d/include -I/run/build/BambuStudio/src/miniz -I/run/build/BambuStudio/src/glu-libtess/include -I/run/build/BambuStudio/src/clipper2/Clipper2Lib/include -isystem /run/build/BambuStudio/src/eigen -isystem /run/build/BambuStudio/src/libigl -isystem /run/build/BambuStudio/deps/build/destdir/usr/local/include -isystem /run/build/BambuStudio/deps/build/destdir/usr/local/include/OpenEXR -std=gnu++20 -fext-numeric-literals -Wall -Wno-reorder -O3 -DNDEBUG -std=gnu++17 -fPIC -fsigned-char -Werror=return-type -Wno-ignored-attributes -Wno-unknown-pragmas -DOPENVDB_ABI_VERSION_NUMBER=8 -MD -MT src/libslic3r/CMakeFiles/libslic3r.dir/ParameterUtils.cpp.o -MF src/libslic3r/CMakeFiles/libslic3r.dir/ParameterUtils.cpp.o.d -o src/libslic3r/CMakeFiles/libslic3r.dir/ParameterUtils.cpp.o -c /run/build/BambuStudio/src/libslic3r/ParameterUtils.cpp
+/run/build/BambuStudio/src/libslic3r/ParameterUtils.cpp: In function ‘std::vector<std::pair<std::pair<int, int>, std::vector<int> > > Slic3r::get_other_layers_print_sequence(int, const std::vector<int>&)’:
+/run/build/BambuStudio/src/libslic3r/ParameterUtils.cpp:11:5: error: ‘assert’ was not declared in this scope
+   11 |     assert(sequence.size() % sequence_nums == 0);
+      |     ^~~~~~
+/run/build/BambuStudio/src/libslic3r/ParameterUtils.cpp:2:1: note: ‘assert’ is defined in header ‘<cassert>’; did you forget to ‘#include <cassert>’?
+    1 | #include "ParameterUtils.hpp"
+  +++ |+#include <cassert>
+    2 |
+---
+ src/libslic3r/ParameterUtils.cpp | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/libslic3r/ParameterUtils.cpp b/src/libslic3r/ParameterUtils.cpp
+index 4e5fed7e6b2a..8254346c51cf 100644
+--- a/src/libslic3r/ParameterUtils.cpp
++++ b/src/libslic3r/ParameterUtils.cpp
+@@ -1,5 +1,7 @@
+ #include "ParameterUtils.hpp"
+ 
++#include <cassert>
++
+ namespace Slic3r {
+ 
+ std::vector<LayerPrintSequence> get_other_layers_print_sequence(int sequence_nums, const std::vector<int> &sequence)
+-- 
+2.44.0
+
+
+From 36085a84fa1076536b2b8da76585ed1f21f2ca45 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Wed, 27 Mar 2024 10:24:44 +0100
+Subject: [PATCH 03/11] slic3r: Fix wxTimer declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+FAILED: src/slic3r/CMakeFiles/libslic3r_gui.dir/GUI/GLCanvas3D.cpp.o
+/usr/bin/c++ -DBOOST_ATOMIC_NO_LIB -DBOOST_CHRONO_NO_LIB -DBOOST_DATE_TIME_NO_LIB -DBOOST_FILESYSTEM_NO_LIB -DBOOST_IOSTREAMS_NO_LIB -DBOOST_LOCALE_NO_LIB -DBOOST_LOG_NO_LIB -DBOOST_REGEX_NO_LIB -DBOOST_SYSTEM_NO_LIB -DBOOST_THREAD_NO_LIB -DCURL_STATICLIB -DGLEW_STATIC -DLIBNEST2D_GEOMETRIES_libslic3r -DLIBNEST2D_OPTIMIZER_nlopt -DLIBNEST2D_STATIC -DLIBNEST2D_THREADING_tbb -DOPENSSL_CERT_OVERRIDE -DOPENVDB_OPENEXR_STATICLIB -DOPENVDB_STATICLIB -DSLIC3R_CURRENTLY_COMPILING_GUI_MODULE -DSLIC3R_GUI -DTBB_USE_CAPTURED_EXCEPTION=0 -DUNICODE -DUSE_TBB -DWXINTL_NO_GETTEXT_MACRO -D_UNICODE -D__WXGTK3__ -D__WXGTK__ -DwxDEBUG_LEVEL=0 -DwxNO_UNSAFE_WXSTRING_CONV -DwxUSE_UNICODE -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/run/build/BambuStudio/src -I/run/build/BambuStudio/build/src/platform -I/run/build/BambuStudio/src/hidapi/include -I/run/build/BambuStudio/src/slic3r/Utils -I/usr/include/gtk-3.0 -I/usr/include/pango-1.0 -I/usr/include/cairo -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/atk-1.0 -I/usr/include/freetype2 -I/usr/include/harfbuzz -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/sysprof-6 -I/usr/include/webp -I/usr/include/libpng16 -I/usr/include/pixman-1 -I/usr/include/at-spi2-atk/2.0 -I/usr/include/at-spi-2.0 -I/usr/include/fribidi -I/usr/include/gio-unix-2.0 -I/usr/include/gstreamer-1.0 -I/run/build/BambuStudio/build/src/libslic3r -I/run/build/BambuStudio/deps/build/destdir/usr/local/include/opencascade -I/run/build/BambuStudio/src/libnest2d/include -I/run/build/BambuStudio/src/miniz -I/run/build/BambuStudio/src/glu-libtess/include -I/run/build/BambuStudio/src/clipper2/Clipper2Lib/include -I/run/build/BambuStudio/src/minilzo -isystem /run/build/BambuStudio/src/eigen -isystem /run/build/BambuStudio/src/libigl -isystem /app/lib/wx/include/gtk3-unicode-static-3.1 -isystem /app/include/wx-3.1 -isystem /run/build/BambuStudio/deps/build/destdir/usr/local/include -isystem /run/build/BambuStudio/deps/build/destdir/usr/local/include/OpenEXR -std=gnu++20 -fext-numeric-literals -Wall -Wno-reorder -pthread -O3 -DNDEBUG -std=gnu++17 -fPIC -fsigned-char -Werror=return-type -Wno-ignored-attributes -Wno-unknown-pragmas -DOPENVDB_ABI_VERSION_NUMBER=8 -MD -MT src/slic3r/CMakeFiles/libslic3r_gui.dir/GUI/GLCanvas3D.cpp.o -MF src/slic3r/CMakeFiles/libslic3r_gui.dir/GUI/GLCanvas3D.cpp.o.d -o src/slic3r/CMakeFiles/libslic3r_gui.dir/GUI/GLCanvas3D.cpp.o -c /run/build/BambuStudio/src/slic3r/GUI/GLCanvas3D.cpp
+In file included from /run/build/BambuStudio/src/slic3r/GUI/GLCanvas3D.hpp:12,
+                 from /run/build/BambuStudio/src/slic3r/GUI/GLCanvas3D.cpp:2:
+/run/build/BambuStudio/src/slic3r/GUI/Gizmos/GLGizmosManager.hpp:148:5: error: ‘wxTimer’ does not name a type
+  148 |     wxTimer m_timer_set_color;
+      |     ^~~~~~~
+/run/build/BambuStudio/src/slic3r/GUI/Gizmos/GLGizmosManager.hpp:149:29: error: ‘wxTimerEvent’ has not been declared
+  149 |     void on_set_color_timer(wxTimerEvent& evt);
+      |                             ^~~~~~~~~~~~
+---
+ src/slic3r/GUI/Gizmos/GLGizmosManager.hpp | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/slic3r/GUI/Gizmos/GLGizmosManager.hpp b/src/slic3r/GUI/Gizmos/GLGizmosManager.hpp
+index 8f38a7e7a1c5..30c86727c9ed 100644
+--- a/src/slic3r/GUI/Gizmos/GLGizmosManager.hpp
++++ b/src/slic3r/GUI/Gizmos/GLGizmosManager.hpp
+@@ -10,6 +10,8 @@
+ 
+ #include "libslic3r/ObjectID.hpp"
+ 
++#include "wx/timer.h"
++
+ #include <map>
+ 
+ //BBS: GUI refactor: to support top layout
+-- 
+2.44.0
+
+
+From 93e1984ea57459fa1b41ba1ff56439ee9314478c Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Wed, 27 Mar 2024 10:27:10 +0100
+Subject: [PATCH 04/11] slic3r: Fix missing chrono declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+FAILED: src/slic3r/CMakeFiles/libslic3r_gui.dir/GUI/Gizmos/GLGizmoAdvancedCut.cpp.o
+/usr/bin/c++ -DBOOST_ATOMIC_NO_LIB -DBOOST_CHRONO_NO_LIB -DBOOST_DATE_TIME_NO_LIB -DBOOST_FILESYSTEM_NO_LIB -DBOOST_IOSTREAMS_NO_LIB -DBOOST_LOCALE_NO_LIB -DBOOST_LOG_NO_LIB -DBOOST_REGEX_NO_LIB -DBOOST_SYSTEM_NO_LIB -DBOOST_THREAD_NO_LIB -DCURL_STATICLIB -DGLEW_STATIC -DLIBNEST2D_GEOMETRIES_libslic3r -DLIBNEST2D_OPTIMIZER_nlopt -DLIBNEST2D_STATIC -DLIBNEST2D_THREADING_tbb -DOPENSSL_CERT_OVERRIDE -DOPENVDB_OPENEXR_STATICLIB -DOPENVDB_STATICLIB -DSLIC3R_CURRENTLY_COMPILING_GUI_MODULE -DSLIC3R_GUI -DTBB_USE_CAPTURED_EXCEPTION=0 -DUNICODE -DUSE_TBB -DWXINTL_NO_GETTEXT_MACRO -D_UNICODE -D__WXGTK3__ -D__WXGTK__ -DwxDEBUG_LEVEL=0 -DwxNO_UNSAFE_WXSTRING_CONV -DwxUSE_UNICODE -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/run/build/BambuStudio/src -I/run/build/BambuStudio/build/src/platform -I/run/build/BambuStudio/src/hidapi/include -I/run/build/BambuStudio/src/slic3r/Utils -I/usr/include/gtk-3.0 -I/usr/include/pango-1.0 -I/usr/include/cairo -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/atk-1.0 -I/usr/include/freetype2 -I/usr/include/harfbuzz -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/sysprof-6 -I/usr/include/webp -I/usr/include/libpng16 -I/usr/include/pixman-1 -I/usr/include/at-spi2-atk/2.0 -I/usr/include/at-spi-2.0 -I/usr/include/fribidi -I/usr/include/gio-unix-2.0 -I/usr/include/gstreamer-1.0 -I/run/build/BambuStudio/build/src/libslic3r -I/run/build/BambuStudio/deps/build/destdir/usr/local/include/opencascade -I/run/build/BambuStudio/src/libnest2d/include -I/run/build/BambuStudio/src/miniz -I/run/build/BambuStudio/src/glu-libtess/include -I/run/build/BambuStudio/src/clipper2/Clipper2Lib/include -I/run/build/BambuStudio/src/minilzo -isystem /run/build/BambuStudio/src/eigen -isystem /run/build/BambuStudio/src/libigl -isystem /app/lib/wx/include/gtk3-unicode-static-3.1 -isystem /app/include/wx-3.1 -isystem /run/build/BambuStudio/deps/build/destdir/usr/local/include -isystem /run/build/BambuStudio/deps/build/destdir/usr/local/include/OpenEXR -std=gnu++20 -fext-numeric-literals -Wall -Wno-reorder -pthread -O3 -DNDEBUG -std=gnu++17 -fPIC -fsigned-char -Werror=return-type -Wno-ignored-attributes -Wno-unknown-pragmas -DOPENVDB_ABI_VERSION_NUMBER=8 -MD -MT src/slic3r/CMakeFiles/libslic3r_gui.dir/GUI/Gizmos/GLGizmoAdvancedCut.cpp.o -MF src/slic3r/CMakeFiles/libslic3r_gui.dir/GUI/Gizmos/GLGizmoAdvancedCut.cpp.o.d -o src/slic3r/CMakeFiles/libslic3r_gui.dir/GUI/Gizmos/GLGizmoAdvancedCut.cpp.o -c /run/build/BambuStudio/src/slic3r/GUI/Gizmos/GLGizmoAdvancedCut.cpp
+In file included from /run/build/BambuStudio/src/slic3r/GUI/Gizmos/GLGizmoAdvancedCut.hpp:4,
+                 from /run/build/BambuStudio/src/slic3r/GUI/Gizmos/GLGizmoAdvancedCut.cpp:2:
+/run/build/BambuStudio/src/slic3r/GUI/Gizmos/GLGizmoBase.hpp:148:10: error: ‘chrono’ in namespace ‘std’ does not name a type
+  148 |     std::chrono::system_clock::time_point start;
+      |          ^~~~~~
+---
+ src/slic3r/GUI/Gizmos/GLGizmoBase.hpp | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/slic3r/GUI/Gizmos/GLGizmoBase.hpp b/src/slic3r/GUI/Gizmos/GLGizmoBase.hpp
+index 81f916235562..489b1cfbcb26 100644
+--- a/src/slic3r/GUI/Gizmos/GLGizmoBase.hpp
++++ b/src/slic3r/GUI/Gizmos/GLGizmoBase.hpp
+@@ -10,6 +10,8 @@
+ 
+ #include <cereal/archives/binary.hpp>
+ 
++#include <chrono>
++
+ #define ENABLE_FIXED_GRABBER 1
+ 
+ class wxWindow;
+-- 
+2.44.0
+
+
+From fc3abed2c5404f316c0ae29dec32e71d60d98a89 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Wed, 27 Mar 2024 10:29:53 +0100
+Subject: [PATCH 05/11] slic3r: Fix missing wxWidgets declarations
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+FAILED: src/slic3r/CMakeFiles/libslic3r_gui.dir/GUI/Gizmos/GLGizmoAdvancedCut.cpp.o
+/usr/bin/c++ -DBOOST_ATOMIC_NO_LIB -DBOOST_CHRONO_NO_LIB -DBOOST_DATE_TIME_NO_LIB -DBOOST_FILESYSTEM_NO_LIB -DBOOST_IOSTREAMS_NO_LIB -DBOOST_LOCALE_NO_LIB -DBOOST_LOG_NO_LIB -DBOOST_REGEX_NO_LIB -DBOOST_SYSTEM_NO_LIB -DBOOST_THREAD_NO_LIB -DCURL_STATICLIB -DGLEW_STATIC -DLIBNEST2D_GEOMETRIES_libslic3r -DLIBNEST2D_OPTIMIZER_nlopt -DLIBNEST2D_STATIC -DLIBNEST2D_THREADING_tbb -DOPENSSL_CERT_OVERRIDE -DOPENVDB_OPENEXR_STATICLIB -DOPENVDB_STATICLIB -DSLIC3R_CURRENTLY_COMPILING_GUI_MODULE -DSLIC3R_GUI -DTBB_USE_CAPTURED_EXCEPTION=0 -DUNICODE -DUSE_TBB -DWXINTL_NO_GETTEXT_MACRO -D_UNICODE -D__WXGTK3__ -D__WXGTK__ -DwxDEBUG_LEVEL=0 -DwxNO_UNSAFE_WXSTRING_CONV -DwxUSE_UNICODE -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/run/build/BambuStudio/src -I/run/build/BambuStudio/build/src/platform -I/run/build/BambuStudio/src/hidapi/include -I/run/build/BambuStudio/src/slic3r/Utils -I/usr/include/gtk-3.0 -I/usr/include/pango-1.0 -I/usr/include/cairo -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/atk-1.0 -I/usr/include/freetype2 -I/usr/include/harfbuzz -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/sysprof-6 -I/usr/include/webp -I/usr/include/libpng16 -I/usr/include/pixman-1 -I/usr/include/at-spi2-atk/2.0 -I/usr/include/at-spi-2.0 -I/usr/include/fribidi -I/usr/include/gio-unix-2.0 -I/usr/include/gstreamer-1.0 -I/run/build/BambuStudio/build/src/libslic3r -I/run/build/BambuStudio/deps/build/destdir/usr/local/include/opencascade -I/run/build/BambuStudio/src/libnest2d/include -I/run/build/BambuStudio/src/miniz -I/run/build/BambuStudio/src/glu-libtess/include -I/run/build/BambuStudio/src/clipper2/Clipper2Lib/include -I/run/build/BambuStudio/src/minilzo -isystem /run/build/BambuStudio/src/eigen -isystem /run/build/BambuStudio/src/libigl -isystem /app/lib/wx/include/gtk3-unicode-static-3.1 -isystem /app/include/wx-3.1 -isystem /run/build/BambuStudio/deps/build/destdir/usr/local/include -isystem /run/build/BambuStudio/deps/build/destdir/usr/local/include/OpenEXR -std=gnu++20 -fext-numeric-literals -Wall -Wno-reorder -pthread -O3 -DNDEBUG -std=gnu++17 -fPIC -fsigned-char -Werror=return-type -Wno-ignored-attributes -Wno-unknown-pragmas -DOPENVDB_ABI_VERSION_NUMBER=8 -MD -MT src/slic3r/CMakeFiles/libslic3r_gui.dir/GUI/Gizmos/GLGizmoAdvancedCut.cpp.o -MF src/slic3r/CMakeFiles/libslic3r_gui.dir/GUI/Gizmos/GLGizmoAdvancedCut.cpp.o.d -o src/slic3r/CMakeFiles/libslic3r_gui.dir/GUI/Gizmos/GLGizmoAdvancedCut.cpp.o -c /run/build/BambuStudio/src/slic3r/GUI/Gizmos/GLGizmoAdvancedCut.cpp
+/run/build/BambuStudio/src/slic3r/GUI/Gizmos/GLGizmoBase.hpp:203:33: error: ‘wxMouseEvent’ does not name a type
+  203 |     virtual bool on_mouse(const wxMouseEvent &mouse_event) { return false; }
+      |                                 ^~~~~~~~~~~~
+In file included from /run/build/BambuStudio/src/slic3r/GUI/GLCanvas3D.hpp:12,
+                 from /run/build/BambuStudio/src/slic3r/GUI/Gizmos/GLGizmoAdvancedCut.cpp:3:
+/run/build/BambuStudio/src/slic3r/GUI/Gizmos/GLGizmosManager.hpp:148:5: error: ‘wxTimer’ does not name a type
+  148 |     wxTimer m_timer_set_color;
+      |     ^~~~~~~
+/run/build/BambuStudio/src/slic3r/GUI/Gizmos/GLGizmosManager.hpp:149:29: error: ‘wxTimerEvent’ has not been declared
+  149 |     void on_set_color_timer(wxTimerEvent& evt);
+      |                             ^~~~~~~~~~~~
+---
+ src/slic3r/GUI/Gizmos/GLGizmoBase.hpp | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/slic3r/GUI/Gizmos/GLGizmoBase.hpp b/src/slic3r/GUI/Gizmos/GLGizmoBase.hpp
+index 489b1cfbcb26..631a76e33e26 100644
+--- a/src/slic3r/GUI/Gizmos/GLGizmoBase.hpp
++++ b/src/slic3r/GUI/Gizmos/GLGizmoBase.hpp
+@@ -10,6 +10,9 @@
+ 
+ #include <cereal/archives/binary.hpp>
+ 
++#include <wx/event.h>
++#include <wx/timer.h>
++
+ #include <chrono>
+ 
+ #define ENABLE_FIXED_GRABBER 1
+-- 
+2.44.0
+
+
+From 9b0a9203a3d203d96ece2a1095f46192c4c2d653 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Wed, 27 Mar 2024 10:31:27 +0100
+Subject: [PATCH 06/11] slic3r: Fix missing wxColourData declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+FAILED: src/slic3r/CMakeFiles/libslic3r_gui.dir/GUI/Auxiliary.cpp.o
+/usr/bin/c++ -DBOOST_ATOMIC_NO_LIB -DBOOST_CHRONO_NO_LIB -DBOOST_DATE_TIME_NO_LIB -DBOOST_FILESYSTEM_NO_LIB -DBOOST_IOSTREAMS_NO_LIB -DBOOST_LOCALE_NO_LIB -DBOOST_LOG_NO_LIB -DBOOST_REGEX_NO_LIB -DBOOST_SYSTEM_NO_LIB -DBOOST_THREAD_NO_LIB -DCURL_STATICLIB -DGLEW_STATIC -DLIBNEST2D_GEOMETRIES_libslic3r -DLIBNEST2D_OPTIMIZER_nlopt -DLIBNEST2D_STATIC -DLIBNEST2D_THREADING_tbb -DOPENSSL_CERT_OVERRIDE -DOPENVDB_OPENEXR_STATICLIB -DOPENVDB_STATICLIB -DSLIC3R_CURRENTLY_COMPILING_GUI_MODULE -DSLIC3R_GUI -DTBB_USE_CAPTURED_EXCEPTION=0 -DUNICODE -DUSE_TBB -DWXINTL_NO_GETTEXT_MACRO -D_UNICODE -D__WXGTK3__ -D__WXGTK__ -DwxDEBUG_LEVEL=0 -DwxNO_UNSAFE_WXSTRING_CONV -DwxUSE_UNICODE -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/run/build/BambuStudio/src -I/run/build/BambuStudio/build/src/platform -I/run/build/BambuStudio/src/hidapi/include -I/run/build/BambuStudio/src/slic3r/Utils -I/usr/include/gtk-3.0 -I/usr/include/pango-1.0 -I/usr/include/cairo -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/atk-1.0 -I/usr/include/freetype2 -I/usr/include/harfbuzz -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/sysprof-6 -I/usr/include/webp -I/usr/include/libpng16 -I/usr/include/pixman-1 -I/usr/include/at-spi2-atk/2.0 -I/usr/include/at-spi-2.0 -I/usr/include/fribidi -I/usr/include/gio-unix-2.0 -I/usr/include/gstreamer-1.0 -I/run/build/BambuStudio/build/src/libslic3r -I/run/build/BambuStudio/deps/build/destdir/usr/local/include/opencascade -I/run/build/BambuStudio/src/libnest2d/include -I/run/build/BambuStudio/src/miniz -I/run/build/BambuStudio/src/glu-libtess/include -I/run/build/BambuStudio/src/clipper2/Clipper2Lib/include -I/run/build/BambuStudio/src/minilzo -isystem /run/build/BambuStudio/src/eigen -isystem /run/build/BambuStudio/src/libigl -isystem /app/lib/wx/include/gtk3-unicode-static-3.1 -isystem /app/include/wx-3.1 -isystem /run/build/BambuStudio/deps/build/destdir/usr/local/include -isystem /run/build/BambuStudio/deps/build/destdir/usr/local/include/OpenEXR -std=gnu++20 -fext-numeric-literals -Wall -Wno-reorder -pthread -O3 -DNDEBUG -std=gnu++17 -fPIC -fsigned-char -Werror=return-type -Wno-ignored-attributes -Wno-unknown-pragmas -DOPENVDB_ABI_VERSION_NUMBER=8 -MD -MT src/slic3r/CMakeFiles/libslic3r_gui.dir/GUI/Auxiliary.cpp.o -MF src/slic3r/CMakeFiles/libslic3r_gui.dir/GUI/Auxiliary.cpp.o.d -o src/slic3r/CMakeFiles/libslic3r_gui.dir/GUI/Auxiliary.cpp.o -c /run/build/BambuStudio/src/slic3r/GUI/Auxiliary.cpp
+In file included from /run/build/BambuStudio/src/slic3r/GUI/ConfigManipulation.hpp:12,
+                 from /run/build/BambuStudio/src/slic3r/GUI/Tab.hpp:35,
+                 from /run/build/BambuStudio/src/slic3r/GUI/Auxiliary.cpp:1:
+/run/build/BambuStudio/src/slic3r/GUI/Field.hpp:433:5: error: ‘wxColourData’ does not name a type; did you mean ‘wxColourBase’?
+  433 |     wxColourData*  m_clrData{nullptr};
+      |     ^~~~~~~~~~~~
+      |     wxColourBase
+---
+ src/slic3r/GUI/Field.hpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/slic3r/GUI/Field.hpp b/src/slic3r/GUI/Field.hpp
+index eb4b15f30f12..674de6f2fc37 100644
+--- a/src/slic3r/GUI/Field.hpp
++++ b/src/slic3r/GUI/Field.hpp
+@@ -11,6 +11,7 @@
+ #include <functional>
+ #include <boost/any.hpp>
+ 
++#include <wx/colourdata.h>
+ #include <wx/spinctrl.h>
+ #include <wx/bmpcbox.h>
+ #include <wx/clrpicker.h>
+-- 
+2.44.0
+
+
+From 7c38bde0ebab332e72d24dc53d834e71db874d67 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Wed, 27 Mar 2024 11:24:58 +0100
+Subject: [PATCH 07/11] libslic3r: Fix missing BOOST_LOG_TRIVIAL declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+FAILED: src/libslic3r/CMakeFiles/libslic3r.dir/Support/TreeSupport.cpp.o
+/usr/bin/c++ -DBOOST_ATOMIC_NO_LIB -DBOOST_CHRONO_NO_LIB -DBOOST_DATE_TIME_NO_LIB -DBOOST_FILESYSTEM_NO_LIB -DBOOST_IOSTREAMS_NO_LIB -DBOOST_LOCALE_NO_LIB -DBOOST_LOG_NO_LIB -DBOOST_REGEX_NO_LIB -DBOOST_SYSTEM_NO_LIB -DBOOST_THREAD_NO_LIB -DHAVE_FREETYPE -DHAVE_OPENGL_EXT -DHAVE_XLIB -DLIBNEST2D_GEOMETRIES_libslic3r -DLIBNEST2D_OPTIMIZER_nlopt -DLIBNEST2D_STATIC -DLIBNEST2D_THREADING_tbb -DOCC_CONVERT_SIGNALS -DOPENVDB_OPENEXR_STATICLIB -DOPENVDB_STATICLIB -DSLIC3R_GUI -DTBB_USE_CAPTURED_EXCEPTION=0 -DUNICODE -DUSE_TBB -DWXINTL_NO_GETTEXT_MACRO -D_UNICODE -DwxNO_UNSAFE_WXSTRING_CONV -DwxUSE_UNICODE -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/run/build/BambuStudio/src -I/run/build/BambuStudio/build/src/platform -I/run/build/BambuStudio/src/libslic3r -I/run/build/BambuStudio/build/src/libslic3r -I/run/build/BambuStudio/deps/build/destdir/usr/local/include/opencascade -I/run/build/BambuStudio/src/libnest2d/include -I/run/build/BambuStudio/src/miniz -I/run/build/BambuStudio/src/glu-libtess/include -I/run/build/BambuStudio/src/clipper2/Clipper2Lib/include -isystem /run/build/BambuStudio/src/eigen -isystem /run/build/BambuStudio/src/libigl -isystem /run/build/BambuStudio/deps/build/destdir/usr/local/include -isystem /run/build/BambuStudio/deps/build/destdir/usr/local/include/OpenEXR -std=gnu++20 -fext-numeric-literals -Wall -Wno-reorder -O3 -DNDEBUG -std=gnu++17 -fPIC -fsigned-char -Werror=return-type -Wno-ignored-attributes -Wno-unknown-pragmas -DOPENVDB_ABI_VERSION_NUMBER=8 -MD -MT src/libslic3r/CMakeFiles/libslic3r.dir/Support/TreeSupport.cpp.o -MF src/libslic3r/CMakeFiles/libslic3r.dir/Support/TreeSupport.cpp.o.d -o src/libslic3r/CMakeFiles/libslic3r.dir/Support/TreeSupport.cpp.o -c /run/build/BambuStudio/src/libslic3r/Support/TreeSupport.cpp
+/run/build/BambuStudio/src/libslic3r/Support/TreeSupport.cpp:832:39: error: ‘info’ was not declared in this scope; did you mean ‘tbb::v1::info’?
+  832 |                     BOOST_LOG_TRIVIAL(info) << "detect_overhangs takes more than 30 secs, skip cantilever and sharp tails detection: layer_nr=" << layer_nr << " duration=" << duration;
+      |                                       ^~~~
+      |                                       tbb::v1::info
+In file included from /run/build/BambuStudio/deps/build/destdir/usr/local/include/oneapi/tbb/task_arena.h:31,
+                 from /run/build/BambuStudio/deps/build/destdir/usr/local/include/oneapi/tbb/partitioner.h:48,
+                 from /run/build/BambuStudio/deps/build/destdir/usr/local/include/oneapi/tbb/parallel_for.h:27,
+                 from /run/build/BambuStudio/deps/build/destdir/usr/local/include/tbb/parallel_for.h:17,
+                 from /run/build/BambuStudio/src/libslic3r/Support/TreeSupport.cpp:25:
+/run/build/BambuStudio/deps/build/destdir/usr/local/include/oneapi/tbb/info.h:125:11: note: ‘tbb::v1::info’ declared here
+  125 | namespace info {
+      |           ^~~~
+/run/build/BambuStudio/src/libslic3r/Support/TreeSupport.cpp:832:21: error: ‘BOOST_LOG_TRIVIAL’ was not declared in this scope
+  832 |                     BOOST_LOG_TRIVIAL(info) << "detect_overhangs takes more than 30 secs, skip cantilever and sharp tails detection: layer_nr=" << layer_nr << " duration=" << duration;
+      |                     ^~~~~~~~~~~~~~~~~
+/run/build/BambuStudio/src/libslic3r/Support/TreeSupport.cpp:884:43: error: ‘debug’ was not declared in this scope
+  884 |                         BOOST_LOG_TRIVIAL(debug) << "found a cantilever cluster. layer_nr=" << layer_nr << dist_max;
+      |                                           ^~~~~
+---
+ src/libslic3r/Support/TreeSupport.cpp | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/libslic3r/Support/TreeSupport.cpp b/src/libslic3r/Support/TreeSupport.cpp
+index c650deb04ca3..3c40c6df32ef 100644
+--- a/src/libslic3r/Support/TreeSupport.cpp
++++ b/src/libslic3r/Support/TreeSupport.cpp
+@@ -25,6 +25,8 @@
+ #include <tbb/parallel_for.h>
+ #include <tbb/parallel_for_each.h>
+ 
++#include <boost/log/trivial.hpp>
++
+ #ifndef M_PI
+ #define M_PI 3.1415926535897932384626433832795
+ #endif
+-- 
+2.44.0
+
+
+From 8e472e174a9a2791410f76a9741201d3db1589f1 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Wed, 27 Mar 2024 12:02:22 +0100
+Subject: [PATCH 08/11] slic3r: Fix missing wxDisplay declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+FAILED: src/slic3r/CMakeFiles/libslic3r_gui.dir/GUI/WebGuideDialog.cpp.o
+/usr/bin/c++ -DBOOST_ATOMIC_NO_LIB -DBOOST_CHRONO_NO_LIB -DBOOST_DATE_TIME_NO_LIB -DBOOST_FILESYSTEM_NO_LIB -DBOOST_IOSTREAMS_NO_LIB -DBOOST_LOCALE_NO_LIB -DBOOST_LOG_NO_LIB -DBOOST_REGEX_NO_LIB -DBOOST_SYSTEM_NO_LIB -DBOOST_THREAD_NO_LIB -DCURL_STATICLIB -DGLEW_STATIC -DLIBNEST2D_GEOMETRIES_libslic3r -DLIBNEST2D_OPTIMIZER_nlopt -DLIBNEST2D_STATIC -DLIBNEST2D_THREADING_tbb -DOPENSSL_CERT_OVERRIDE -DOPENVDB_OPENEXR_STATICLIB -DOPENVDB_STATICLIB -DSLIC3R_CURRENTLY_COMPILING_GUI_MODULE -DSLIC3R_GUI -DTBB_USE_CAPTURED_EXCEPTION=0 -DUNICODE -DUSE_TBB -DWXINTL_NO_GETTEXT_MACRO -D_UNICODE -D__WXGTK3__ -D__WXGTK__ -DwxDEBUG_LEVEL=0 -DwxNO_UNSAFE_WXSTRING_CONV -DwxUSE_UNICODE -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/run/build/BambuStudio/src -I/run/build/BambuStudio/build/src/platform -I/run/build/BambuStudio/src/hidapi/include -I/run/build/BambuStudio/src/slic3r/Utils -I/usr/include/gtk-3.0 -I/usr/include/pango-1.0 -I/usr/include/cairo -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/atk-1.0 -I/usr/include/freetype2 -I/usr/include/harfbuzz -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/sysprof-6 -I/usr/include/webp -I/usr/include/libpng16 -I/usr/include/pixman-1 -I/usr/include/at-spi2-atk/2.0 -I/usr/include/at-spi-2.0 -I/usr/include/fribidi -I/usr/include/gio-unix-2.0 -I/usr/include/gstreamer-1.0 -I/run/build/BambuStudio/build/src/libslic3r -I/run/build/BambuStudio/deps/build/destdir/usr/local/include/opencascade -I/run/build/BambuStudio/src/libnest2d/include -I/run/build/BambuStudio/src/miniz -I/run/build/BambuStudio/src/glu-libtess/include -I/run/build/BambuStudio/src/clipper2/Clipper2Lib/include -I/run/build/BambuStudio/src/minilzo -isystem /run/build/BambuStudio/src/eigen -isystem /run/build/BambuStudio/src/libigl -isystem /app/lib/wx/include/gtk3-unicode-static-3.1 -isystem /app/include/wx-3.1 -isystem /run/build/BambuStudio/deps/build/destdir/usr/local/include -isystem /run/build/BambuStudio/deps/build/destdir/usr/local/include/OpenEXR -std=gnu++20 -fext-numeric-literals -Wall -Wno-reorder -pthread -O3 -DNDEBUG -std=gnu++17 -fPIC -fsigned-char -Werror=return-type -Wno-ignored-attributes -Wno-unknown-pragmas -DOPENVDB_ABI_VERSION_NUMBER=8 -MD -MT src/slic3r/CMakeFiles/libslic3r_gui.dir/GUI/WebGuideDialog.cpp.o -MF src/slic3r/CMakeFiles/libslic3r_gui.dir/GUI/WebGuideDialog.cpp.o.d -o src/slic3r/CMakeFiles/libslic3r_gui.dir/GUI/WebGuideDialog.cpp.o -c /run/build/BambuStudio/src/slic3r/GUI/WebGuideDialog.cpp
+/run/build/BambuStudio/src/slic3r/GUI/WebGuideDialog.cpp: In member function ‘bool Slic3r::GUI::GuideFrame::run()’:
+/run/build/BambuStudio/src/slic3r/GUI/WebGuideDialog.cpp:919:36: error: ‘wxDisplay’ has not been declared
+  919 |     int main_frame_display_index = wxDisplay::GetFromWindow(wxGetApp().mainframe);
+      |                                    ^~~~~~~~~
+---
+ src/slic3r/GUI/WebGuideDialog.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/slic3r/GUI/WebGuideDialog.cpp b/src/slic3r/GUI/WebGuideDialog.cpp
+index 4e985fc5f045..8e5326fb999f 100644
+--- a/src/slic3r/GUI/WebGuideDialog.cpp
++++ b/src/slic3r/GUI/WebGuideDialog.cpp
+@@ -13,6 +13,7 @@
+ #include <wx/textdlg.h>
+ 
+ #include <wx/wx.h>
++#include <wx/display.h>
+ #include <wx/fileconf.h>
+ #include <wx/file.h>
+ #include <wx/wfstream.h>
+-- 
+2.44.0
+
+
+From 4304568206401158d1437e1139aa22fc25a45fbd Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Wed, 27 Mar 2024 13:50:25 +0100
+Subject: [PATCH 09/11] slic3r: Fix std::regex declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+FAILED: src/slic3r/CMakeFiles/libslic3r_gui.dir/GUI/CalibrationWizardPresetPage.cpp.o
+/usr/bin/c++ -DBOOST_ATOMIC_NO_LIB -DBOOST_CHRONO_NO_LIB -DBOOST_DATE_TIME_NO_LIB -DBOOST_FILESYSTEM_NO_LIB -DBOOST_IOSTREAMS_NO_LIB -DBOOST_LOCALE_NO_LIB -DBOOST_LOG_NO_LIB -DBOOST_REGEX_NO_LIB -DBOOST_SYSTEM_NO_LIB -DBOOST_THREAD_NO_LIB -DCURL_STATICLIB -DGLEW_STATIC -DLIBNEST2D_GEOMETRIES_libslic3r -DLIBNEST2D_OPTIMIZER_nlopt -DLIBNEST2D_STATIC -DLIBNEST2D_THREADING_tbb -DOPENSSL_CERT_OVERRIDE -DOPENVDB_OPENEXR_STATICLIB -DOPENVDB_STATICLIB -DSLIC3R_CURRENTLY_COMPILING_GUI_MODULE -DSLIC3R_GUI -DTBB_USE_CAPTURED_EXCEPTION=0 -DUNICODE -DUSE_TBB -DWXINTL_NO_GETTEXT_MACRO -D_UNICODE -D__WXGTK3__ -D__WXGTK__ -DwxDEBUG_LEVEL=0 -DwxNO_UNSAFE_WXSTRING_CONV -DwxUSE_UNICODE -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/run/build/BambuStudio/src -I/run/build/BambuStudio/build/src/platform -I/run/build/BambuStudio/src/hidapi/include -I/run/build/BambuStudio/src/slic3r/Utils -I/usr/include/gtk-3.0 -I/usr/include/pango-1.0 -I/usr/include/cairo -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/atk-1.0 -I/usr/include/freetype2 -I/usr/include/harfbuzz -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/sysprof-6 -I/usr/include/webp -I/usr/include/libpng16 -I/usr/include/pixman-1 -I/usr/include/at-spi2-atk/2.0 -I/usr/include/at-spi-2.0 -I/usr/include/fribidi -I/usr/include/gio-unix-2.0 -I/usr/include/gstreamer-1.0 -I/run/build/BambuStudio/build/src/libslic3r -I/run/build/BambuStudio/deps/build/destdir/usr/local/include/opencascade -I/run/build/BambuStudio/src/libnest2d/include -I/run/build/BambuStudio/src/miniz -I/run/build/BambuStudio/src/glu-libtess/include -I/run/build/BambuStudio/src/clipper2/Clipper2Lib/include -I/run/build/BambuStudio/src/minilzo -isystem /run/build/BambuStudio/src/eigen -isystem /run/build/BambuStudio/src/libigl -isystem /app/lib/wx/include/gtk3-unicode-static-3.1 -isystem /app/include/wx-3.1 -isystem /run/build/BambuStudio/deps/build/destdir/usr/local/include -isystem /run/build/BambuStudio/deps/build/destdir/usr/local/include/OpenEXR -std=gnu++20 -fext-numeric-literals -Wall -Wno-reorder -pthread -O3 -DNDEBUG -std=gnu++17 -fPIC -fsigned-char -Werror=return-type -Wno-ignored-attributes -Wno-unknown-pragmas -DOPENVDB_ABI_VERSION_NUMBER=8 -MD -MT src/slic3r/CMakeFiles/libslic3r_gui.dir/GUI/CalibrationWizardPresetPage.cpp.o -MF src/slic3r/CMakeFiles/libslic3r_gui.dir/GUI/CalibrationWizardPresetPage.cpp.o.d -o src/slic3r/CMakeFiles/libslic3r_gui.dir/GUI/CalibrationWizardPresetPage.cpp.o -c /run/build/BambuStudio/src/slic3r/GUI/CalibrationWizardPresetPage.cpp
+/run/build/BambuStudio/src/slic3r/GUI/CalibrationWizardPresetPage.cpp: In lambda function:
+/run/build/BambuStudio/src/slic3r/GUI/CalibrationWizardPresetPage.cpp:321:18: error: ‘regex’ is not a member of ‘std’; did you mean ‘boost::regex’?
+  321 |             std::regex decimalRegex(expression);
+      |                  ^~~~~
+---
+ src/slic3r/GUI/CalibrationWizardPresetPage.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/slic3r/GUI/CalibrationWizardPresetPage.cpp b/src/slic3r/GUI/CalibrationWizardPresetPage.cpp
+index d576d8a4e8d0..16613fd40097 100644
+--- a/src/slic3r/GUI/CalibrationWizardPresetPage.cpp
++++ b/src/slic3r/GUI/CalibrationWizardPresetPage.cpp
+@@ -1,3 +1,4 @@
++#include <regex>
+ #include "CalibrationWizardPresetPage.hpp"
+ #include "I18N.hpp"
+ #include "Widgets/Label.hpp"
+-- 
+2.44.0
+
+
+From 9d665ceac537443565b29622200f5495e1514cc1 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Wed, 27 Mar 2024 14:24:04 +0100
+Subject: [PATCH 10/11] slic3r: Fix missing std::mutex declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+FAILED: src/slic3r/CMakeFiles/libslic3r_gui.dir/Utils/Http.cpp.o
+/usr/bin/c++ -DBOOST_ATOMIC_NO_LIB -DBOOST_CHRONO_NO_LIB -DBOOST_DATE_TIME_NO_LIB -DBOOST_FILESYSTEM_NO_LIB -DBOOST_IOSTREAMS_NO_LIB -DBOOST_LOCALE_NO_LIB -DBOOST_LOG_NO_LIB -DBOOST_REGEX_NO_LIB -DBOOST_SYSTEM_NO_LIB -DBOOST_THREAD_NO_LIB -DCURL_STATICLIB -DGLEW_STATIC -DLIBNEST2D_GEOMETRIES_libslic3r -DLIBNEST2D_OPTIMIZER_nlopt -DLIBNEST2D_STATIC -DLIBNEST2D_THREADING_tbb -DOPENSSL_CERT_OVERRIDE -DOPENVDB_OPENEXR_STATICLIB -DOPENVDB_STATICLIB -DSLIC3R_CURRENTLY_COMPILING_GUI_MODULE -DSLIC3R_GUI -DTBB_USE_CAPTURED_EXCEPTION=0 -DUNICODE -DUSE_TBB -DWXINTL_NO_GETTEXT_MACRO -D_UNICODE -D__WXGTK3__ -D__WXGTK__ -DwxDEBUG_LEVEL=0 -DwxNO_UNSAFE_WXSTRING_CONV -DwxUSE_UNICODE -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/run/build/BambuStudio/src -I/run/build/BambuStudio/build/src/platform -I/run/build/BambuStudio/src/hidapi/include -I/run/build/BambuStudio/src/slic3r/Utils -I/usr/include/gtk-3.0 -I/usr/include/pango-1.0 -I/usr/include/cairo -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/atk-1.0 -I/usr/include/freetype2 -I/usr/include/harfbuzz -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/sysprof-6 -I/usr/include/webp -I/usr/include/libpng16 -I/usr/include/pixman-1 -I/usr/include/at-spi2-atk/2.0 -I/usr/include/at-spi-2.0 -I/usr/include/fribidi -I/usr/include/gio-unix-2.0 -I/usr/include/gstreamer-1.0 -I/run/build/BambuStudio/build/src/libslic3r -I/run/build/BambuStudio/deps/build/destdir/usr/local/include/opencascade -I/run/build/BambuStudio/src/libnest2d/include -I/run/build/BambuStudio/src/miniz -I/run/build/BambuStudio/src/glu-libtess/include -I/run/build/BambuStudio/src/clipper2/Clipper2Lib/include -I/run/build/BambuStudio/src/minilzo -isystem /run/build/BambuStudio/src/eigen -isystem /run/build/BambuStudio/src/libigl -isystem /app/lib/wx/include/gtk3-unicode-static-3.1 -isystem /app/include/wx-3.1 -isystem /run/build/BambuStudio/deps/build/destdir/usr/local/include -isystem /run/build/BambuStudio/deps/build/destdir/usr/local/include/OpenEXR -std=gnu++20 -fext-numeric-literals -Wall -Wno-reorder -pthread -O3 -DNDEBUG -std=gnu++17 -fPIC -fsigned-char -Werror=return-type -Wno-ignored-attributes -Wno-unknown-pragmas -DOPENVDB_ABI_VERSION_NUMBER=8 -MD -MT src/slic3r/CMakeFiles/libslic3r_gui.dir/Utils/Http.cpp.o -MF src/slic3r/CMakeFiles/libslic3r_gui.dir/Utils/Http.cpp.o.d -o src/slic3r/CMakeFiles/libslic3r_gui.dir/Utils/Http.cpp.o -c /run/build/BambuStudio/src/slic3r/Utils/Http.cpp
+/run/build/BambuStudio/src/slic3r/Utils/Http.cpp:87:6: error: ‘mutex’ in namespace ‘std’ does not name a type
+   87 | std::mutex g_mutex;
+      |      ^~~~~
+/run/build/BambuStudio/src/slic3r/Utils/Http.cpp:19:1: note: ‘std::mutex’ is defined in header ‘<mutex>’; did you forget to ‘#include <mutex>’?
+   18 | #include <openssl/x509.h>
+  +++ |+#include <mutex>
+   19 | #endif
+---
+ src/slic3r/Utils/Http.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/slic3r/Utils/Http.cpp b/src/slic3r/Utils/Http.cpp
+index 12ff95400274..0e1428be3159 100644
+--- a/src/slic3r/Utils/Http.cpp
++++ b/src/slic3r/Utils/Http.cpp
+@@ -4,6 +4,7 @@
+ #include <functional>
+ #include <thread>
+ #include <deque>
++#include <mutex>
+ #include <sstream>
+ #include <exception>
+ #include <boost/filesystem/fstream.hpp>
+-- 
+2.44.0
+
+
+From 3d1ab964491bb80a1cb33b856cacbdca907de557 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Wed, 27 Mar 2024 15:15:40 +0100
+Subject: [PATCH 11/11] slic3r: Fix missing boost declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+FAILED: src/slic3r/CMakeFiles/libslic3r_gui.dir/Utils/ColorSpaceConvert.cpp.o
+/usr/bin/c++ -DBOOST_ATOMIC_NO_LIB -DBOOST_CHRONO_NO_LIB -DBOOST_DATE_TIME_NO_LIB -DBOOST_FILESYSTEM_NO_LIB -DBOOST_IOSTREAMS_NO_LIB -DBOOST_LOCALE_NO_LIB -DBOOST_LOG_NO_LIB -DBOOST_REGEX_NO_LIB -DBOOST_SYSTEM_NO_LIB -DBOOST_THREAD_NO_LIB -DCURL_STATICLIB -DGLEW_STATIC -DLIBNEST2D_GEOMETRIES_libslic3r -DLIBNEST2D_OPTIMIZER_nlopt -DLIBNEST2D_STATIC -DLIBNEST2D_THREADING_tbb -DOPENSSL_CERT_OVERRIDE -DOPENVDB_OPENEXR_STATICLIB -DOPENVDB_STATICLIB -DSLIC3R_CURRENTLY_COMPILING_GUI_MODULE -DSLIC3R_GUI -DTBB_USE_CAPTURED_EXCEPTION=0 -DUNICODE -DUSE_TBB -DWXINTL_NO_GETTEXT_MACRO -D_UNICODE -D__WXGTK3__ -D__WXGTK__ -DwxDEBUG_LEVEL=0 -DwxNO_UNSAFE_WXSTRING_CONV -DwxUSE_UNICODE -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/run/build/BambuStudio/src -I/run/build/BambuStudio/build/src/platform -I/run/build/BambuStudio/src/hidapi/include -I/run/build/BambuStudio/src/slic3r/Utils -I/usr/include/gtk-3.0 -I/usr/include/pango-1.0 -I/usr/include/cairo -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/atk-1.0 -I/usr/include/freetype2 -I/usr/include/harfbuzz -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/sysprof-6 -I/usr/include/webp -I/usr/include/libpng16 -I/usr/include/pixman-1 -I/usr/include/at-spi2-atk/2.0 -I/usr/include/at-spi-2.0 -I/usr/include/fribidi -I/usr/include/gio-unix-2.0 -I/usr/include/gstreamer-1.0 -I/run/build/BambuStudio/build/src/libslic3r -I/run/build/BambuStudio/deps/build/destdir/usr/local/include/opencascade -I/run/build/BambuStudio/src/libnest2d/include -I/run/build/BambuStudio/src/miniz -I/run/build/BambuStudio/src/glu-libtess/include -I/run/build/BambuStudio/src/clipper2/Clipper2Lib/include -I/run/build/BambuStudio/src/minilzo -isystem /run/build/BambuStudio/src/eigen -isystem /run/build/BambuStudio/src/libigl -isystem /app/lib/wx/include/gtk3-unicode-static-3.1 -isystem /app/include/wx-3.1 -isystem /run/build/BambuStudio/deps/build/destdir/usr/local/include -isystem /run/build/BambuStudio/deps/build/destdir/usr/local/include/OpenEXR -std=gnu++20 -fext-numeric-literals -Wall -Wno-reorder -pthread -O3 -DNDEBUG -std=gnu++17 -fPIC -fsigned-char -Werror=return-type -Wno-ignored-attributes -Wno-unknown-pragmas -DOPENVDB_ABI_VERSION_NUMBER=8 -MD -MT src/slic3r/CMakeFiles/libslic3r_gui.dir/Utils/ColorSpaceConvert.cpp.o -MF src/slic3r/CMakeFiles/libslic3r_gui.dir/Utils/ColorSpaceConvert.cpp.o.d -o src/slic3r/CMakeFiles/libslic3r_gui.dir/Utils/ColorSpaceConvert.cpp.o -c /run/build/BambuStudio/src/slic3r/Utils/ColorSpaceConvert.cpp
+/run/build/BambuStudio/src/slic3r/Utils/ColorSpaceConvert.cpp: In function ‘wxColour string_to_wxColor(const std::string&)’:
+/run/build/BambuStudio/src/slic3r/Utils/ColorSpaceConvert.cpp:246:5: error: ‘boost’ has not been declared
+  246 |     boost::split(result, str, boost::is_any_of(","));
+      |     ^~~~~
+---
+ src/slic3r/Utils/ColorSpaceConvert.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/slic3r/Utils/ColorSpaceConvert.cpp b/src/slic3r/Utils/ColorSpaceConvert.cpp
+index b97b5ae203fd..d971cd33c425 100644
+--- a/src/slic3r/Utils/ColorSpaceConvert.cpp
++++ b/src/slic3r/Utils/ColorSpaceConvert.cpp
+@@ -1,6 +1,7 @@
+ #include "ColorSpaceConvert.hpp"
+ 
+ #include <algorithm>
++#include <boost/algorithm/string.hpp>
+ #include <wx/colordlg.h>
+ const static float param_13 = 1.0f / 3.0f;
+ const static float param_16116 = 16.0f / 116.0f;
+-- 
+2.44.0
+
