@@ -40,7 +40,7 @@ def collection_win_id_from_wm_class_name(win_class_name):
 
     # Loop though all of the windows
     # and collect id's those that match
-    # win_class: prusa-slicer
+    # win_class: bambu-studio
     for win_id in root.get_full_property(NET_CLIENT_LIST, Xlib.X.AnyPropertyType).value:
         try:
             win = disp.create_resource_object('window', win_id)
@@ -57,13 +57,13 @@ def collection_win_id_from_wm_class_name(win_class_name):
 
 if __name__ == '__main__':
 
-    if os.environ.get('PRUSA_SLICER_DARK_THEME', 'false') != 'true':
+    if os.environ.get('BAMBU_STUDIO_DARK_THEME', 'false') != 'true':
         sys.exit(0)
 
     # Listen for X Property Change events.
     root.change_attributes(event_mask=Xlib.X.PropertyChangeMask)
     # the class name of the slicer window
-    win_class_name = 'prusa-slicer'
+    win_class_name = 'bambu-studio'
     # the variant to set
     variant = 'dark'
 
