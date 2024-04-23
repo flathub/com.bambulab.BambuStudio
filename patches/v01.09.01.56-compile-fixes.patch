@@ -1,0 +1,92 @@
+From a79a2b6f00bba8f98bfa76c4d943c512b4b32ad2 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Wed, 24 Apr 2024 17:40:09 +0200
+Subject: [PATCH 1/2] slic3r: Fix wxFont being undefined
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+[427/494] Building CXX object src/slic3r/CMakeFiles/libslic3r_gui.dir/Utils/FontUtils.cpp.o
+FAILED: src/slic3r/CMakeFiles/libslic3r_gui.dir/Utils/FontUtils.cpp.o
+/usr/bin/c++ -DBOOST_ATOMIC_NO_LIB -DBOOST_CHRONO_NO_LIB -DBOOST_DATE_TIME_NO_LIB -DBOOST_FILESYSTEM_NO_LIB -DBOOST_IOSTREAMS_NO_LIB -DBOOST_LOCALE_NO_LIB -DBOOST_LOG_NO_LIB -DBOOST_REGEX_NO_LIB -DBOOST_SYSTEM_NO_LIB -DBOOST_THREAD_NO_LIB -DCURL_STATICLIB -DGLEW_STATIC -DLIBNEST2D_GEOMETRIES_libslic3r -DLIBNEST2D_OPTIMIZER_nlopt -DLIBNEST2D_STATIC -DLIBNEST2D_THREADING_tbb -DOPENSSL_CERT_OVERRIDE -DOPENVDB_OPENEXR_STATICLIB -DOPENVDB_STATICLIB -DSLIC3R_CURRENTLY_COMPILING_GUI_MODULE -DSLIC3R_GUI -DTBB_USE_CAPTURED_EXCEPTION=0 -DUNICODE -DUSE_TBB -DWXINTL_NO_GETTEXT_MACRO -D_UNICODE -D__WXGTK3__ -D__WXGTK__ -DwxDEBUG_LEVEL=0 -DwxNO_UNSAFE_WXSTRING_CONV -DwxUSE_UNICODE -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/run/build/BambuStudio/src -I/run/build/BambuStudio/build/src/platform -I/run/build/BambuStudio/src/hidapi/include -I/run/build/BambuStudio/src/slic3r/Utils -I/usr/include/gtk-3.0 -I/usr/include/pango-1.0 -I/usr/include/cairo -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/webp -I/usr/include/at-spi2-atk/2.0 -I/usr/include/at-spi-2.0 -I/usr/include/atk-1.0 -I/usr/include/fribidi -I/usr/include/pixman-1 -I/usr/include/harfbuzz -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/gio-unix-2.0 -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/sysprof-6 -I/usr/include/gstreamer-1.0 -I/run/build/BambuStudio/build/src/libslic3r -I/run/build/BambuStudio/deps/build/destdir/usr/local/include/opencascade -I/run/build/BambuStudio/src/libnest2d/include -I/run/build/BambuStudio/src/miniz -I/run/build/BambuStudio/src/glu-libtess/include -I/run/build/BambuStudio/src/clipper2/Clipper2Lib/include -I/run/build/BambuStudio/src/minilzo -isystem /run/build/BambuStudio/src/eigen -isystem /run/build/BambuStudio/src/libigl -isystem /app/lib/wx/include/gtk3-unicode-static-3.1 -isystem /app/include/wx-3.1 -isystem /run/build/BambuStudio/deps/build/destdir/usr/local/include -isystem /run/build/BambuStudio/deps/build/destdir/usr/local/include/opencv4 -isystem /run/build/BambuStudio/deps/build/destdir/usr/local/include/OpenEXR -std=gnu++20 -fext-numeric-literals -Wall -Wno-reorder -pthread -O3 -DNDEBUG -std=gnu++17 -fPIC -fsigned-char -Werror=return-type -Wno-ignored-attributes -Wno-unknown-pragmas -DOPENVDB_ABI_VERSION_NUMBER=8 -MD -MT src/slic3r/CMakeFiles/libslic3r_gui.dir/Utils/FontUtils.cpp.o -MF src/slic3r/CMakeFiles/libslic3r_gui.dir/Utils/FontUtils.cpp.o.d -o src/slic3r/CMakeFiles/libslic3r_gui.dir/Utils/FontUtils.cpp.o -c /run/build/BambuStudio/src/slic3r/Utils/FontUtils.cpp
+In file included from /run/build/BambuStudio/src/slic3r/Utils/FontUtils.cpp:1:
+/run/build/BambuStudio/src/slic3r/Utils/FontUtils.hpp:51:21: error: ‘wxFont’ does not name a type
+   51 | bool can_load(const wxFont &font);
+      |                     ^~~~~~
+---
+ src/slic3r/Utils/FontUtils.hpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/slic3r/Utils/FontUtils.hpp b/src/slic3r/Utils/FontUtils.hpp
+index 27837cd50482..089d1565dd12 100644
+--- a/src/slic3r/Utils/FontUtils.hpp
++++ b/src/slic3r/Utils/FontUtils.hpp
+@@ -3,6 +3,7 @@
+ #include <memory>
+ #include <vector>
+ #include <assert.h>
++#include <wx/font.h>
+ 
+ namespace Slic3r {
+ 
+-- 
+2.44.0
+
+
+From 5872f115efa2e752fb0337fd237a20565c3f5baf Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Wed, 24 Apr 2024 17:41:14 +0200
+Subject: [PATCH 2/2] slic3r: Fix missing BOOST_LOG_TRIVIAL declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+[427/494] Building CXX object src/slic3r/CMakeFiles/libslic3r_gui.dir/Utils/FontUtils.cpp.o
+FAILED: src/slic3r/CMakeFiles/libslic3r_gui.dir/Utils/FontUtils.cpp.o
+/usr/bin/c++ -DBOOST_ATOMIC_NO_LIB -DBOOST_CHRONO_NO_LIB -DBOOST_DATE_TIME_NO_LIB -DBOOST_FILESYSTEM_NO_LIB -DBOOST_IOSTREAMS_NO_LIB -DBOOST_LOCALE_NO_LIB -DBOOST_LOG_NO_LIB -DBOOST_REGEX_NO_LIB -DBOOST_SYSTEM_NO_LIB -DBOOST_THREAD_NO_LIB -DCURL_STATICLIB -DGLEW_STATIC -DLIBNEST2D_GEOMETRIES_libslic3r -DLIBNEST2D_OPTIMIZER_nlopt -DLIBNEST2D_STATIC -DLIBNEST2D_THREADING_tbb -DOPENSSL_CERT_OVERRIDE -DOPENVDB_OPENEXR_STATICLIB -DOPENVDB_STATICLIB -DSLIC3R_CURRENTLY_COMPILING_GUI_MODULE -DSLIC3R_GUI -DTBB_USE_CAPTURED_EXCEPTION=0 -DUNICODE -DUSE_TBB -DWXINTL_NO_GETTEXT_MACRO -D_UNICODE -D__WXGTK3__ -D__WXGTK__ -DwxDEBUG_LEVEL=0 -DwxNO_UNSAFE_WXSTRING_CONV -DwxUSE_UNICODE -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/run/build/BambuStudio/src -I/run/build/BambuStudio/build/src/platform -I/run/build/BambuStudio/src/hidapi/include -I/run/build/BambuStudio/src/slic3r/Utils -I/usr/include/gtk-3.0 -I/usr/include/pango-1.0 -I/usr/include/cairo -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/webp -I/usr/include/at-spi2-atk/2.0 -I/usr/include/at-spi-2.0 -I/usr/include/atk-1.0 -I/usr/include/fribidi -I/usr/include/pixman-1 -I/usr/include/harfbuzz -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/gio-unix-2.0 -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/sysprof-6 -I/usr/include/gstreamer-1.0 -I/run/build/BambuStudio/build/src/libslic3r -I/run/build/BambuStudio/deps/build/destdir/usr/local/include/opencascade -I/run/build/BambuStudio/src/libnest2d/include -I/run/build/BambuStudio/src/miniz -I/run/build/BambuStudio/src/glu-libtess/include -I/run/build/BambuStudio/src/clipper2/Clipper2Lib/include -I/run/build/BambuStudio/src/minilzo -isystem /run/build/BambuStudio/src/eigen -isystem /run/build/BambuStudio/src/libigl -isystem /app/lib/wx/include/gtk3-unicode-static-3.1 -isystem /app/include/wx-3.1 -isystem /run/build/BambuStudio/deps/build/destdir/usr/local/include -isystem /run/build/BambuStudio/deps/build/destdir/usr/local/include/opencv4 -isystem /run/build/BambuStudio/deps/build/destdir/usr/local/include/OpenEXR -std=gnu++20 -fext-numeric-literals -Wall -Wno-reorder -pthread -O3 -DNDEBUG -std=gnu++17 -fPIC -fsigned-char -Werror=return-type -Wno-ignored-attributes -Wno-unknown-pragmas -DOPENVDB_ABI_VERSION_NUMBER=8 -MD -MT src/slic3r/CMakeFiles/libslic3r_gui.dir/Utils/FontUtils.cpp.o -MF src/slic3r/CMakeFiles/libslic3r_gui.dir/Utils/FontUtils.cpp.o.d -o src/slic3r/CMakeFiles/libslic3r_gui.dir/Utils/FontUtils.cpp.o -c /run/build/BambuStudio/src/slic3r/Utils/FontUtils.cpp
+/run/build/BambuStudio/src/slic3r/Utils/FontUtils.cpp: In function ‘std::unique_ptr<Slic3r::FontFile> Slic3r::create_font_file(const char*)’:
+/run/build/BambuStudio/src/slic3r/Utils/FontUtils.cpp:127:27: error: ‘error’ was not declared in this scope; did you mean ‘perror’?
+  127 |         BOOST_LOG_TRIVIAL(error) << "Couldn't open " << file_path << " for reading.";
+      |                           ^~~~~
+      |                           perror
+
+[447/494] Building CXX object src/slic3r/CMakeFiles/libslic3r_gui.dir/GUI/TaskManager.cpp.o
+FAILED: src/slic3r/CMakeFiles/libslic3r_gui.dir/GUI/TaskManager.cpp.o
+/usr/bin/c++ -DBOOST_ATOMIC_NO_LIB -DBOOST_CHRONO_NO_LIB -DBOOST_DATE_TIME_NO_LIB -DBOOST_FILESYSTEM_NO_LIB -DBOOST_IOSTREAMS_NO_LIB -DBOOST_LOCALE_NO_LIB -DBOOST_LOG_NO_LIB -DBOOST_REGEX_NO_LIB -DBOOST_SYSTEM_NO_LIB -DBOOST_THREAD_NO_LIB -DCURL_STATICLIB -DGLEW_STATIC -DLIBNEST2D_GEOMETRIES_libslic3r -DLIBNEST2D_OPTIMIZER_nlopt -DLIBNEST2D_STATIC -DLIBNEST2D_THREADING_tbb -DOPENSSL_CERT_OVERRIDE -DOPENVDB_OPENEXR_STATICLIB -DOPENVDB_STATICLIB -DSLIC3R_CURRENTLY_COMPILING_GUI_MODULE -DSLIC3R_GUI -DTBB_USE_CAPTURED_EXCEPTION=0 -DUNICODE -DUSE_TBB -DWXINTL_NO_GETTEXT_MACRO -D_UNICODE -D__WXGTK3__ -D__WXGTK__ -DwxDEBUG_LEVEL=0 -DwxNO_UNSAFE_WXSTRING_CONV -DwxUSE_UNICODE -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/run/build/BambuStudio/src -I/run/build/BambuStudio/build/src/platform -I/run/build/BambuStudio/src/hidapi/include -I/run/build/BambuStudio/src/slic3r/Utils -I/usr/include/gtk-3.0 -I/usr/include/pango-1.0 -I/usr/include/cairo -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/webp -I/usr/include/at-spi2-atk/2.0 -I/usr/include/at-spi-2.0 -I/usr/include/atk-1.0 -I/usr/include/fribidi -I/usr/include/pixman-1 -I/usr/include/harfbuzz -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/gio-unix-2.0 -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/sysprof-6 -I/usr/include/gstreamer-1.0 -I/run/build/BambuStudio/build/src/libslic3r -I/run/build/BambuStudio/deps/build/destdir/usr/local/include/opencascade -I/run/build/BambuStudio/src/libnest2d/include -I/run/build/BambuStudio/src/miniz -I/run/build/BambuStudio/src/glu-libtess/include -I/run/build/BambuStudio/src/clipper2/Clipper2Lib/include -I/run/build/BambuStudio/src/minilzo -isystem /run/build/BambuStudio/src/eigen -isystem /run/build/BambuStudio/src/libigl -isystem /app/lib/wx/include/gtk3-unicode-static-3.1 -isystem /app/include/wx-3.1 -isystem /run/build/BambuStudio/deps/build/destdir/usr/local/include -isystem /run/build/BambuStudio/deps/build/destdir/usr/local/include/opencv4 -isystem /run/build/BambuStudio/deps/build/destdir/usr/local/include/OpenEXR -std=gnu++20 -fext-numeric-literals -Wall -Wno-reorder -pthread -O3 -DNDEBUG -std=gnu++17 -fPIC -fsigned-char -Werror=return-type -Wno-ignored-attributes -Wno-unknown-pragmas -DOPENVDB_ABI_VERSION_NUMBER=8 -MD -MT src/slic3r/CMakeFiles/libslic3r_gui.dir/GUI/TaskManager.cpp.o -MF src/slic3r/CMakeFiles/libslic3r_gui.dir/GUI/TaskManager.cpp.o.d -o src/slic3r/CMakeFiles/libslic3r_gui.dir/GUI/TaskManager.cpp.o -c /run/build/BambuStudio/src/slic3r/GUI/TaskManager.cpp
+In file included from /run/build/BambuStudio/src/slic3r/GUI/TaskManager.cpp:1:
+/run/build/BambuStudio/src/slic3r/GUI/TaskManager.hpp: In member function ‘void Slic3r::TaskStateInfo::set_state(Slic3r::TaskState)’:
+/run/build/BambuStudio/src/slic3r/GUI/TaskManager.hpp:40:9: error: ‘BOOST_LOG_TRIVIAL’ was not declared in this scope
+   40 |         BOOST_LOG_TRIVIAL(trace) << "TaskStateInfo set state = " << get_task_state_enum_str(ts);
+      |         ^~~~~~~~~~~~~~~~~
+---
+ src/slic3r/GUI/TaskManager.hpp | 1 +
+ src/slic3r/Utils/FontUtils.cpp | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/src/slic3r/GUI/TaskManager.hpp b/src/slic3r/GUI/TaskManager.hpp
+index e4aa8627e9f4..472ab8c88d17 100644
+--- a/src/slic3r/GUI/TaskManager.hpp
++++ b/src/slic3r/GUI/TaskManager.hpp
+@@ -3,6 +3,7 @@
+ 
+ #include "DeviceManager.hpp"
+ #include <boost/date_time/posix_time/posix_time.hpp>
++#include <boost/log/trivial.hpp>
+ 
+ namespace Slic3r { 
+ 
+diff --git a/src/slic3r/Utils/FontUtils.cpp b/src/slic3r/Utils/FontUtils.cpp
+index 0b8823044e1b..15b274491551 100644
+--- a/src/slic3r/Utils/FontUtils.cpp
++++ b/src/slic3r/Utils/FontUtils.cpp
+@@ -1,6 +1,7 @@
+ #include "FontUtils.hpp"
+ #include "imgui/imstb_truetype.h"
+ #include "libslic3r/Utils.hpp"
++#include <boost/log/trivial.hpp>
+ 
+ #if defined(__APPLE__)
+ #include <CoreText/CTFont.h>
+-- 
+2.44.0
+

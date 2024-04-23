@@ -303,7 +303,7 @@ modules:
       # BambuStudio Source Archive
       - type: git
         url: https://github.com/bambulab/BambuStudio.git
-        tag: v01.09.00.70
+        tag: v01.09.01.56
 
       # Patched TBB cmake to make build without lto flag
       - type: file
@@ -324,6 +324,10 @@ modules:
       # https://github.com/hadess/BambuStudio/tree/wip/hadess/use-sysdeps
       - type: patch
         path: patches/use-sysdeps.patch
+
+      # https://github.com/bambulab/BambuStudio/pull/3949
+      - type: patch
+        path: patches/v01.09.01.56-compile-fixes.patch
 
       # AppData metainfo for Gnome Software & Co.
       - type: file

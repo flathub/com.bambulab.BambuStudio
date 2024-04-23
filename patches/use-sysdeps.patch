@@ -1,4 +1,4 @@
-From 03272cad93def779633980c75b1d5a956b07f2e7 Mon Sep 17 00:00:00 2001
+From d8bf65a747b720dc9cb7461a7704ff8a5437be76 Mon Sep 17 00:00:00 2001
 From: Bastien Nocera <hadess@hadess.net>
 Date: Tue, 19 Dec 2023 13:44:00 +0100
 Subject: [PATCH 1/8] deps: Use libpng from system
@@ -14,7 +14,7 @@ collect2: error: ld returned 1 exit status
  1 file changed, 6 deletions(-)
 
 diff --git a/deps/CMakeLists.txt b/deps/CMakeLists.txt
-index 4d762a524a84..e143b999d6dc 100644
+index 0b44d5c1073b..33573337d670 100644
 --- a/deps/CMakeLists.txt
 +++ b/deps/CMakeLists.txt
 @@ -147,11 +147,6 @@ if (NOT ZLIB_FOUND)
@@ -29,7 +29,7 @@ index 4d762a524a84..e143b999d6dc 100644
  set(EXPAT_PKG "")
  if (NOT EXPAT_FOUND) 
      include(EXPAT/EXPAT.cmake)
-@@ -206,7 +201,6 @@ set(_dep_list
+@@ -208,7 +203,6 @@ set(_dep_list
      dep_CGAL
      dep_OpenSSL
      dep_GLFW
@@ -38,10 +38,10 @@ index 4d762a524a84..e143b999d6dc 100644
      ${EXPAT_PKG}
      )
 -- 
-2.43.0
+2.44.0
 
 
-From e12a1d2483d2bf7c39de52285872898dafcb185f Mon Sep 17 00:00:00 2001
+From f28fe8d3c8fb80781276a576cc5ba3cc7183ac36 Mon Sep 17 00:00:00 2001
 From: Bastien Nocera <hadess@hadess.net>
 Date: Mon, 1 Jan 2024 21:38:41 +0100
 Subject: [PATCH 2/8] deps: Use libjpeg from system
@@ -53,7 +53,7 @@ Subject: [PATCH 2/8] deps: Use libjpeg from system
  3 files changed, 2 insertions(+), 3 deletions(-)
 
 diff --git a/deps/CMakeLists.txt b/deps/CMakeLists.txt
-index e143b999d6dc..3f4596083648 100644
+index 33573337d670..2b96a0ae7ad4 100644
 --- a/deps/CMakeLists.txt
 +++ b/deps/CMakeLists.txt
 @@ -183,7 +183,6 @@ if (NOT CURL_FOUND)
@@ -78,7 +78,7 @@ index f820b6a75536..bcaba2734824 100644
          -Dlzma:BOOL=OFF
          -Dwebp:BOOL=OFF
 diff --git a/deps/wxWidgets/wxWidgets.cmake b/deps/wxWidgets/wxWidgets.cmake
-index 227abe18539f..c1a4b6cd276b 100644
+index 5aebbceea320..b26054156641 100644
 --- a/deps/wxWidgets/wxWidgets.cmake
 +++ b/deps/wxWidgets/wxWidgets.cmake
 @@ -28,7 +28,7 @@ bambustudio_add_cmake_project(wxWidgets
@@ -91,10 +91,10 @@ index 227abe18539f..c1a4b6cd276b 100644
          -DwxBUILD_PRECOMP=ON
          ${_wx_toolkit}
 -- 
-2.43.0
+2.44.0
 
 
-From 30b2a15253ccaedf7c13bf2dcda5c77e574ea97c Mon Sep 17 00:00:00 2001
+From 81998dcfcb28634ce3811c3bf335d9fc65743637 Mon Sep 17 00:00:00 2001
 From: Bastien Nocera <hadess@hadess.net>
 Date: Mon, 1 Jan 2024 22:40:44 +0100
 Subject: [PATCH 3/8] deps: Use libtiff from system
@@ -105,7 +105,7 @@ Subject: [PATCH 3/8] deps: Use libtiff from system
  2 files changed, 1 insertion(+), 2 deletions(-)
 
 diff --git a/deps/CMakeLists.txt b/deps/CMakeLists.txt
-index 3f4596083648..384869f3eee8 100644
+index 2b96a0ae7ad4..5e95cd43bdf5 100644
 --- a/deps/CMakeLists.txt
 +++ b/deps/CMakeLists.txt
 @@ -183,7 +183,6 @@ if (NOT CURL_FOUND)
@@ -115,9 +115,9 @@ index 3f4596083648..384869f3eee8 100644
 -include(TIFF/TIFF.cmake)
  include(wxWidgets/wxWidgets.cmake)
  include(OCCT/OCCT.cmake)
- include(FREETYPE/FREETYPE.cmake)
+ include(OpenCV/OpenCV.cmake)
 diff --git a/deps/wxWidgets/wxWidgets.cmake b/deps/wxWidgets/wxWidgets.cmake
-index c1a4b6cd276b..ee742bd5c275 100644
+index b26054156641..55aa35f4d588 100644
 --- a/deps/wxWidgets/wxWidgets.cmake
 +++ b/deps/wxWidgets/wxWidgets.cmake
 @@ -28,7 +28,7 @@ bambustudio_add_cmake_project(wxWidgets
@@ -130,10 +130,10 @@ index c1a4b6cd276b..ee742bd5c275 100644
          -DwxBUILD_PRECOMP=ON
          ${_wx_toolkit}
 -- 
-2.43.0
+2.44.0
 
 
-From 7efb99acec3878e0732f758bd4eb49dc3947ccee Mon Sep 17 00:00:00 2001
+From f00088d397e4900904dde62bf5de44a4e0a1ec59 Mon Sep 17 00:00:00 2001
 From: Bastien Nocera <hadess@hadess.net>
 Date: Mon, 1 Jan 2024 22:56:51 +0100
 Subject: [PATCH 4/8] deps: Use Boost from system
@@ -158,7 +158,7 @@ index 987f8260eeae..0116ab04828a 100644
  
  include(GNUInstallDirs)
 diff --git a/deps/CMakeLists.txt b/deps/CMakeLists.txt
-index 384869f3eee8..fdb8fec55ff4 100644
+index 5e95cd43bdf5..1fb09ec2b9de 100644
 --- a/deps/CMakeLists.txt
 +++ b/deps/CMakeLists.txt
 @@ -154,7 +154,6 @@ if (NOT EXPAT_FOUND)
@@ -169,7 +169,7 @@ index 384869f3eee8..fdb8fec55ff4 100644
  
  # The order of includes respects the dependencies between libraries
  include(Cereal/Cereal.cmake)
-@@ -188,7 +187,6 @@ include(OCCT/OCCT.cmake)
+@@ -189,7 +188,6 @@ include(OpenCV/OpenCV.cmake)
  include(FREETYPE/FREETYPE.cmake)
  
  set(_dep_list
@@ -191,10 +191,10 @@ index e22568cfd7e0..dec244901c1f 100644
          -DCMAKE_POSITION_INDEPENDENT_CODE=ON 
          -DOPENVDB_BUILD_PYTHON_MODULE=OFF
 -- 
-2.43.0
+2.44.0
 
 
-From 326e4a5785dd68e7d517f23a42586b6ffb7bd1f8 Mon Sep 17 00:00:00 2001
+From 6483da813551ba4330097dcc3c336d1b835470ac Mon Sep 17 00:00:00 2001
 From: Bastien Nocera <hadess@hadess.net>
 Date: Tue, 2 Jan 2024 00:04:00 +0100
 Subject: [PATCH 5/8] deps: Use freetype from system
@@ -205,18 +205,18 @@ Subject: [PATCH 5/8] deps: Use freetype from system
  2 files changed, 5 deletions(-)
 
 diff --git a/deps/CMakeLists.txt b/deps/CMakeLists.txt
-index fdb8fec55ff4..fe474bc4799a 100644
+index 1fb09ec2b9de..616dd706f3bf 100644
 --- a/deps/CMakeLists.txt
 +++ b/deps/CMakeLists.txt
-@@ -184,7 +184,6 @@ endif ()
- 
+@@ -185,7 +185,6 @@ endif ()
  include(wxWidgets/wxWidgets.cmake)
  include(OCCT/OCCT.cmake)
+ include(OpenCV/OpenCV.cmake)
 -include(FREETYPE/FREETYPE.cmake)
  
  set(_dep_list
      dep_TBB
-@@ -211,7 +210,6 @@ else()
+@@ -213,7 +212,6 @@ else()
  endif()
  
  list(APPEND _dep_list "dep_OCCT")
@@ -243,10 +243,10 @@ index 2943a3cbbd2e..c8c5a193a7de 100644
 -
 -add_dependencies(dep_OCCT dep_FREETYPE)
 -- 
-2.43.0
+2.44.0
 
 
-From 075b2775e7698f450154647d725b577ab3ec9618 Mon Sep 17 00:00:00 2001
+From 8cf56eb83f5bd5cbb9e7924aed6676f978dd1d78 Mon Sep 17 00:00:00 2001
 From: Bastien Nocera <hadess@hadess.net>
 Date: Tue, 2 Jan 2024 00:04:22 +0100
 Subject: [PATCH 6/8] deps: Use wxWidgets from system
@@ -256,15 +256,16 @@ Subject: [PATCH 6/8] deps: Use wxWidgets from system
  1 file changed, 2 deletions(-)
 
 diff --git a/deps/CMakeLists.txt b/deps/CMakeLists.txt
-index fe474bc4799a..4c5914ee4bb9 100644
+index 616dd706f3bf..9667a16d987a 100644
 --- a/deps/CMakeLists.txt
 +++ b/deps/CMakeLists.txt
-@@ -182,13 +182,11 @@ if (NOT CURL_FOUND)
+@@ -182,14 +182,12 @@ if (NOT CURL_FOUND)
      set(CURL_PKG dep_CURL)
  endif ()
  
 -include(wxWidgets/wxWidgets.cmake)
  include(OCCT/OCCT.cmake)
+ include(OpenCV/OpenCV.cmake)
  
  set(_dep_list
      dep_TBB
@@ -274,10 +275,10 @@ index fe474bc4799a..4c5914ee4bb9 100644
      dep_NLopt
      dep_OpenVDB
 -- 
-2.43.0
+2.44.0
 
 
-From c7e3581d8b12e9099cc96ef73da3986da3d30139 Mon Sep 17 00:00:00 2001
+From 7fa87e522a147fcbee437d431bcd757b0ead574d Mon Sep 17 00:00:00 2001
 From: Bastien Nocera <hadess@hadess.net>
 Date: Tue, 2 Jan 2024 13:24:55 +0100
 Subject: [PATCH 7/8] deps: Use openssl from system
@@ -290,7 +291,7 @@ available.
  2 files changed, 7 deletions(-)
 
 diff --git a/deps/CMakeLists.txt b/deps/CMakeLists.txt
-index 4c5914ee4bb9..dfb573c9633c 100644
+index 9667a16d987a..4451dcfb80bd 100644
 --- a/deps/CMakeLists.txt
 +++ b/deps/CMakeLists.txt
 @@ -174,8 +174,6 @@ include(CGAL/CGAL.cmake)
@@ -302,9 +303,9 @@ index 4c5914ee4bb9..dfb573c9633c 100644
  set(CURL_PKG "")
  if (NOT CURL_FOUND)
      include(CURL/CURL.cmake)
-@@ -192,7 +190,6 @@ set(_dep_list
-     dep_OpenVDB
+@@ -194,7 +192,6 @@ set(_dep_list
      dep_OpenCSG
+     dep_OpenCV
      dep_CGAL
 -    dep_OpenSSL
      dep_GLFW
@@ -326,10 +327,10 @@ index 27776a365a96..f4668d57dbf3 100644
      add_debug_dep(dep_CURL)
  endif ()
 -- 
-2.43.0
+2.44.0
 
 
-From 407b3763b8bda87fba9abcd4325af22979274df0 Mon Sep 17 00:00:00 2001
+From a07bd197da8cff1889dfd4a2281fa3a6062edf51 Mon Sep 17 00:00:00 2001
 From: Bastien Nocera <hadess@hadess.net>
 Date: Tue, 2 Jan 2024 14:45:20 +0100
 Subject: [PATCH 8/8] deps: Use GLFW from system
@@ -339,7 +340,7 @@ Subject: [PATCH 8/8] deps: Use GLFW from system
  1 file changed, 2 deletions(-)
 
 diff --git a/deps/CMakeLists.txt b/deps/CMakeLists.txt
-index dfb573c9633c..d42fbce8db93 100644
+index 4451dcfb80bd..573bcb04c3e9 100644
 --- a/deps/CMakeLists.txt
 +++ b/deps/CMakeLists.txt
 @@ -159,7 +159,6 @@ set(DEP_Boost_COMPONENTS system iostreams filesystem thread log locale regex dat
@@ -350,14 +351,14 @@ index dfb573c9633c..d42fbce8db93 100644
  include(OpenCSG/OpenCSG.cmake)
  
  include(TBB/TBB.cmake)
-@@ -190,7 +189,6 @@ set(_dep_list
-     dep_OpenVDB
+@@ -192,7 +191,6 @@ set(_dep_list
      dep_OpenCSG
+     dep_OpenCV
      dep_CGAL
 -    dep_GLFW
      ${ZLIB_PKG}
      ${EXPAT_PKG}
      )
 -- 
-2.43.0
+2.44.0
 
