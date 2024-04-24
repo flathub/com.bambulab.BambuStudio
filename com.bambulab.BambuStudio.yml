@@ -181,7 +181,7 @@ modules:
         cmake ../ \
           -DDEP_WX_GTK3=1 \
           -DDEP_DOWNLOAD_DIR=/run/build/BambuStudio/external-packages
-        cmake --build . --target dep_TBB dep_Cereal dep_NLopt dep_OpenVDB dep_Qhull dep_OpenCSG dep_CGAL dep_OCCT
+        cmake --build . --target dep_TBB dep_Cereal dep_NLopt dep_OpenVDB dep_Qhull dep_OpenCSG dep_OpenCV dep_CGAL dep_OCCT
       - |
         mkdir -p build && cd build
         CXXFLAGS=-std=gnu++20 cmake ../ \
@@ -262,6 +262,12 @@ modules:
         url: https://github.com/Open-Cascade-SAS/OCCT/archive/refs/tags/V7_6_0.zip
         dest: external-packages/OCCT
         sha256: 28334f0e98f1b1629799783e9b4d21e05349d89e695809d7e6dfa45ea43e1dbc
+
+      # OpenCV
+      - type: file
+        url: https://github.com/opencv/opencv/archive/refs/tags/4.6.0.tar.gz
+        dest: external-packages/OpenCV
+        sha256: 1ec1cba65f9f20fe5a41fda1586e01c70ea0c9a6d7b67c9e13edf0cfe2239277
 
       # OpenCSG
       - type: file
