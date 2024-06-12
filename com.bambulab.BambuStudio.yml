@@ -118,6 +118,9 @@ modules:
       - -DCMAKE_BUILD_TYPE=RelWithDebInfo
       - -DBUILD_SHARED_LIBS:BOOL=ON
       - -DGLFW_USE_WAYLAND=OFF
+      - -DGLFW_BUILD_DOCS=OFF
+      - -DGLFW_BUILD_TESTS=OFF
+      - -DGLFW_BUILD_EXAMPLES=OFF
     sources:
       - type: git
         url: https://github.com/glfw/glfw.git
@@ -303,7 +306,7 @@ modules:
       # BambuStudio Source Archive
       - type: git
         url: https://github.com/bambulab/BambuStudio.git
-        tag: v01.09.01.66
+        tag: v01.09.02.57
 
       # Patched TBB cmake to make build without lto flag
       - type: file
@@ -324,10 +327,6 @@ modules:
       # https://github.com/hadess/BambuStudio/tree/wip/hadess/use-sysdeps
       - type: patch
         path: patches/use-sysdeps.patch
-
-      # https://github.com/bambulab/BambuStudio/pull/4051
-      - type: patch
-        path: patches/v01.09.01.66-build-fixes.patch
 
       # AppData metainfo for Gnome Software & Co.
       - type: file

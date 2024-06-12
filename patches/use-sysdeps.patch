@@ -1,7 +1,7 @@
-From d8bf65a747b720dc9cb7461a7704ff8a5437be76 Mon Sep 17 00:00:00 2001
+From 4052021cf96b50835cfb2ee6fa4a8146491f71cd Mon Sep 17 00:00:00 2001
 From: Bastien Nocera <hadess@hadess.net>
 Date: Tue, 19 Dec 2023 13:44:00 +0100
-Subject: [PATCH 1/8] deps: Use libpng from system
+Subject: [PATCH 1/9] deps: Use libpng from system
 
 [470/471] Linking CXX executable src/bambu-studio
 FAILED: src/bambu-studio
@@ -38,13 +38,13 @@ index 0b44d5c1073b..33573337d670 100644
      ${EXPAT_PKG}
      )
 -- 
-2.44.0
+2.45.1
 
 
-From f28fe8d3c8fb80781276a576cc5ba3cc7183ac36 Mon Sep 17 00:00:00 2001
+From 7fce7f875e0b47b71349e0e1601ec315ea6b68c5 Mon Sep 17 00:00:00 2001
 From: Bastien Nocera <hadess@hadess.net>
 Date: Mon, 1 Jan 2024 21:38:41 +0100
-Subject: [PATCH 2/8] deps: Use libjpeg from system
+Subject: [PATCH 2/9] deps: Use libjpeg from system
 
 ---
  deps/CMakeLists.txt            | 1 -
@@ -91,13 +91,13 @@ index 5aebbceea320..b26054156641 100644
          -DwxBUILD_PRECOMP=ON
          ${_wx_toolkit}
 -- 
-2.44.0
+2.45.1
 
 
-From 81998dcfcb28634ce3811c3bf335d9fc65743637 Mon Sep 17 00:00:00 2001
+From 8222f2024a330a6c0b6db3b311b48369ec0927b6 Mon Sep 17 00:00:00 2001
 From: Bastien Nocera <hadess@hadess.net>
 Date: Mon, 1 Jan 2024 22:40:44 +0100
-Subject: [PATCH 3/8] deps: Use libtiff from system
+Subject: [PATCH 3/9] deps: Use libtiff from system
 
 ---
  deps/CMakeLists.txt            | 1 -
@@ -130,13 +130,13 @@ index b26054156641..55aa35f4d588 100644
          -DwxBUILD_PRECOMP=ON
          ${_wx_toolkit}
 -- 
-2.44.0
+2.45.1
 
 
-From f00088d397e4900904dde62bf5de44a4e0a1ec59 Mon Sep 17 00:00:00 2001
+From 7f5558353b780489cc3b8ecc1fd26de2259b88e1 Mon Sep 17 00:00:00 2001
 From: Bastien Nocera <hadess@hadess.net>
 Date: Mon, 1 Jan 2024 22:56:51 +0100
-Subject: [PATCH 4/8] deps: Use Boost from system
+Subject: [PATCH 4/9] deps: Use Boost from system
 
 ---
  deps/CGAL/CGAL.cmake       | 2 +-
@@ -191,13 +191,13 @@ index e22568cfd7e0..dec244901c1f 100644
          -DCMAKE_POSITION_INDEPENDENT_CODE=ON 
          -DOPENVDB_BUILD_PYTHON_MODULE=OFF
 -- 
-2.44.0
+2.45.1
 
 
-From 6483da813551ba4330097dcc3c336d1b835470ac Mon Sep 17 00:00:00 2001
+From 0cdfc9962b64b7a568c9b573439ede3e62ab033f Mon Sep 17 00:00:00 2001
 From: Bastien Nocera <hadess@hadess.net>
 Date: Tue, 2 Jan 2024 00:04:00 +0100
-Subject: [PATCH 5/8] deps: Use freetype from system
+Subject: [PATCH 5/9] deps: Use freetype from system
 
 ---
  deps/CMakeLists.txt  | 2 --
@@ -243,13 +243,13 @@ index 2943a3cbbd2e..c8c5a193a7de 100644
 -
 -add_dependencies(dep_OCCT dep_FREETYPE)
 -- 
-2.44.0
+2.45.1
 
 
-From 8cf56eb83f5bd5cbb9e7924aed6676f978dd1d78 Mon Sep 17 00:00:00 2001
+From e6bf0b68cb7428992b65f229f44d27a0222af582 Mon Sep 17 00:00:00 2001
 From: Bastien Nocera <hadess@hadess.net>
 Date: Tue, 2 Jan 2024 00:04:22 +0100
-Subject: [PATCH 6/8] deps: Use wxWidgets from system
+Subject: [PATCH 6/9] deps: Use wxWidgets from system
 
 ---
  deps/CMakeLists.txt | 2 --
@@ -275,20 +275,20 @@ index 616dd706f3bf..9667a16d987a 100644
      dep_NLopt
      dep_OpenVDB
 -- 
-2.44.0
+2.45.1
 
 
-From 7fa87e522a147fcbee437d431bcd757b0ead574d Mon Sep 17 00:00:00 2001
+From 11aa4defa29b8dca05ccf759b79c88e30d7cbfef Mon Sep 17 00:00:00 2001
 From: Bastien Nocera <hadess@hadess.net>
 Date: Tue, 2 Jan 2024 13:24:55 +0100
-Subject: [PATCH 7/8] deps: Use openssl from system
+Subject: [PATCH 7/9] deps: Use openssl from system
 
 It's only used by cURL, and cURL is already used from the system if
 available.
 ---
  deps/CMakeLists.txt  | 3 ---
- deps/CURL/CURL.cmake | 4 ----
- 2 files changed, 7 deletions(-)
+ deps/CURL/CURL.cmake | 2 --
+ 2 files changed, 5 deletions(-)
 
 diff --git a/deps/CMakeLists.txt b/deps/CMakeLists.txt
 index 9667a16d987a..4451dcfb80bd 100644
@@ -312,28 +312,26 @@ index 9667a16d987a..4451dcfb80bd 100644
      ${ZLIB_PKG}
      ${EXPAT_PKG}
 diff --git a/deps/CURL/CURL.cmake b/deps/CURL/CURL.cmake
-index 27776a365a96..f4668d57dbf3 100644
+index b3c83b768d74..f4668d57dbf3 100644
 --- a/deps/CURL/CURL.cmake
 +++ b/deps/CURL/CURL.cmake
-@@ -72,10 +72,6 @@ bambustudio_add_cmake_project(CURL
+@@ -72,8 +72,6 @@ bambustudio_add_cmake_project(CURL
      ${_curl_platform_flags}
  )
  
--if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
--  add_dependencies(dep_CURL dep_OpenSSL)
--endif ()
+-add_dependencies(dep_CURL dep_OpenSSL)
 -
  if (MSVC)
      add_debug_dep(dep_CURL)
  endif ()
 -- 
-2.44.0
+2.45.1
 
 
-From a07bd197da8cff1889dfd4a2281fa3a6062edf51 Mon Sep 17 00:00:00 2001
+From 0f0c6e9309dd53bcfa0009f29999483acbe3fe61 Mon Sep 17 00:00:00 2001
 From: Bastien Nocera <hadess@hadess.net>
 Date: Tue, 2 Jan 2024 14:45:20 +0100
-Subject: [PATCH 8/8] deps: Use GLFW from system
+Subject: [PATCH 8/9] deps: Use GLFW from system
 
 ---
  deps/CMakeLists.txt | 2 --
@@ -360,5 +358,35 @@ index 4451dcfb80bd..573bcb04c3e9 100644
      ${EXPAT_PKG}
      )
 -- 
-2.44.0
+2.45.1
+
+
+From 95793942514fc2efccf6b27724d8988222bbfedf Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Wed, 12 Jun 2024 09:52:46 +0200
+Subject: [PATCH 9/9] deps: Disable OCCT documentation
+
+It's not needed, and will make compilation longer.
+This also works around a doxygen bug:
+/usr/include/c++/13.2.0/string_view:258: constexpr const std::basic_string_view<_CharT, _Traits>::value_type& std::basic_string_view<_CharT, _Traits>::operator[](size_type) const [with _CharT = char; _Traits = std::char_traits<char>; const_reference = const char&; size_type = long unsigned int]: Assertion '__pos < this->_M_len' failed.
+make[6]: *** [dox/CMakeFiles/Overview.dir/build.make:1330: doc/overview/html/occt_logo.png] Aborted (core dumped)
+make[5]: *** [CMakeFiles/Makefile2:1770: dox/CMakeFiles/Overview.dir/all] Error 2
+---
+ deps/OCCT/OCCT.cmake | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/deps/OCCT/OCCT.cmake b/deps/OCCT/OCCT.cmake
+index c8c5a193a7de..13992a69ab3c 100644
+--- a/deps/OCCT/OCCT.cmake
++++ b/deps/OCCT/OCCT.cmake
+@@ -17,6 +17,7 @@ bambustudio_add_cmake_project(OCCT
+ 	#-DUSE_FREETYPE=OFF
+         -DUSE_FFMPEG=OFF
+         -DUSE_VTK=OFF
++        -DBUILD_DOC_Overview=OFF
+         -DBUILD_MODULE_ApplicationFramework=OFF
+         #-DBUILD_MODULE_DataExchange=OFF
+         -DBUILD_MODULE_Draw=OFF
+-- 
+2.45.1
 
