@@ -98,19 +98,19 @@ modules:
       - /lib/*.la
       - /lib/pkgconfig
 
-  - name: boost
-    buildsystem: simple
-    build-commands:
-      - ./bootstrap.sh --prefix=/app --with-libraries=system,iostreams,filesystem,thread,log,locale,regex,date_time
-      - ./b2 headers
-      - ./b2 -j$FLATPAK_BUILDER_N_JOBS install variant=release cxxstd=17 --layout=system
-    sources:
-      - type: archive
-        url: https://freefr.dl.sourceforge.net/project/boost/boost/1.78.0/boost_1_78_0.zip
-        sha256: f22143b5528e081123c3c5ed437e92f648fe69748e95fa6e2bd41484e2986cc3
-    cleanup:
-      - /include
-      - /lib/cmake
+  # - name: boost
+  #   buildsystem: simple
+  #   build-commands:
+  #     - ./bootstrap.sh --prefix=/app --with-libraries=system,iostreams,filesystem,thread,log,locale,regex,date_time
+  #     - ./b2 headers
+  #     - ./b2 -j$FLATPAK_BUILDER_N_JOBS install variant=release cxxstd=17 --layout=system
+  #   sources:
+  #     - type: archive
+  #       url: https://freefr.dl.sourceforge.net/project/boost/boost/1.78.0/boost_1_78_0.zip
+  #       sha256: f22143b5528e081123c3c5ed437e92f648fe69748e95fa6e2bd41484e2986cc3
+  #   cleanup:
+  #     - /include
+  #     - /lib/cmake
 
   - name: glfw
     buildsystem: cmake-ninja
@@ -147,7 +147,7 @@ modules:
       - -DwxUSE_OPENGL=ON
       - -DwxUSE_WEBREQUEST=ON
       - -DwxUSE_WEBVIEW=ON
-      - -DwxUSE_REGEX=sys
+      - -DwxUSE_REGEX=builtin
       - -DwxUSE_LIBSDL=OFF
       - -DwxUSE_XTEST=OFF
       - -DwxUSE_STC=OFF
@@ -159,18 +159,9 @@ modules:
       - -DwxUSE_NANOSVG=OFF
       - -DwxUSE_EXPAT=sys
     sources:
-      - type: archive
-        url: https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.5/wxWidgets-3.1.5.tar.bz2
-        sha256: d7b3666de33aa5c10ea41bb9405c40326e1aeb74ee725bb88f90f1d50270a224
-      # https://github.com/bambulab/BambuStudio/issues/3279
-      - type: patch
-        path: patches/disable-gstplayer.patch
-      # https://github.com/wxWidgets/wxWidgets/issues/23630
-      - type: patch
-        path: patches/0001-Add-support-for-building-WebView-with-libwebkit2gtk-.patch
-      # wx-config/build fixes between 3.1.5 and 3.1.6
-      - type: patch
-        path: patches/wxwidgets-not-found.patch
+      - type: git
+        url: https://github.com/bambulab/wxWidgets
+        tag: master
     cleanup:
       - /include
       - /lib/cmake
@@ -230,6 +221,16 @@ modules:
         url: https://github.com/tamasmeszaros/c-blosc/archive/refs/heads/v1.17.0_tm.zip
         dest: external-packages/Blosc
         sha256: dcb48bf43a672fa3de6a4b1de2c4c238709dad5893d1e097b8374ad84b1fc3b3
+
+      - type: file
+        url: https://github.com/bambulab/boost/releases/download/1.78.0/boost_1_78_0.zip
+        dest: external-packages/Boost
+        sha256: f22143b5528e081123c3c5ed437e92f648fe69748e95fa6e2bd41484e2986cc3
+
+      - type: file
+        url: https://github.com/freetype/freetype/archive/refs/tags/VER-2-12-1.tar.gz
+        dest: external-packages/FREETYPE
+        sha256: 0e72cae32751598d126cfd4bceda909f646b7231ab8c52e28abb686c20a2bea1
 
       # Cereal
       - type: file
@@ -306,7 +307,7 @@ modules:
       # BambuStudio Source Archive
       - type: git
         url: https://github.com/bambulab/BambuStudio.git
-        tag: v01.09.02.57
+        tag: master
 
       # Patched TBB cmake to make build without lto flag
       - type: file
@@ -317,16 +318,16 @@ modules:
       - type: patch
         path: patches/0001-Apply-TBB-LTO-patch.patch
 
-      - type: patch
-        path: patches/0001-deps-Cereal-Update-Cereal-to-fix-build-error.patch
+      # - type: patch
+      #   path: patches/0001-deps-Cereal-Update-Cereal-to-fix-build-error.patch
 
-      - type: patch
-        path: patches/0001-Work-around-ClipperLib-union_-declaration-problem.patch
+      # - type: patch
+      #   path: patches/0001-Work-around-ClipperLib-union_-declaration-problem.patch
 
       # Use system deps instead of building them within BambuStudio
       # https://github.com/hadess/BambuStudio/tree/wip/hadess/use-sysdeps
-      - type: patch
-        path: patches/use-sysdeps.patch
+      # - type: patch
+      #   path: patches/use-sysdeps.patch
 
       # AppData metainfo for Gnome Software & Co.
       - type: file
