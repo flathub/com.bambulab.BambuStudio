@@ -98,19 +98,19 @@ modules:
       - /lib/*.la
       - /lib/pkgconfig
 
-  # - name: boost
-  #   buildsystem: simple
-  #   build-commands:
-  #     - ./bootstrap.sh --prefix=/app --with-libraries=system,iostreams,filesystem,thread,log,locale,regex,date_time
-  #     - ./b2 headers
-  #     - ./b2 -j$FLATPAK_BUILDER_N_JOBS install variant=release cxxstd=17 --layout=system
-  #   sources:
-  #     - type: archive
-  #       url: https://freefr.dl.sourceforge.net/project/boost/boost/1.78.0/boost_1_78_0.zip
-  #       sha256: f22143b5528e081123c3c5ed437e92f648fe69748e95fa6e2bd41484e2986cc3
-  #   cleanup:
-  #     - /include
-  #     - /lib/cmake
+  - name: boost
+    buildsystem: simple
+    build-commands:
+      - ./bootstrap.sh --prefix=/app --with-libraries=system,iostreams,filesystem,thread,log,locale,regex,date_time
+      - ./b2 headers
+      - ./b2 -j$FLATPAK_BUILDER_N_JOBS install variant=release cxxstd=17 --layout=system
+    sources:
+      - type: archive
+        url: https://freefr.dl.sourceforge.net/project/boost/boost/1.78.0/boost_1_78_0.zip
+        sha256: f22143b5528e081123c3c5ed437e92f648fe69748e95fa6e2bd41484e2986cc3
+    cleanup:
+      - /include
+      - /lib/cmake
 
   - name: glfw
     buildsystem: cmake-ninja
@@ -147,7 +147,7 @@ modules:
       - -DwxUSE_OPENGL=ON
       - -DwxUSE_WEBREQUEST=ON
       - -DwxUSE_WEBVIEW=ON
-      - -DwxUSE_REGEX=builtin
+      - -DwxUSE_REGEX=sys
       - -DwxUSE_LIBSDL=OFF
       - -DwxUSE_XTEST=OFF
       - -DwxUSE_STC=OFF
@@ -174,7 +174,15 @@ modules:
         mkdir -p deps/build && cd deps/build
         cmake ../ \
           -DDEP_WX_GTK3=1 \
-          -DDEP_DOWNLOAD_DIR=/run/build/BambuStudio/external-packages
+          -DDEP_DOWNLOAD_DIR=/run/build/BambuStudio/external-packages \
+          -DDEP_BUILD_PNG=OFF \
+          -DDEP_BUILD_JPEG=OFF \
+          -DDEP_BUILD_TIFF=OFF \
+          -DDEP_BUILD_BOOST=OFF \
+          -DDEP_BUILD_OPENSSL=OFF \
+          -DDEP_BUILD_GLFW=OFF \
+          -DDEP_BUILD_FREETYPE=OFF \
+          -DDEP_BUILD_WXWIDGETS=OFF
         cmake --build . --target dep_TBB dep_Cereal dep_NLopt dep_OpenVDB dep_Qhull dep_OpenCSG dep_OpenCV dep_CGAL dep_OCCT
       - |
         mkdir -p build && cd build
@@ -221,16 +229,6 @@ modules:
         url: https://github.com/tamasmeszaros/c-blosc/archive/refs/heads/v1.17.0_tm.zip
         dest: external-packages/Blosc
         sha256: dcb48bf43a672fa3de6a4b1de2c4c238709dad5893d1e097b8374ad84b1fc3b3
-
-      - type: file
-        url: https://github.com/bambulab/boost/releases/download/1.78.0/boost_1_78_0.zip
-        dest: external-packages/Boost
-        sha256: f22143b5528e081123c3c5ed437e92f648fe69748e95fa6e2bd41484e2986cc3
-
-      - type: file
-        url: https://github.com/freetype/freetype/archive/refs/tags/VER-2-12-1.tar.gz
-        dest: external-packages/FREETYPE
-        sha256: 0e72cae32751598d126cfd4bceda909f646b7231ab8c52e28abb686c20a2bea1
 
       # Cereal
       - type: file
