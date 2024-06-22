@@ -325,9 +325,6 @@ modules:
       - type: patch
         path: patches/0001-Apply-TBB-LTO-patch.patch
 
-      - type: patch
-        path: patches/0001-Work-around-ClipperLib-union_-declaration-problem.patch
-
       # AppData metainfo for Gnome Software & Co.
       - type: file
         path: com.bambulab.BambuStudio.metainfo.xml
