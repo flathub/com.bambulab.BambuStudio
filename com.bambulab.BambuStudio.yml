@@ -183,7 +183,15 @@ modules:
         mkdir -p deps/build && cd deps/build
         cmake ../ \
           -DDEP_WX_GTK3=1 \
-          -DDEP_DOWNLOAD_DIR=/run/build/BambuStudio/external-packages
+          -DDEP_DOWNLOAD_DIR=/run/build/BambuStudio/external-packages \
+          -DDEP_BUILD_PNG=OFF \
+          -DDEP_BUILD_JPEG=OFF \
+          -DDEP_BUILD_TIFF=OFF \
+          -DDEP_BUILD_BOOST=OFF \
+          -DDEP_BUILD_OPENSSL=OFF \
+          -DDEP_BUILD_GLFW=OFF \
+          -DDEP_BUILD_FREETYPE=OFF \
+          -DDEP_BUILD_WXWIDGETS=OFF
         cmake --build . --target dep_TBB dep_Cereal dep_NLopt dep_OpenVDB dep_Qhull dep_OpenCSG dep_OpenCV dep_CGAL dep_OCCT
       - |
         mkdir -p build && cd build
@@ -306,7 +314,7 @@ modules:
       # BambuStudio Source Archive
       - type: git
         url: https://github.com/bambulab/BambuStudio.git
-        tag: v01.09.02.57
+        tag: v01.09.03.50
 
       # Patched TBB cmake to make build without lto flag
       - type: file
@@ -316,17 +324,6 @@ modules:
       # Apply TTB patches to fix linking failure. More info: https://github.com/prusa3d/PrusaSlicer/issues/8922
       - type: patch
         path: patches/0001-Apply-TBB-LTO-patch.patch
-
-      - type: patch
-        path: patches/0001-deps-Cereal-Update-Cereal-to-fix-build-error.patch
-
-      - type: patch
-        path: patches/0001-Work-around-ClipperLib-union_-declaration-problem.patch
-
-      # Use system deps instead of building them within BambuStudio
-      # https://github.com/hadess/BambuStudio/tree/wip/hadess/use-sysdeps
-      - type: patch
-        path: patches/use-sysdeps.patch
 
       # AppData metainfo for Gnome Software & Co.
       - type: file
