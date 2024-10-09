@@ -224,7 +224,6 @@ modules:
         install -Dm644 ${FLATPAK_ID}.metainfo.xml /app/share/metainfo/${FLATPAK_ID}.metainfo.xml
         mv /app/share/applications/BambuStudio.desktop /app/share/applications/${FLATPAK_ID}.desktop
         desktop-file-edit --set-key=Exec --set-value="entrypoint %U" /app/share/applications/${FLATPAK_ID}.desktop
-        install -Dm755 set-dark-theme-variant.py /app/bin
         install -Dm755 entrypoint /app/bin
         install -Dm755 umount /app/bin
 
@@ -332,14 +331,8 @@ modules:
       - type: file
         path: com.bambulab.BambuStudio.metainfo.xml
 
-      # script to set dark theme variant
-      - type: file
-        path: set-dark-theme-variant.py
-
       # start-up script
-      # README: workaround for the following issues, also enables dark theme variant:
-      # SEE: https://github.com/flathub/com.bambulab.BambuStudio/issues/27
-      # SEE: https://github.com/flathub/com.bambulab.BambuStudio/issues/3
+      # README: workaround for the following issues:
       # SEE: https://github.com/prusa3d/PrusaSlicer/issues/2365
       - type: file
         path: entrypoint
