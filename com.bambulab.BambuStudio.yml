@@ -173,7 +173,7 @@ modules:
         path: patches/wxwidgets-not-found.patch
       # dark theme support
       - type: patch
-        path: 0001-Enable-using-a-dark-theme-when-Gnome-dark-style-is-s.patch
+        path: patches/0001-Enable-using-a-dark-theme-when-Gnome-dark-style-is-s.patch
     cleanup:
       - /include
       - /lib/cmake

@@ -22,4 +22,4 @@ and many, many evenings to fix and upstream the 150+ patches necessary to
 get it building and most of the expected functionality working.
 
 If you're using BambuStudio from Flathub, and want to make sure I need
-to keep it up-to-date, I've set up a [3D-printing related wishlist](https://www.amazon.fr/hz/wishlist/ls/3A4WBDMGAOEDS?type=wishlist&filter=unpurchased&sort=price-asc&viewType=list).
+to keep it up-to-date, I've set up a [Ko-Fi page](https://ko-fi.com/hadessuk).
