@@ -207,6 +207,7 @@ modules:
           -DSLIC3R_FHS=ON \
           -DSLIC3R_GTK=3 \
           -DSLIC3R_STATIC=ON \
+          -DFLATPAK=ON \
           -DSLIC3R_BUILD_TESTS=OFF \
           -DSLIC3R_DESKTOP_INTEGRATION=OFF \
           -DCMAKE_BUILD_TYPE=Release \
@@ -315,8 +316,9 @@ modules:
 
       # BambuStudio Source Archive
       - type: git
-        url: https://github.com/bambulab/BambuStudio.git
-        tag: v01.09.07.52
+        url: https://github.com/MackBambu/BambuStudio.git
+        branch: build
+        commit: 8b9f6855afc1362ed0023218349026d42f0d9d92
 
       # Patched TBB cmake to make build without lto flag
       - type: file
@@ -326,6 +328,15 @@ modules:
       # Apply TTB patches to fix linking failure. More info: https://github.com/prusa3d/PrusaSlicer/issues/8922
       - type: patch
         path: patches/0001-Apply-TBB-LTO-patch.patch
+
+      # Disable ffmpeg DLLs installation
+      # https://github.com/bambulab/BambuStudio/issues/5008
+      # - type: patch
+      #   path: patches/0001-Disable-ffmpeg-library-installation.patch
+
+      # https://github.com/bambulab/BambuStudio/pull/5025
+      # - type: patch
+      #   path: patches/1.10.0-beta.patch
 
       # AppData metainfo for Gnome Software & Co.
       - type: file
