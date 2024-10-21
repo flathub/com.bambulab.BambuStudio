@@ -316,7 +316,7 @@ modules:
       # BambuStudio Source Archive
       - type: git
         url: https://github.com/bambulab/BambuStudio.git
-        tag: v01.09.07.52
+        tag: v01.10.00.74
 
       # Patched TBB cmake to make build without lto flag
       - type: file
@@ -326,6 +326,15 @@ modules:
       # Apply TTB patches to fix linking failure. More info: https://github.com/prusa3d/PrusaSlicer/issues/8922
       - type: patch
         path: patches/0001-Apply-TBB-LTO-patch.patch
+
+      # Disable ffmpeg DLLs installation
+      # https://github.com/bambulab/BambuStudio/issues/5008
+      - type: patch
+        path: patches/0001-Disable-ffmpeg-library-installation.patch
+
+      # https://github.com/bambulab/BambuStudio/pull/5025
+      - type: patch
+        path: patches/1.10.0-beta.patch
 
       # AppData metainfo for Gnome Software & Co.
       - type: file

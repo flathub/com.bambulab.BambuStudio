@@ -1,0 +1,57 @@
+From c034d1c36678d1c410c86613364ce31fde6f2f80 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 15 Oct 2024 17:33:09 +0200
+Subject: [PATCH] Disable ffmpeg library installation
+
+We want to use the system installed library.
+---
+ CMakeLists.txt | 28 ----------------------------
+ 1 file changed, 28 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index c4d9e122746d..c5721163a894 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -675,20 +675,6 @@ function(bambustudio_copy_sos target config postfix output_sos)
+     set(_out_dir "${CMAKE_CURRENT_BINARY_DIR}")
+     message ("set out_dir to CMAKE_CURRENT_BINARY_DIR: ${_out_dir}")
+ 
+-    file(COPY ${CMAKE_PREFIX_PATH}/lib/libavcodec.so
+-            ${CMAKE_PREFIX_PATH}/lib/libavcodec.so.61
+-            ${CMAKE_PREFIX_PATH}/lib/libavcodec.so.61.3.100
+-            ${CMAKE_PREFIX_PATH}/lib/libavutil.so
+-            ${CMAKE_PREFIX_PATH}/lib/libavutil.so.59
+-            ${CMAKE_PREFIX_PATH}/lib/libavutil.so.59.8.100
+-            ${CMAKE_PREFIX_PATH}/lib/libswscale.so
+-            ${CMAKE_PREFIX_PATH}/lib/libswscale.so.8
+-            ${CMAKE_PREFIX_PATH}/lib/libswscale.so.8.1.100
+-            ${CMAKE_PREFIX_PATH}/lib/libswresample.so
+-            ${CMAKE_PREFIX_PATH}/lib/libswresample.so.5
+-            ${CMAKE_PREFIX_PATH}/lib/libswresample.so.5.1.100
+-         DESTINATION ${_out_dir})
+-
+     set(${output_dlls}
+         ${_out_dir}/libavcodec.so
+         ${_out_dir}/libavcodec.so.61
+@@ -760,18 +746,4 @@ else ()
+     install(DIRECTORY "${SLIC3R_RESOURCES_DIR}/" DESTINATION "${CMAKE_INSTALL_PREFIX}/resources")
+ endif ()
+ 
+-if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+-    set(LIBRARY_FILES
+-    ${LIBDIR_BIN}/libavcodec.so.61
+-    ${LIBDIR_BIN}/libavcodec.so.61.3.100
+-    ${LIBDIR_BIN}/libavutil.so.59
+-    ${LIBDIR_BIN}/libavutil.so.59.8.100
+-    ${LIBDIR_BIN}/libswresample.so.5
+-    ${LIBDIR_BIN}/libswresample.so.5.1.100
+-    ${LIBDIR_BIN}/libswscale.so.8
+-    ${LIBDIR_BIN}/libswscale.so.8.1.100
+-    )
+-    install(FILES ${LIBRARY_FILES} DESTINATION "${CMAKE_INSTALL_PREFIX}/bin")
+-endif ()
+-
+ configure_file(${LIBDIR}/platform/unix/fhs.hpp.in ${LIBDIR_BIN}/platform/unix/fhs.hpp)
+-- 
+2.47.0
+
