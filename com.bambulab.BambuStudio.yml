@@ -207,6 +207,7 @@ modules:
           -DSLIC3R_FHS=ON \
           -DSLIC3R_GTK=3 \
           -DSLIC3R_STATIC=ON \
+          -DFLATPAK=ON \
           -DSLIC3R_BUILD_TESTS=OFF \
           -DSLIC3R_DESKTOP_INTEGRATION=OFF \
           -DCMAKE_BUILD_TYPE=Release \
@@ -315,8 +316,8 @@ modules:
 
       # BambuStudio Source Archive
       - type: git
-        url: https://github.com/bambulab/BambuStudio.git
-        tag: v01.10.00.74
+        url: https://github.com/MackBambu/BambuStudio.git
+        branch: build
 
       # Patched TBB cmake to make build without lto flag
       - type: file
@@ -329,12 +330,12 @@ modules:
 
       # Disable ffmpeg DLLs installation
       # https://github.com/bambulab/BambuStudio/issues/5008
-      - type: patch
-        path: patches/0001-Disable-ffmpeg-library-installation.patch
+      # - type: patch
+      #   path: patches/0001-Disable-ffmpeg-library-installation.patch
 
       # https://github.com/bambulab/BambuStudio/pull/5025
-      - type: patch
-        path: patches/1.10.0-beta.patch
+      # - type: patch
+      #   path: patches/1.10.0-beta.patch
 
       # AppData metainfo for Gnome Software & Co.
       - type: file
