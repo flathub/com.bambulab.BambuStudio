@@ -318,6 +318,7 @@ modules:
       - type: git
         url: https://github.com/MackBambu/BambuStudio.git
         branch: build
+        commit: 8b9f6855afc1362ed0023218349026d42f0d9d92
 
       # Patched TBB cmake to make build without lto flag
       - type: file
