@@ -1,0 +1,38 @@
+From 1b2877453e14a6f0e7cca978b63f260d2c828857 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Mon, 28 Oct 2024 16:24:45 +0100
+Subject: [PATCH] libslic3r: Fix BOOST_LOG_TRIVIAL declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+/run/build/BambuStudio/src/libslic3r/Support/SupportParameters.hpp: In constructor ‘Slic3r::SupportParameters::SupportParameters(const Slic3r::PrintObject&)’:
+/run/build/BambuStudio/src/libslic3r/Support/SupportParameters.hpp:172:39: error: ‘warning’ was not declared in this scope
+  172 |                     BOOST_LOG_TRIVIAL(warning) << "tree support default to organic support";
+      |                                       ^~~~~~~
+/run/build/BambuStudio/src/libslic3r/Support/SupportParameters.hpp:172:21: error: ‘BOOST_LOG_TRIVIAL’ was not declared in this scope
+  172 |                     BOOST_LOG_TRIVIAL(warning) << "tree support default to organic support";
+      |                     ^~~~~~~~~~~~~~~~~
+/run/build/BambuStudio/src/libslic3r/Support/SupportParameters.hpp:175:39: error: ‘warning’ was not declared in this scope
+  175 |                     BOOST_LOG_TRIVIAL(warning) << "tree support default to hybrid tree due to adaptive layer height";
+      |                                       ^~~~~~~
+/run/build/BambuStudio/src/libslic3r/Support/SupportParameters.hpp:175:21: error: ‘BOOST_LOG_TRIVIAL’ was not declared in this scope
+  175 |                     BOOST_LOG_TRIVIAL(warning) << "tree support default to hybrid tree due to adaptive layer height";
+      |                     ^~~~~~~~~~~~~~~~~
+---
+ src/libslic3r/Support/SupportParameters.hpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/libslic3r/Support/SupportParameters.hpp b/src/libslic3r/Support/SupportParameters.hpp
+index 1fb461a58968..6042049a6702 100644
+--- a/src/libslic3r/Support/SupportParameters.hpp
++++ b/src/libslic3r/Support/SupportParameters.hpp
+@@ -1,4 +1,5 @@
+ #pragma once
++#include <boost/log/trivial.hpp>
+ #include "../libslic3r.h"
+ #include "../Flow.hpp"
+ #include "../PrintConfig.hpp"
+-- 
+2.47.0
+
