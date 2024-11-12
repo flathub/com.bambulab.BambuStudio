@@ -203,6 +203,7 @@ modules:
           -DCMAKE_INSTALL_PREFIX=/app \
           -DCMAKE_INSTALL_LIBDIR=/app/lib \
           -DCMAKE_PREFIX_PATH=/run/build/BambuStudio/deps/build/destdir/usr/local \
+          -DFLATPAK=ON \
           -DSLIC3R_PCH=OFF \
           -DSLIC3R_FHS=ON \
           -DSLIC3R_GTK=3 \
@@ -316,7 +317,12 @@ modules:
       # BambuStudio Source Archive
       - type: git
         url: https://github.com/bambulab/BambuStudio.git
-        tag: v01.09.07.52
+        tag: v01.10.00.89
+
+      # https://github.com/bambulab/BambuStudio/pull/5187
+      - type: patch
+        use-git-am: true
+        path: patches/1.10.0-official.patch
 
       # Patched TBB cmake to make build without lto flag
       - type: file

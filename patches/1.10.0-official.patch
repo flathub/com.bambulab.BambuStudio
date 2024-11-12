@@ -1,0 +1,32 @@
+From 6809df7d4caa85801940cd787098e1146771938b Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 12 Nov 2024 10:52:37 +0100
+Subject: [PATCH] slic3r: Fix wxDir declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+/run/build/BambuStudio/src/slic3r/GUI/DeviceManager.cpp: In static member function ‘static boost::bimaps::bimap<std::__cxx11::basic_string<char>, std::__cxx11::basic_string<char> > Slic3r::DeviceManager::get_all_model_id_with_name()’:
+/run/build/BambuStudio/src/slic3r/GUI/DeviceManager.cpp:6076:5: error: ‘wxDir’ was not declared in this scope; did you mean ‘wxDIR’?
+ 6076 |     wxDir dir(Slic3r::resources_dir() + "/printers/");
+      |     ^~~~~
+      |     wxDIR
+---
+ src/slic3r/GUI/DeviceManager.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/slic3r/GUI/DeviceManager.cpp b/src/slic3r/GUI/DeviceManager.cpp
+index ca78bc0f585d..737d918c9ae5 100644
+--- a/src/slic3r/GUI/DeviceManager.cpp
++++ b/src/slic3r/GUI/DeviceManager.cpp
+@@ -17,6 +17,7 @@
+ #include <boost/uuid/uuid.hpp>
+ #include <boost/uuid/uuid_generators.hpp>
+ #include <boost/uuid/uuid_io.hpp>
++#include <wx/dir.h>
+ #include "fast_float/fast_float.h"
+ 
+ #define CALI_DEBUG
+-- 
+2.47.0
+
