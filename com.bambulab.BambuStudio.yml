@@ -317,12 +317,12 @@ modules:
       # BambuStudio Source Archive
       - type: git
         url: https://github.com/bambulab/BambuStudio.git
-        tag: v01.10.00.81
+        tag: v01.10.00.89
 
-      # https://github.com/bambulab/BambuStudio/pull/5094
+      # https://github.com/bambulab/BambuStudio/pull/5187
       - type: patch
         use-git-am: true
-        path: patches/1.10.0-beta2.patch
+        path: patches/1.10.0-official.patch
 
       # Patched TBB cmake to make build without lto flag
       - type: file
