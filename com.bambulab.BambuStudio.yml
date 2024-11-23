@@ -36,31 +36,6 @@ modules:
         url: https://gstreamer.freedesktop.org/src/gst-plugins-good/gst-plugins-good-1.22.8.tar.xz
         sha256: e305b9f07f52743ca481da0a4e0c76c35efd60adaf1b0694eb3bb021e2137e39
 
-  # xprop, xlib is needed to manipulate the X11 window and set _GTK_THEME_VARIANT dark on X11
-  # and paint the window dark when PRUSA_SLICER_DARK_THEME is true
-  # see: entrypoint & set-dark-theme-variant.py (originated from spotify client flatpak)
-  - name: xprop
-    sources:
-      - type: archive
-        url: http://mirrors.ircam.fr/pub/x.org/individual/app/xprop-1.2.5.tar.gz
-        sha256: b7bf6b6be6cf23e7966a153fc84d5901c14f01ee952fbd9d930aa48e2385d670
-  - name: python-setuptools_scm
-    buildsystem: simple
-    build-commands:
-      - pip3 install --no-deps --no-build-isolation --verbose --prefix=${FLATPAK_DEST} .
-    sources:
-      - type: archive
-        url: https://files.pythonhosted.org/packages/57/38/930b1241372a9f266a7df2b184fb9d4f497c2cef2e016b014f82f541fe7c/setuptools_scm-6.0.1.tar.gz
-        sha256: d1925a69cb07e9b29416a275b9fadb009a23c148ace905b2fb220649a6c18e92
-  - name: python-xlib
-    buildsystem: simple
-    build-commands:
-      - pip3 install --no-deps --no-build-isolation --verbose --prefix=${FLATPAK_DEST} .
-    sources:
-      - type: archive
-        url: https://files.pythonhosted.org/packages/86/f5/8c0653e5bb54e0cbdfe27bf32d41f27bc4e12faa8742778c17f2a71be2c0/python-xlib-0.33.tar.gz
-        sha256: 55af7906a2c75ce6cb280a584776080602444f75815a7aff4d287bb2d7018b32
-
   # For libOSMesa
   - name: mesa
     buildsystem: meson
