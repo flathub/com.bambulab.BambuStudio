@@ -282,6 +282,11 @@ modules:
         use-git-am: true
         path: patches/1.10.0-official.patch
 
+      # https://github.com/bambulab/BambuStudio/pull/5434
+      - type: patch
+        use-git-am: true
+        path: patches/0001-Mouse3DController-Add-SpaceMouse-Wireless-BT-support.patch
+
       # Patched TBB cmake to make build without lto flag
       - type: file
         dest: deps/TBB
