@@ -273,17 +273,13 @@ modules:
       # BambuStudio Source Archive
       - type: git
         url: https://github.com/bambulab/BambuStudio.git
-        tag: v01.10.01.50
+        tag: v01.10.02.64
 
-      # https://github.com/bambulab/BambuStudio/pull/5187
+      # XXX
       - type: patch
         use-git-am: true
-        path: patches/1.10.0-official.patch
+        path: patches/1.10.2-beta.patch
 
-      # https://github.com/bambulab/BambuStudio/pull/5434
-      - type: patch
-        use-git-am: true
-        path: patches/0001-Mouse3DController-Add-SpaceMouse-Wireless-BT-support.patch
 
       # Patched TBB cmake to make build without lto flag
       - type: file
