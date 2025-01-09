@@ -1,0 +1,38 @@
+From a1ac34fcde990010377412b68653b59c12afbc76 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Thu, 9 Jan 2025 17:24:17 +0100
+Subject: [PATCH] libslic3r: Fix BOOST_LOG_TRIVIAL declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+In file included from /run/build/BambuStudio/src/slic3r/GUI/Gizmos/GLGizmoMeshBoolean.cpp:5:
+/run/build/BambuStudio/src/libslic3r/CSGMesh/PerformCSGMeshBooleans.hpp: In lambda function:
+/run/build/BambuStudio/src/libslic3r/CSGMesh/PerformCSGMeshBooleans.hpp:281:35: error: ‘info’ was not declared in this scope; did you mean ‘tbb::v1::info’?
+  281 |                 BOOST_LOG_TRIVIAL(info) << "check_csgmesh_booleans fails! mesh " << i << "/" << csgrange.size() << " is empty, cannot do boolean!";
+      |                                   ^~~~
+      |                                   tbb::v1::info
+/run/build/BambuStudio/src/libslic3r/CSGMesh/PerformCSGMeshBooleans.hpp:295:35: error: ‘info’ was not declared in this scope; did you mean ‘tbb::v1::info’?
+  295 |                 BOOST_LOG_TRIVIAL(info) << "check_csgmesh_booleans fails! mesh " << i << "/" << csgrange.size() << " does_self_intersect is true, cannot do boolean!";
+      |                                   ^~~~
+      |                                   tbb::v1::info
+---
+ src/libslic3r/CSGMesh/PerformCSGMeshBooleans.hpp | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/libslic3r/CSGMesh/PerformCSGMeshBooleans.hpp b/src/libslic3r/CSGMesh/PerformCSGMeshBooleans.hpp
+index a9a48b48c024..7e861cde597e 100644
+--- a/src/libslic3r/CSGMesh/PerformCSGMeshBooleans.hpp
++++ b/src/libslic3r/CSGMesh/PerformCSGMeshBooleans.hpp
+@@ -4,6 +4,8 @@
+ #include <stack>
+ #include <vector>
+ 
++#include <boost/log/trivial.hpp>
++
+ #include "CSGMesh.hpp"
+ 
+ #include "libslic3r/Execution/ExecutionTBB.hpp"
+-- 
+2.47.1
+
