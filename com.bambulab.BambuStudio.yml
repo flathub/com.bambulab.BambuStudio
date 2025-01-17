@@ -14,8 +14,6 @@ finish-args:
   - --filesystem=xdg-run/gvfs
   - --filesystem=/run/media
   - --filesystem=/media
-  # Allow BambuStudio to talk to other instances
-  - --talk-name=com.bambulab.BambuStudio.InstanceCheck.*
   - --system-talk-name=org.freedesktop.UDisks2
   # set dark theme
   - --env=BAMBU_STUDIO_DARK_THEME=false
