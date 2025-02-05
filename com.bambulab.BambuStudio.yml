@@ -294,6 +294,10 @@ modules:
       - type: patch
         path: patches/0001-Apply-TBB-LTO-patch.patch
 
+      # https://github.com/bambulab/BambuStudio/pull/5891
+      - type: patch
+        path: patches/focus-stealing-fixes.patch
+
       # AppData metainfo for Gnome Software & Co.
       - type: file
         path: com.bambulab.BambuStudio.metainfo.xml
