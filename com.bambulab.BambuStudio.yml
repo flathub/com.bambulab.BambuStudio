@@ -298,6 +298,10 @@ modules:
       - type: patch
         path: patches/focus-stealing-fixes.patch
 
+      # XXX
+      - type: patch
+        path: patches/wayland-wip.patch
+
       # AppData metainfo for Gnome Software & Co.
       - type: file
         path: com.bambulab.BambuStudio.metainfo.xml
