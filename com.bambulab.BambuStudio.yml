@@ -280,6 +280,10 @@ modules:
       - type: patch
         path: patches/0001-Apply-TBB-LTO-patch.patch
 
+      # XXX
+      - type: patch
+        path: patches/wayland-wip.patch
+
       # AppData metainfo for Gnome Software & Co.
       - type: file
         path: com.bambulab.BambuStudio.metainfo.xml
