@@ -69,12 +69,23 @@ modules:
       - /include
       - /lib/cmake
 
+  - name: extra-cmake-modules
+    buildsystem: cmake-ninja
+    config-opts:
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DBUILD_TESTING=OFF
+    sources:
+      - type: git
+        url: https://invent.kde.org/frameworks/extra-cmake-modules.git
+        commit: 7dd28cc56c339c3f8fb356f7c53c0e8f61433d81
+        tag: v6.10.0
+
   - name: glfw
     buildsystem: cmake-ninja
     config-opts:
       - -DCMAKE_BUILD_TYPE=RelWithDebInfo
       - -DBUILD_SHARED_LIBS:BOOL=ON
-      - -DGLFW_BUILD_WAYLAND=OFF
+      - -DGLFW_BUILD_WAYLAND=ON
       - -DGLFW_BUILD_X11=ON
       - -DGLFW_BUILD_DOCS=OFF
       - -DGLFW_BUILD_TESTS=OFF
