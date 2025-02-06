@@ -1,0 +1,78 @@
+From ae98a9bce1364ca2fb6f213041066e538b98faff Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Thu, 6 Feb 2025 09:44:17 +0100
+Subject: [PATCH 1/2] main: Require libx11 1.8
+
+Require a version of libX11 new enough that it will initialise threads
+support itself, and not require X11 specific code in our startup.
+
+See https://gitlab.freedesktop.org/xorg/lib/libx11/-/commit/afcdb6fb0045c6186aa83d9298f327a7ec1b2cb9
+---
+ src/BambuStudio.cpp | 4 ----
+ src/CMakeLists.txt  | 2 ++
+ 2 files changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/src/BambuStudio.cpp b/src/BambuStudio.cpp
+index 016b4e89599c..847260f15d6e 100644
+--- a/src/BambuStudio.cpp
++++ b/src/BambuStudio.cpp
+@@ -1216,10 +1216,6 @@ int CLI::run(int argc, char **argv)
+     ::setenv("GDK_BACKEND", "x11", /* replace */ true);
+ 
+     ::setenv("WEBKIT_DISABLE_COMPOSITING_MODE", "1", /* replace */ false);
+-
+-    // Also on Linux, we need to tell Xlib that we will be using threads,
+-    // lest we crash when we fire up GStreamer.
+-    XInitThreads();
+ #endif
+ 
+ 	// Switch boost::filesystem to utf8.
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index 9e193d5a0e66..0c6dc7dca1d3 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -40,6 +40,8 @@ if (SLIC3R_GUI)
+     endif()
+ 
+     if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
++        pkg_check_modules(LIBX11 REQUIRED x11>=1.8)
++
+         set (wxWidgets_CONFIG_OPTIONS "--toolkit=gtk${SLIC3R_GTK}")
+         if (SLIC3R_WX_STABLE)
+             find_package(wxWidgets 3.0 REQUIRED COMPONENTS base core adv html gl aui net media webview)
+-- 
+2.48.1
+
+
+From 9d171e7b08d2f0cc76938fc80a3b9b611846c688 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Thu, 6 Feb 2025 09:45:55 +0100
+Subject: [PATCH 2/2] main: Remove forcing X11 GDK backend on startup
+
+---
+ src/BambuStudio.cpp | 9 ---------
+ 1 file changed, 9 deletions(-)
+
+diff --git a/src/BambuStudio.cpp b/src/BambuStudio.cpp
+index 847260f15d6e..b1073c98c034 100644
+--- a/src/BambuStudio.cpp
++++ b/src/BambuStudio.cpp
+@@ -1209,15 +1209,6 @@ int CLI::run(int argc, char **argv)
+     // Save the thread ID of the main thread.
+     save_main_thread_id();
+ 
+-#ifdef __WXGTK__
+-    // On Linux, wxGTK has no support for Wayland, and the app crashes on
+-    // startup if gtk3 is used. This env var has to be set explicitly to
+-    // instruct the window manager to fall back to X server mode.
+-    ::setenv("GDK_BACKEND", "x11", /* replace */ true);
+-
+-    ::setenv("WEBKIT_DISABLE_COMPOSITING_MODE", "1", /* replace */ false);
+-#endif
+-
+ 	// Switch boost::filesystem to utf8.
+     try {
+         boost::nowide::nowide_filesystem();
+-- 
+2.48.1
+
