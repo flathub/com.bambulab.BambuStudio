@@ -76,3 +76,30 @@ index 847260f15d6e..b1073c98c034 100644
 -- 
 2.48.1
 
+From 34938fdc9699baf3ff97efd23b1319e2886422ab Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Fri, 7 Feb 2025 15:10:03 +0100
+Subject: [PATCH] titlebar
+
+---
+ src/slic3r/GUI/GUI_App.cpp | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/src/slic3r/GUI/GUI_App.cpp b/src/slic3r/GUI/GUI_App.cpp
+index 568869668754..0b5dafd6b543 100644
+--- a/src/slic3r/GUI/GUI_App.cpp
++++ b/src/slic3r/GUI/GUI_App.cpp
+@@ -2887,6 +2887,10 @@ bool GUI_App::on_init_inner()
+     //sidebar().aux_list()->init_auxiliary();
+     //mainframe->m_auxiliary->init_auxiliary();
+ 
++#ifdef __WXGTK3__
++    gtk_window_set_titlebar(GTK_WINDOW(mainframe), GTK_WIDGET(mainframe->topbar()));
++#endif
++
+ //     update_mode(); // !!! do that later
+     SetTopWindow(mainframe);
+ 
+-- 
+2.48.1
+
