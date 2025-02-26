@@ -15,8 +15,6 @@ finish-args:
   - --filesystem=/run/media
   - --filesystem=/media
   - --system-talk-name=org.freedesktop.UDisks2
-  # set dark theme
-  - --env=BAMBU_STUDIO_DARK_THEME=false
 
 modules:
 
