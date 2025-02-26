@@ -1,0 +1,56 @@
+From c92646f374d100e4a827fb4377392af47234a3f5 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Wed, 26 Feb 2025 10:55:44 +0100
+Subject: [PATCH] FIX: occt build failure
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Pick up build error fix from upstream:
+https://github.com/Open-Cascade-SAS/OCCT/commit/7236e83dcc1e7284e66dc61e612154617ef715d6
+
+/run/build/BambuStudio/deps/build/dep_OCCT-prefix/src/dep_OCCT/src/StdPrs/StdPrs_BRepFont.cxx: In member function ‘Standard_Boolean StdPrs_BRepFont::renderGlyph(Standard_Utf32Char, TopoDS_Shape&)’:
+/run/build/BambuStudio/deps/build/dep_OCCT-prefix/src/dep_OCCT/src/StdPrs/StdPrs_BRepFont.cxx:465:30: error: invalid conversion from ‘unsigned char*’ to ‘const char*’ [-fpermissive]
+  465 |     const char* aTags      = &anOutline->tags[aStartIndex];
+      |                              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                              |
+      |                              unsigned char*
+---
+ deps/OCCT/0001-OCCT-fix.patch | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
+
+diff --git a/deps/OCCT/0001-OCCT-fix.patch b/deps/OCCT/0001-OCCT-fix.patch
+index d0de170d5a3d..27f5db7e0f51 100644
+--- a/deps/OCCT/0001-OCCT-fix.patch
++++ b/deps/OCCT/0001-OCCT-fix.patch
+@@ -195,3 +195,27 @@ index 5ae9899f..0a17372b 100644
+  
+    if (!myFTLib->IsValid())
+    {
++From 7236e83dcc1e7284e66dc61e612154617ef715d6 Mon Sep 17 00:00:00 2001
++From: dpasukhi <dpasukhi@opencascade.com>
++Date: Tue, 27 Aug 2024 11:33:29 +0100
++Subject: [PATCH] 0033808: Coding - FreeType Use unsigned point and contour
++ indexing in `FT_Outline`
++
++Changes to auto instead of specific type
++---
++ src/StdPrs/StdPrs_BRepFont.cxx | 2 +-
++ 1 file changed, 1 insertion(+), 1 deletion(-)
++
++diff --git a/src/StdPrs/StdPrs_BRepFont.cxx b/src/StdPrs/StdPrs_BRepFont.cxx
++index ab2d9b3c9f..cd701879b1 100644
++--- a/src/StdPrs/StdPrs_BRepFont.cxx
+++++ b/src/StdPrs/StdPrs_BRepFont.cxx
++@@ -457,7 +457,7 @@ Standard_Boolean StdPrs_BRepFont::renderGlyph (const Standard_Utf32Char theChar,
++   for (short aContour = 0, aStartIndex = 0; aContour < anOutline->n_contours; ++aContour)
++   {
++     const FT_Vector* aPntList = &anOutline->points[aStartIndex];
++-    const char* aTags      = &anOutline->tags[aStartIndex];
+++    const auto* aTags      = &anOutline->tags[aStartIndex];
++     const short anEndIndex = anOutline->contours[aContour];
++     const short aPntsNb    = (anEndIndex - aStartIndex) + 1;
++     aStartIndex = anEndIndex + 1;
+-- 
+2.48.1
+
