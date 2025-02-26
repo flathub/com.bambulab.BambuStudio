@@ -15,6 +15,8 @@ finish-args:
   - --filesystem=/run/media
   - --filesystem=/media
   - --system-talk-name=org.freedesktop.UDisks2
+  # Work-around https://github.com/bambulab/BambuStudio/issues/6013
+  - --env=SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
 
 modules:
 
