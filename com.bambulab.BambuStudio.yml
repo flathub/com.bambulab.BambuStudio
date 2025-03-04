@@ -128,17 +128,11 @@ modules:
       - -DwxUSE_EXPAT=sys
     sources:
       - type: archive
-        url: https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.5/wxWidgets-3.1.5.tar.bz2
-        sha256: d7b3666de33aa5c10ea41bb9405c40326e1aeb74ee725bb88f90f1d50270a224
-      # https://github.com/wxWidgets/wxWidgets/issues/23630
+        url: https://github.com/wxWidgets/wxWidgets/releases/download/v3.2.7/wxWidgets-3.2.7.tar.bz2
+        sha256: 69a1722f874d91cd1c9e742b72df49e0fab02890782cf794791c3104cee868c6
+      # https://github.com/wxWidgets/wxWidgets/pull/25264
       - type: patch
-        path: patches/0001-Add-support-for-building-WebView-with-libwebkit2gtk-.patch
-      # wx-config/build fixes between 3.1.5 and 3.1.6
-      - type: patch
-        path: patches/wxwidgets-not-found.patch
-      # dark theme support
-      - type: patch
-        path: patches/0001-Enable-using-a-dark-theme-when-Gnome-dark-style-is-s.patch
+        path: patches/0001-Fix-using-GL-and-WebView-when-using-cmake-install.patch
     cleanup:
       - /include
       - /lib/cmake
