@@ -76,14 +76,15 @@ modules:
     config-opts:
       - -DCMAKE_BUILD_TYPE=RelWithDebInfo
       - -DBUILD_SHARED_LIBS:BOOL=ON
-      - -DGLFW_USE_WAYLAND=OFF
+      - -DGLFW_BUILD_WAYLAND=OFF
+      - -DGLFW_BUILD_X11=ON
       - -DGLFW_BUILD_DOCS=OFF
       - -DGLFW_BUILD_TESTS=OFF
       - -DGLFW_BUILD_EXAMPLES=OFF
     sources:
       - type: git
         url: https://github.com/glfw/glfw.git
-        tag: 3.3.9
+        tag: 3.4
     cleanup:
       - /include
       - /lib/cmake
