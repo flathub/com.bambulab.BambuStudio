@@ -84,8 +84,6 @@ modules:
       - type: git
         url: https://github.com/glfw/glfw.git
         tag: 3.3.9
-      - type: patch
-        path: patches/glfw-Don-t-crash-on-calls-to-focus-or-icon.patch
     cleanup:
       - /include
       - /lib/cmake
