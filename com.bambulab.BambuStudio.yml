@@ -112,6 +112,7 @@ modules:
       - -DwxUSE_UNICODE=ON
       - -DwxUSE_PRIVATE_FONTS=1
       - -DwxUSE_OPENGL=ON
+      - -DwxUSE_GLCANVAS_EGL=ON
       - -DwxUSE_WEBREQUEST=ON
       - -DwxUSE_WEBVIEW=ON
       - -DwxUSE_REGEX=sys
