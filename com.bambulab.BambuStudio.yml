@@ -128,8 +128,12 @@ modules:
       - -DwxUSE_EXPAT=sys
     sources:
       - type: archive
-        url: https://github.com/wxWidgets/wxWidgets/releases/download/v3.2.6/wxWidgets-3.2.6.tar.bz2
-        sha256: 939e5b77ddc5b6092d1d7d29491fe67010a2433cf9b9c0d841ee4d04acb9dce7
+        url: https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.6/wxWidgets-3.1.6.tar.bz2
+        sha256: 4980e86c6494adcd527a41fc0a4e436777ba41d1893717d7b7176c59c2061c25
+      # https://github.com/wxWidgets/wxWidgets/issues/23630
+      - type: patch
+        path: patches/0001-Add-support-for-building-WebView-with-libwebkit2gtk-.patch
+
     cleanup:
       - /include
       - /lib/cmake
