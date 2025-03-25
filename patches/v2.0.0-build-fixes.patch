@@ -1,0 +1,846 @@
+From 7c3a8697e078fc11fcbfb102d4ab81e5011b99f9 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 25 Mar 2025 16:35:40 +0100
+Subject: [PATCH 01/24] FIX: Fix missing ExPolygons type declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+In file included from /run/build/BambuStudio/src/libslic3r/Clipper2Utils.cpp:1:
+/run/build/BambuStudio/src/libslic3r/Clipper2Utils.hpp:11:1: error: ‘ExPolygons’ does not name a type; did you mean ‘Polygons’?
+   11 | ExPolygons         union_ex_2(const Polygons &expolygons);
+      | ^~~~~~~~~~
+      | Polygons
+---
+ src/libslic3r/Clipper2Utils.hpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/libslic3r/Clipper2Utils.hpp b/src/libslic3r/Clipper2Utils.hpp
+index f0756a238603..402d43c7a902 100644
+--- a/src/libslic3r/Clipper2Utils.hpp
++++ b/src/libslic3r/Clipper2Utils.hpp
+@@ -1,6 +1,7 @@
+ #ifndef slic3r_Clipper2Utils_hpp_
+ #define slic3r_Clipper2Utils_hpp_
+ 
++#include "ExPolygon.hpp"
+ #include "Polygon.hpp"
+ #include "Polyline.hpp"
+ 
+-- 
+2.48.1
+
+
+From c0062be37bf77ea4c0dd9ba982ee68210564ed89 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 25 Mar 2025 16:37:19 +0100
+Subject: [PATCH 02/24] FIX: Fix missing Slic3r::BoundingBox type declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+In file included from /run/build/BambuStudio/src/libslic3r/ExtrusionEntityCollection.hpp:6,
+                 from /run/build/BambuStudio/src/libslic3r/CurveAnalyzer.hpp:4,
+                 from /run/build/BambuStudio/src/libslic3r/CurveAnalyzer.cpp:1:
+/run/build/BambuStudio/src/libslic3r/ExtrusionEntity.hpp:33:17: error: field ‘bbox’ has incomplete type ‘Slic3r::BoundingBox’
+   33 |     BoundingBox bbox;
+      |                 ^~~~
+---
+ src/libslic3r/ExtrusionEntity.hpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/libslic3r/ExtrusionEntity.hpp b/src/libslic3r/ExtrusionEntity.hpp
+index 77381801007c..050ab2ed62bb 100644
+--- a/src/libslic3r/ExtrusionEntity.hpp
++++ b/src/libslic3r/ExtrusionEntity.hpp
+@@ -2,6 +2,7 @@
+ #define slic3r_ExtrusionEntity_hpp_
+ 
+ #include "libslic3r.h"
++#include "BoundingBox.hpp"
+ #include "Polygon.hpp"
+ #include "Polyline.hpp"
+ 
+-- 
+2.48.1
+
+
+From a5517fe3e9c50dba0b9aa62310ad6263ba082e35 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 25 Mar 2025 16:43:59 +0100
+Subject: [PATCH 03/24] FIX: Fix missing std::accumulate declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+/run/build/BambuStudio/src/libslic3r/ExPolygon.cpp: In function ‘double Slic3r::get_expolygons_area(const ExPolygons&)’:
+/run/build/BambuStudio/src/libslic3r/ExPolygon.cpp:437:17: error: ‘accumulate’ is not a member of ‘std’
+  437 |     return std::accumulate(expolys.begin(), expolys.end(), (double)(0), [](double val, const ExPolygon& expoly) {
+      |                 ^~~~~~~~~~
+
+/run/build/BambuStudio/src/libslic3r/Polygon.cpp: In member function ‘bool Slic3r::Polygon::is_approx_circle(double, double, Slic3r::Point&, double&) const’:
+/run/build/BambuStudio/src/libslic3r/Polygon.cpp:122:28: error: ‘accumulate’ is not a member of ‘std’
+  122 |     double avg_dist = std::accumulate(distances.begin(), distances.end(), 0.0) / distances.size();
+      |                            ^~~~~~~~~~
+---
+ src/libslic3r/ExPolygon.cpp | 1 +
+ src/libslic3r/Polygon.cpp   | 2 ++
+ 2 files changed, 3 insertions(+)
+
+diff --git a/src/libslic3r/ExPolygon.cpp b/src/libslic3r/ExPolygon.cpp
+index 222cb2440a20..19ca5a057a8e 100644
+--- a/src/libslic3r/ExPolygon.cpp
++++ b/src/libslic3r/ExPolygon.cpp
+@@ -9,6 +9,7 @@
+ #include <algorithm>
+ #include <cassert>
+ #include <list>
++#include <numeric>
+ 
+ namespace Slic3r {
+ 
+diff --git a/src/libslic3r/Polygon.cpp b/src/libslic3r/Polygon.cpp
+index e256aadee508..222ebf3d48bb 100644
+--- a/src/libslic3r/Polygon.cpp
++++ b/src/libslic3r/Polygon.cpp
+@@ -4,6 +4,8 @@
+ #include "Polygon.hpp"
+ #include "Polyline.hpp"
+ 
++#include <numeric>
++
+ namespace Slic3r {
+ 
+ double Polygon::length() const
+-- 
+2.48.1
+
+
+From 6b2e1d055e501ad1b7c3b0af4c1bf922db5ff042 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 25 Mar 2025 16:53:25 +0100
+Subject: [PATCH 04/24] FIX: Fix missing std::stack declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+/run/build/BambuStudio/src/libslic3r/Fill/FillRectilinear.cpp: In function ‘void Slic3r::adjust_sort_for_segment_intersections(std::vector<SegmentIntersection>&)’:
+/run/build/BambuStudio/src/libslic3r/Fill/FillRectilinear.cpp:371:10: error: ‘stack’ is not a member of ‘std’
+  371 |     std::stack<IntersectionType> stack;
+      |          ^~~~~
+/run/build/BambuStudio/src/libslic3r/Fill/FillRectilinear.cpp:36:1: note: ‘std::stack’ is defined in header ‘<stack>’; this is probably fixable by adding ‘#include <stack>’
+   35 | #include <cassert>
+  +++ |+#include <stack>
+   36 |
+---
+ src/libslic3r/Fill/FillRectilinear.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/libslic3r/Fill/FillRectilinear.cpp b/src/libslic3r/Fill/FillRectilinear.cpp
+index ffd9a1ce98c5..1abbfd12a8d8 100644
+--- a/src/libslic3r/Fill/FillRectilinear.cpp
++++ b/src/libslic3r/Fill/FillRectilinear.cpp
+@@ -5,6 +5,7 @@
+ #include <cmath>
+ #include <limits>
+ #include <random>
++#include <stack>
+ 
+ #include <boost/container/small_vector.hpp>
+ #include <boost/log/trivial.hpp>
+-- 
+2.48.1
+
+
+From 4ebad50953b3802f253b3d992efc8c29a41b5799 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 25 Mar 2025 16:55:50 +0100
+Subject: [PATCH 05/24] FIX: Fix missing Slic3r::format declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+/run/build/BambuStudio/src/libslic3r/Fill/FillFloatingConcentric.cpp: In lambda function:
+/run/build/BambuStudio/src/libslic3r/Fill/FillFloatingConcentric.cpp:430:49: error: ‘format’ is not a member of ‘Slic3r’; did you mean ‘boost::format’?
+  430 |             BOOST_LOG_TRIVIAL(error) << Slic3r::format("ZFiller: both point in subject : %d, %d, %d, %d ", e1_a.z(), e1_b.z(), e2_a.z(), e2_b.z());
+      |                                                 ^~~~~~
+---
+ src/libslic3r/Fill/FillFloatingConcentric.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/libslic3r/Fill/FillFloatingConcentric.cpp b/src/libslic3r/Fill/FillFloatingConcentric.cpp
+index 037aa88c9196..a10c4589e638 100644
+--- a/src/libslic3r/Fill/FillFloatingConcentric.cpp
++++ b/src/libslic3r/Fill/FillFloatingConcentric.cpp
+@@ -4,6 +4,7 @@
+ #include "../ExPolygon.hpp"
+ #include "../Surface.hpp"
+ #include "../VariableWidth.hpp"
++#include "../format.hpp"
+ #include "FillFloatingConcentric.hpp"
+ #include <boost/log/trivial.hpp>
+ 
+-- 
+2.48.1
+
+
+From 607f9cf8c7a62133a529ecd9a55448a0b4c864c7 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 25 Mar 2025 17:01:31 +0100
+Subject: [PATCH 06/24] FIX: Fix missing polygon primitives declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+/run/build/BambuStudio/src/libslic3r/GCode/WipeTower.hpp:31:12: error: ‘TriangleMesh’ does not name a type
+   31 |     static TriangleMesh                 its_make_rib_tower(float width, float depth, float height, float rib_length, float rib_width, bool fillet_wall);
+      |            ^~~~~~~~~~~~
+<snip>
+/run/build/BambuStudio/src/libslic3r/GCode/WipeTower.hpp:33:12: error: ‘Polygon’ does not name a type
+   33 |     static Polygon                      rib_section(float width, float depth, float rib_length, float rib_width, bool fillet_wall);
+      |            ^~~~~~~
+<snip>
+/run/build/BambuStudio/src/libslic3r/GCode/WipeTower.hpp:200:21: error: ‘Polylines’ was not declared in this scope
+  200 |     std::map<float, Polylines> get_outer_wall() const
+      |                     ^~~~~~~~~
+<snip>
+---
+ src/libslic3r/GCode/WipeTower.hpp | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/libslic3r/GCode/WipeTower.hpp b/src/libslic3r/GCode/WipeTower.hpp
+index 125009419dad..4ccf4d93eb7b 100644
+--- a/src/libslic3r/GCode/WipeTower.hpp
++++ b/src/libslic3r/GCode/WipeTower.hpp
+@@ -8,6 +8,9 @@
+ #include <algorithm>
+ 
+ #include "libslic3r/Point.hpp"
++#include "libslic3r/Polygon.hpp"
++#include "libslic3r/Polyline.hpp"
++#include "libslic3r/TriangleMesh.hpp"
+ #include <unordered_set>
+ 
+ namespace Slic3r
+-- 
+2.48.1
+
+
+From dda048406ed25db32b2cb3077cd377d8926eb198 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 25 Mar 2025 17:09:49 +0100
+Subject: [PATCH 07/24] FIX: Fix missing offset() helper declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+/run/build/BambuStudio/src/libslic3r/GCode/WipeTower.cpp:3327:26: error: ‘offset’ was not declared in this scope; did you mean ‘off_t’?
+ 3327 |             outer_wall = offset(outer_wall, scaled(spacing)).front();
+      |                          ^~~~~~
+      |                          off_t
+---
+ src/libslic3r/GCode/WipeTower.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/libslic3r/GCode/WipeTower.cpp b/src/libslic3r/GCode/WipeTower.cpp
+index c76ba22d16bb..d8566ae056f8 100644
+--- a/src/libslic3r/GCode/WipeTower.cpp
++++ b/src/libslic3r/GCode/WipeTower.cpp
+@@ -9,6 +9,7 @@
+ 
+ #include "GCodeProcessor.hpp"
+ #include "BoundingBox.hpp"
++#include "ClipperUtils.hpp"
+ #include "LocalesUtils.hpp"
+ #include "Triangulation.hpp"
+ 
+-- 
+2.48.1
+
+
+From 4867cbb7f132f0a318e601bd92cd512f547fe3be Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 25 Mar 2025 17:16:09 +0100
+Subject: [PATCH 08/24] FIX: Fix missing L() localisation helper
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+/run/build/BambuStudio/src/libslic3r/PresetBundle.cpp: In member function ‘unsigned int Slic3r::PresetBundle::sync_ams_list(std::vector<std::pair<Slic3r::DynamicPrintConfig*, std::__cxx11::basic_string<char> > >&, bool, std::map<int, Slic3r::AMSMapInfo>&, bool, Slic3r::MergeFilamentInfo&)’:
+/run/build/BambuStudio/src/libslic3r/PresetBundle.cpp:1973:49: error: ‘L’ was not declared in this scope
+ 1973 |                     unknowns.emplace_back(&ams, L("The filament model is unknown. Still using the previous filament preset."));
+      |                                                 ^
+---
+ src/libslic3r/PresetBundle.cpp | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/libslic3r/PresetBundle.cpp b/src/libslic3r/PresetBundle.cpp
+index 62944541fd14..aec67cb832b4 100644
+--- a/src/libslic3r/PresetBundle.cpp
++++ b/src/libslic3r/PresetBundle.cpp
+@@ -2,6 +2,7 @@
+ 
+ #include "PresetBundle.hpp"
+ #include "libslic3r.h"
++#include "I18N.hpp"
+ #include "Utils.hpp"
+ #include "Model.hpp"
+ #include "format.hpp"
+@@ -24,6 +25,8 @@
+ #include <boost/log/trivial.hpp>
+ #include <miniz/miniz.h>
+ 
++// Mark string for localization and translate.
++#define L(s) Slic3r::I18N::translate(s)
+ 
+ // Store the print/filament/printer presets into a "presets" subdirectory of the Slic3rPE config dir.
+ // This breaks compatibility with the upstream Slic3r if the --datadir is used to switch between the two versions.
+-- 
+2.48.1
+
+
+From 70fac94b11a1f7336e56dd913792a150828a0db0 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 25 Mar 2025 17:30:11 +0100
+Subject: [PATCH 09/24] FIX: Fix missing boost::algorithm::split declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+/run/build/BambuStudio/src/libslic3r/PrintConfig.cpp: In function ‘std::vector<std::map<int, int> > Slic3r::get_extruder_ams_count(const std::vector<std::__cxx11::basic_string<char> >&)’:
+/run/build/BambuStudio/src/libslic3r/PrintConfig.cpp:454:27: error: ‘split’ is not a member of ‘boost::algorithm’
+  454 |         boost::algorithm::split(ams_infos, str, boost::algorithm::is_any_of("|"));
+      |                           ^~~~~
+---
+ src/libslic3r/PrintConfig.cpp | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/libslic3r/PrintConfig.cpp b/src/libslic3r/PrintConfig.cpp
+index d5edc5edfed6..4a82490bb9d0 100644
+--- a/src/libslic3r/PrintConfig.cpp
++++ b/src/libslic3r/PrintConfig.cpp
+@@ -4,8 +4,9 @@
+ #include "I18N.hpp"
+ 
+ #include <set>
+-#include <boost/algorithm/string/replace.hpp>
+ #include <boost/algorithm/string/case_conv.hpp>
++#include <boost/algorithm/string/replace.hpp>
++#include <boost/algorithm/string/split.hpp>
+ #include <boost/format.hpp>
+ #include <boost/lexical_cast.hpp>
+ #include <boost/log/trivial.hpp>
+-- 
+2.48.1
+
+
+From ad192c1f4d633eab4305754ba6deca33311549b5 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 25 Mar 2025 17:31:39 +0100
+Subject: [PATCH 10/24] FIX: Fix missing std::ofstream/std::ifstream
+ declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+/run/build/BambuStudio/src/libslic3r/SVG.cpp: In function ‘void Slic3r::dumpExPolygonToJson(const ExPolygon&, const std::string&)’:
+/run/build/BambuStudio/src/libslic3r/SVG.cpp:620:32: error: variable ‘std::ofstream file’ has initializer but incomplete type
+  620 |     std::ofstream file(filePath);
+      |                                ^
+/run/build/BambuStudio/src/libslic3r/SVG.cpp:6:1: note: ‘std::ofstream’ is defined in header ‘<fstream>’; this is probably fixable by adding ‘#include <fstream>’
+    5 | #include "nlohmann/json.hpp"
+  +++ |+#include <fstream>
+    6 |
+---
+ src/libslic3r/SVG.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/libslic3r/SVG.cpp b/src/libslic3r/SVG.cpp
+index f50cdccfa6df..d58c6c241104 100644
+--- a/src/libslic3r/SVG.cpp
++++ b/src/libslic3r/SVG.cpp
+@@ -1,4 +1,5 @@
+ #include "SVG.hpp"
++#include <fstream>
+ #include <iostream>
+ // #include "pugixml/pugixml.hpp"
+ #include <boost/nowide/cstdio.hpp>
+-- 
+2.48.1
+
+
+From 72696eaaeb0f279a0e432387ad2076d95dff8338 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 25 Mar 2025 17:44:33 +0100
+Subject: [PATCH 11/24] FIX: Fix missing union_ex/offset_ex declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+/run/build/BambuStudio/src/libslic3r/Interlocking/InterlockingGenerator.cpp: In member function ‘std::pair<std::vector<Slic3r::ExPolygon>, std::vector<Slic3r::ExPolygon> > Slic3r::InterlockingGenerator::growBorderAreasPerpendicular(const Slic3r::ExPolygons&, const Slic3r::ExPolygons&, const coord_t&) const’:
+/run/build/BambuStudio/src/libslic3r/Interlocking/InterlockingGenerator.cpp:70:56: error: ‘offset_ex’ was not declared in this scope; did you mean ‘offsetof’?
+   70 |     const ExPolygons total_shrunk = offset_ex(union_ex(offset_ex(a, min_line), offset_ex(b, min_line)), 2 * -min_line);
+      |                                                        ^~~~~~~~~
+      |                                                        offsetof
+/run/build/BambuStudio/src/libslic3r/Interlocking/InterlockingGenerator.cpp:70:47: error: ‘union_ex’ was not declared in this scope; did you mean ‘union’?
+   70 |     const ExPolygons total_shrunk = offset_ex(union_ex(offset_ex(a, min_line), offset_ex(b, min_line)), 2 * -min_line);
+      |                                               ^~~~~~~~
+      |                                               union
+---
+ src/libslic3r/Interlocking/InterlockingGenerator.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/libslic3r/Interlocking/InterlockingGenerator.cpp b/src/libslic3r/Interlocking/InterlockingGenerator.cpp
+index 5a9fc21d67f0..a52c92dc0424 100644
+--- a/src/libslic3r/Interlocking/InterlockingGenerator.cpp
++++ b/src/libslic3r/Interlocking/InterlockingGenerator.cpp
+@@ -1,6 +1,7 @@
+ // Copyright (c) 2023 UltiMaker
+ // CuraEngine is released under the terms of the AGPLv3 or higher.
+ 
++#include "ClipperUtils.hpp"
+ #include "InterlockingGenerator.hpp"
+ #include "Layer.hpp"
+ 
+-- 
+2.48.1
+
+
+From 9958cf17d2d8eb895ecb9b114e53df1b928c3b6d Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 25 Mar 2025 18:01:18 +0100
+Subject: [PATCH 12/24] FIX: Fix missing std:: declarations in ToolOrderUtils
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+/run/build/BambuStudio/src/libslic3r/GCode/ToolOrderUtils.hpp:14:26: error: ‘numeric_limits’ is not a member of ‘std’
+   14 |     const int INF = std::numeric_limits<int>::max();
+      |                          ^~~~~~~~~~~~~~
+/run/build/BambuStudio/src/libslic3r/GCode/ToolOrderUtils.cpp:545:66: error: ‘unordered_set’ in namespace ‘std’ does not name a template type
+  545 |     static std::vector<T> collect_filaments_in_groups(const std::unordered_set<unsigned int>& group, const std::vector<unsigned int>& filament_list) {
+      |                                                                  ^~~~~~~~~~~~~
+---
+ src/libslic3r/GCode/ToolOrderUtils.hpp | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/libslic3r/GCode/ToolOrderUtils.hpp b/src/libslic3r/GCode/ToolOrderUtils.hpp
+index a2da86b0dcec..26c9a011861e 100644
+--- a/src/libslic3r/GCode/ToolOrderUtils.hpp
++++ b/src/libslic3r/GCode/ToolOrderUtils.hpp
+@@ -4,7 +4,9 @@
+ #include <vector>
+ #include <optional>
+ #include <functional>
++#include <limits>
+ #include <memory>
++#include <unordered_set>
+ 
+ namespace Slic3r {
+ 
+-- 
+2.48.1
+
+
+From e812a3fa28421dd8151125371d42033a71c82d4c Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 25 Mar 2025 18:05:23 +0100
+Subject: [PATCH 13/24] FIX: Fix missing std::set declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+/run/build/BambuStudio/src/slic3r/GUI/Widgets/DropDown.cpp:281:10: error: ‘set’ is not a member of ‘std’
+  281 |     std::set<wxString> groups;
+      |          ^~~
+---
+ src/slic3r/GUI/Widgets/DropDown.cpp | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/slic3r/GUI/Widgets/DropDown.cpp b/src/slic3r/GUI/Widgets/DropDown.cpp
+index 304416a76e2f..71a43d917dee 100644
+--- a/src/slic3r/GUI/Widgets/DropDown.cpp
++++ b/src/slic3r/GUI/Widgets/DropDown.cpp
+@@ -9,6 +9,8 @@
+ #include <gtk/gtk.h>
+ #endif
+ 
++#include <set>
++
+ wxDEFINE_EVENT(EVT_DISMISS, wxCommandEvent);
+ 
+ BEGIN_EVENT_TABLE(DropDown, PopupWindow)
+-- 
+2.48.1
+
+
+From 7515afb45957855a0341361260792ecb468f6135 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 25 Mar 2025 18:06:40 +0100
+Subject: [PATCH 14/24] FIX: Fix missing std::regex declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+/run/build/BambuStudio/src/libslic3r/FilamentGroupUtils.cpp: In lambda function:
+/run/build/BambuStudio/src/libslic3r/FilamentGroupUtils.cpp:92:18: error: ‘regex’ is not a member of ‘std’
+   92 |             std::regex r1(R"(^Sup.(\w+)$)");
+      |                  ^~~~~
+---
+ src/libslic3r/FilamentGroupUtils.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/libslic3r/FilamentGroupUtils.cpp b/src/libslic3r/FilamentGroupUtils.cpp
+index 6089ac24b724..1b16a1337f82 100644
+--- a/src/libslic3r/FilamentGroupUtils.cpp
++++ b/src/libslic3r/FilamentGroupUtils.cpp
+@@ -1,4 +1,5 @@
+ #include "FilamentGroupUtils.hpp"
++#include <regex>
+ #include <sstream>
+ 
+ namespace Slic3r
+-- 
+2.48.1
+
+
+From e68051e225af87cf8e0fd27bf341b2ee0ef019e2 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 25 Mar 2025 18:15:43 +0100
+Subject: [PATCH 15/24] FIX: Fix missing FilamentMapMode declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+/run/build/BambuStudio/src/slic3r/GUI/3DScene.hpp: At global scope:
+/run/build/BambuStudio/src/slic3r/GUI/3DScene.hpp:65:5: error: ‘FilamentMapMode’ does not name a type
+   65 |     FilamentMapMode         mode;
+      |     ^~~~~~~~~~~~~~~
+---
+ src/slic3r/GUI/3DScene.hpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/slic3r/GUI/3DScene.hpp b/src/slic3r/GUI/3DScene.hpp
+index ce0f92e47236..50937f45cead 100644
+--- a/src/slic3r/GUI/3DScene.hpp
++++ b/src/slic3r/GUI/3DScene.hpp
+@@ -7,6 +7,7 @@
+ #include "libslic3r/TriangleMesh.hpp"
+ #include "libslic3r/Utils.hpp"
+ #include "libslic3r/Geometry.hpp"
++#include "libslic3r/PrintConfig.hpp"
+ // BBS
+ #include "libslic3r/ObjectID.hpp"
+ 
+-- 
+2.48.1
+
+
+From 3b580fdee10c1d46c03b1c0067824163f6119fb3 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 25 Mar 2025 18:27:58 +0100
+Subject: [PATCH 16/24] FIX: Fix missing wxGridSizer declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+/run/build/BambuStudio/src/slic3r/GUI/DragDropPanel.hpp:36:5: error: ‘wxGridSizer’ does not name a type; did you mean ‘wxSizer’?
+   36 |     wxGridSizer *m_grid_item_sizer;
+      |     ^~~~~~~~~~~
+      |     wxSizer
+---
+ src/slic3r/GUI/DragDropPanel.hpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/slic3r/GUI/DragDropPanel.hpp b/src/slic3r/GUI/DragDropPanel.hpp
+index 7a10f4084b7a..d98816483969 100644
+--- a/src/slic3r/GUI/DragDropPanel.hpp
++++ b/src/slic3r/GUI/DragDropPanel.hpp
+@@ -6,6 +6,7 @@
+ 
+ #include <wx/simplebook.h>
+ #include <wx/dialog.h>
++#include <wx/sizer.h>
+ #include <wx/timer.h>
+ #include <vector>
+ 
+-- 
+2.48.1
+
+
+From 2e86dc8cfd3445decef3c0b2aa253a9f7a3e79f1 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 25 Mar 2025 18:29:20 +0100
+Subject: [PATCH 17/24] FIX: Fix missing wxAutoBufferedPaintDC declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+/run/build/BambuStudio/src/slic3r/GUI/CapsuleButton.cpp: In member function ‘void Slic3r::GUI::CapsuleButton::OnPaint(wxPaintEvent&)’:
+/run/build/BambuStudio/src/slic3r/GUI/CapsuleButton.cpp:63: error: ‘wxAutoBufferedPaintDC’ was not declared in this scope
+   63 |     wxAutoBufferedPaintDC dc(this);
+/run/build/BambuStudio/src/slic3r/GUI/FilamentMapPanel.cpp: In member function ‘void Slic3r::GUI::FilamentMapBtnPanel::OnPaint(wxPaintEvent&)’:
+/run/build/BambuStudio/src/slic3r/GUI/FilamentMapPanel.cpp:182: error: ‘wxAutoBufferedPaintDC’ was not declared in this scope
+  182 |     wxAutoBufferedPaintDC dc(this);
+---
+ src/slic3r/GUI/CapsuleButton.cpp    | 3 ++-
+ src/slic3r/GUI/FilamentMapPanel.cpp | 1 +
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/src/slic3r/GUI/CapsuleButton.cpp b/src/slic3r/GUI/CapsuleButton.cpp
+index 897ec7db674a..3249a21f9063 100644
+--- a/src/slic3r/GUI/CapsuleButton.cpp
++++ b/src/slic3r/GUI/CapsuleButton.cpp
+@@ -1,5 +1,6 @@
+ #include "GUI_App.hpp"
+ #include "CapsuleButton.hpp"
++#include <wx/dcbuffer.h>
+ #include "wx/graphics.h"
+ #include "Widgets/Label.hpp"
+ 
+@@ -123,4 +124,4 @@ void CapsuleButton::UpdateStatus()
+ 
+     GUI::wxGetApp().UpdateDarkUIWin(this);
+ }
+-}} // namespace Slic3r::GUI
+\ No newline at end of file
++}} // namespace Slic3r::GUI
+diff --git a/src/slic3r/GUI/FilamentMapPanel.cpp b/src/slic3r/GUI/FilamentMapPanel.cpp
+index 7f94d6b395de..b44ce5368f28 100644
+--- a/src/slic3r/GUI/FilamentMapPanel.cpp
++++ b/src/slic3r/GUI/FilamentMapPanel.cpp
+@@ -1,5 +1,6 @@
+ #include "FilamentMapPanel.hpp"
+ #include "GUI_App.hpp"
++#include <wx/dcbuffer.h>
+ #include "wx/graphics.h"
+ 
+ namespace Slic3r { namespace GUI {
+-- 
+2.48.1
+
+
+From aeceed83e1828dcec42e78c8be3075c84293995b Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 25 Mar 2025 18:45:38 +0100
+Subject: [PATCH 18/24] FIX: Fix missing wxDialog declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+In file included from /run/build/BambuStudio/src/slic3r/GUI/WipeTowerDialog.cpp:4:
+/run/build/BambuStudio/src/slic3r/GUI/WipeTowerDialog.hpp:8:1: error: expected class-name before ‘{’ token
+    8 | {
+      | ^
+---
+ src/slic3r/GUI/WipeTowerDialog.hpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/slic3r/GUI/WipeTowerDialog.hpp b/src/slic3r/GUI/WipeTowerDialog.hpp
+index 20261c1862de..7fcd90833d1f 100644
+--- a/src/slic3r/GUI/WipeTowerDialog.hpp
++++ b/src/slic3r/GUI/WipeTowerDialog.hpp
+@@ -1,6 +1,7 @@
+ #ifndef _WIPE_TOWER_DIALOG_H_
+ #define _WIPE_TOWER_DIALOG_H_
+ 
++#include <wx/dialog.h>
+ #include <wx/webview.h>
+ #include "libslic3r/PrintConfig.hpp"
+ 
+-- 
+2.48.1
+
+
+From e871f83eb821f11fbd669a125fab3838fcec7f30 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 25 Mar 2025 18:50:48 +0100
+Subject: [PATCH 19/24] FIX: Fix missing Slic3r::intersection declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+/run/build/BambuStudio/src/slic3r/GUI/ImGuiWrapper.cpp: In static member function ‘static ImVec2 Slic3r::GUI::ImGuiWrapper::suggest_location(const ImVec2&, const Slic3r::Polygon&, const ImVec2&)’:
+/run/build/BambuStudio/src/slic3r/GUI/ImGuiWrapper.cpp:2201: error: ‘intersection’ is not a member of ‘Slic3r’; did you mean ‘PrinterFunction’?
+ 2201 |         if (Slic3r::intersection(interest, Polygon(moved_polygon)).empty())
+---
+ src/slic3r/GUI/ImGuiWrapper.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/slic3r/GUI/ImGuiWrapper.cpp b/src/slic3r/GUI/ImGuiWrapper.cpp
+index 845080a96b4a..8ce8e0cefc36 100644
+--- a/src/slic3r/GUI/ImGuiWrapper.cpp
++++ b/src/slic3r/GUI/ImGuiWrapper.cpp
+@@ -26,6 +26,7 @@
+ #include <imgui/imgui_internal.h>
+ 
+ #include "libslic3r/libslic3r.h"
++#include <libslic3r/ClipperUtils.hpp>
+ #include "libslic3r/Utils.hpp"
+ #include "libslic3r/Shape/TextShape.hpp"
+ #include "3DScene.hpp"
+-- 
+2.48.1
+
+
+From 68190fba0f01a0d94a3324be39567a697666ac60 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 25 Mar 2025 18:57:48 +0100
+Subject: [PATCH 20/24] FIX: Fix missing wxDisplay declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+/run/build/BambuStudio/src/slic3r/GUI/WipeTowerDialog.cpp: In constructor ‘WipingDialog::WipingDialog(wxWindow*, const std::vector<std::vector<int>, std::allocator<std::vector<int> > >&, int)’:
+/run/build/BambuStudio/src/slic3r/GUI/WipeTowerDialog.cpp:123: error: ‘wxDisplay’ was not declared in this scope; did you mean ‘wxGetDisplay’?
+  123 |     double scale_factor = wxDisplay().GetScaleFactor();
+---
+ src/slic3r/GUI/WipeTowerDialog.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/slic3r/GUI/WipeTowerDialog.cpp b/src/slic3r/GUI/WipeTowerDialog.cpp
+index 904fc78c63a7..c77d9a4d38db 100644
+--- a/src/slic3r/GUI/WipeTowerDialog.cpp
++++ b/src/slic3r/GUI/WipeTowerDialog.cpp
+@@ -1,4 +1,5 @@
+ #include <algorithm>
++#include <wx/display.h>
+ #include <wx/sizer.h>
+ #include "libslic3r/FlushVolCalc.hpp"
+ #include "WipeTowerDialog.hpp"
+-- 
+2.48.1
+
+
+From 95dfe6bc3e533a85b59cb342ac910dffdc3cee48 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 25 Mar 2025 19:15:16 +0100
+Subject: [PATCH 21/24] fixup! FIX: Fix missing FilamentMapMode declaration
+
+---
+ src/slic3r/GUI/FilamentGroupPopup.hpp | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/slic3r/GUI/FilamentGroupPopup.hpp b/src/slic3r/GUI/FilamentGroupPopup.hpp
+index b8b0998f0d7c..a9c3e218513c 100644
+--- a/src/slic3r/GUI/FilamentGroupPopup.hpp
++++ b/src/slic3r/GUI/FilamentGroupPopup.hpp
+@@ -1,6 +1,7 @@
+ #ifndef FILAMENT_GROUP_HOVER_HPP
+ #define FILAMENT_GROUP_HOVER_HPP
+ 
++#include "libslic3r/PrintConfig.hpp"
+ #include "Widgets/PopupWindow.hpp"
+ #include "Widgets/Label.hpp"
+ 
+@@ -75,4 +76,4 @@ private:
+     Plater* plater_ref{ nullptr };
+ };
+ }} // namespace Slic3r::GUI
+-#endif
+\ No newline at end of file
++#endif
+-- 
+2.48.1
+
+
+From e394e0e5c2ee5191ef4dc61ead431f3008969339 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 25 Mar 2025 19:16:04 +0100
+Subject: [PATCH 22/24] FIX: Fix missing wxTimerEvent declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+In file included from /run/build/BambuStudio/src/slic3r/GUI/FilamentGroupPopup.cpp:1:
+/run/build/BambuStudio/src/slic3r/GUI/FilamentGroupPopup.hpp:33:18: error: ‘wxTimerEvent’ has not been declared
+   33 |     void OnTimer(wxTimerEvent &event);
+      |                  ^~~~~~~~~~~~
+---
+ src/slic3r/GUI/FilamentGroupPopup.hpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/slic3r/GUI/FilamentGroupPopup.hpp b/src/slic3r/GUI/FilamentGroupPopup.hpp
+index a9c3e218513c..e69f12c4feaf 100644
+--- a/src/slic3r/GUI/FilamentGroupPopup.hpp
++++ b/src/slic3r/GUI/FilamentGroupPopup.hpp
+@@ -1,6 +1,7 @@
+ #ifndef FILAMENT_GROUP_HOVER_HPP
+ #define FILAMENT_GROUP_HOVER_HPP
+ 
++#include <wx/timer.h>
+ #include "libslic3r/PrintConfig.hpp"
+ #include "Widgets/PopupWindow.hpp"
+ #include "Widgets/Label.hpp"
+-- 
+2.48.1
+
+
+From e1d14b712b3e4af0f757573523f802b41c90e831 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 25 Mar 2025 19:26:17 +0100
+Subject: [PATCH 23/24] FIX: Fix missing wxBitmap{,Button} declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+In file included from /run/build/BambuStudio/src/slic3r/GUI/FilamentGroupPopup.cpp:1:
+/run/build/BambuStudio/src/slic3r/GUI/FilamentGroupPopup.hpp:60:17: error: ‘wxBitmapButton’ was not declared in this scope
+   60 |     std::vector<wxBitmapButton*> radio_btns;
+      |                 ^~~~~~~~~~~~~~
+/run/build/BambuStudio/src/slic3r/GUI/FilamentGroupPopup.hpp:60:32: error: template argument 2 is invalid
+/run/build/BambuStudio/src/slic3r/GUI/FilamentGroupPopup.hpp:65:14: error: field ‘checked_bmp’ has incomplete type ‘wxBitmap’
+   65 |     wxBitmap checked_bmp;
+      |              ^~~~~~~~~~~
+---
+ src/slic3r/GUI/FilamentGroupPopup.hpp | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/slic3r/GUI/FilamentGroupPopup.hpp b/src/slic3r/GUI/FilamentGroupPopup.hpp
+index e69f12c4feaf..2355b13e9e9a 100644
+--- a/src/slic3r/GUI/FilamentGroupPopup.hpp
++++ b/src/slic3r/GUI/FilamentGroupPopup.hpp
+@@ -1,6 +1,8 @@
+ #ifndef FILAMENT_GROUP_HOVER_HPP
+ #define FILAMENT_GROUP_HOVER_HPP
+ 
++#include <wx/bitmap.h>
++#include <wx/bmpbuttn.h>
+ #include <wx/timer.h>
+ #include "libslic3r/PrintConfig.hpp"
+ #include "Widgets/PopupWindow.hpp"
+-- 
+2.48.1
+
+
+From 6518d57ab121894ba294dc3b34b72fab7cb28a42 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 25 Mar 2025 19:40:12 +0100
+Subject: [PATCH 24/24] FIX: Fix missing wxDC declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+/run/build/BambuStudio/src/slic3r/Utils/WxFontUtils.hpp: At global scope:
+/run/build/BambuStudio/src/slic3r/Utils/WxFontUtils.hpp:44:56: error: ‘wxDC’ has not been declared
+   44 |     static void get_suitable_font_size(int max_height, wxDC &dc);
+      |                                                        ^~~~
+---
+ src/slic3r/Utils/WxFontUtils.hpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/slic3r/Utils/WxFontUtils.hpp b/src/slic3r/Utils/WxFontUtils.hpp
+index fd0a81a889d8..79b6b37028e9 100644
+--- a/src/slic3r/Utils/WxFontUtils.hpp
++++ b/src/slic3r/Utils/WxFontUtils.hpp
+@@ -5,6 +5,7 @@
+ #include <optional>
+ #include <string_view>
+ #include <boost/bimap.hpp>
++#include <wx/dc.h>
+ #include <wx/font.h>
+ #include "libslic3r/Emboss.hpp"
+ 
+-- 
+2.48.1
+
