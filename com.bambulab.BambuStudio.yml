@@ -269,24 +269,20 @@ modules:
       # BambuStudio Source Archive
       - type: git
         url: https://github.com/bambulab/BambuStudio.git
-        tag: v01.10.02.76
+        tag: v02.00.00.95
 
       # Patched TBB cmake to make build without lto flag
       - type: file
         dest: deps/TBB
         path: patches/TBB/GNU.cmake
 
-      # https://github.com/bambulab/BambuStudio/pull/6018
-      - type: patch
-        path: patches/0001-FIX-occt-build-failure.patch
-
       # Apply TTB patches to fix linking failure. More info: https://github.com/prusa3d/PrusaSlicer/issues/8922
       - type: patch
         path: patches/0001-Apply-TBB-LTO-patch.patch
 
-      # https://github.com/bambulab/BambuStudio/pull/5891
+      # https://github.com/bambulab/BambuStudio/pull/6155
       - type: patch
-        path: patches/focus-stealing-fixes.patch
+        path: patches/v2.0.0-build-fixes.patch
 
       # AppData metainfo for Gnome Software & Co.
       - type: file
