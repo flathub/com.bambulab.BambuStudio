@@ -103,23 +103,26 @@ index 568869668754..0b5dafd6b543 100644
 -- 
 2.48.1
 
-From 6ce57eb10d52f755c14959d93aef6352fb429cc8 Mon Sep 17 00:00:00 2001
+From 964dcf6a1cc0afe1924b540d08c971ec4897caa9 Mon Sep 17 00:00:00 2001
 From: Bastien Nocera <hadess@hadess.net>
 Date: Fri, 7 Mar 2025 17:45:46 +0100
 Subject: [PATCH] deps: Build GLEW with EGL support
 
 EGL support is necessary for Wayland.
 ---
- deps/GLEW/GLEW.cmake | 2 ++
- 1 file changed, 2 insertions(+)
+ deps/GLEW/GLEW.cmake | 4 ++++
+ 1 file changed, 4 insertions(+)
 
 diff --git a/deps/GLEW/GLEW.cmake b/deps/GLEW/GLEW.cmake
-index c2673d6fb657..60c9eddd54f5 100644
+index c2673d6fb657..fdca9081a296 100644
 --- a/deps/GLEW/GLEW.cmake
 +++ b/deps/GLEW/GLEW.cmake
-@@ -5,6 +5,8 @@ find_package(OpenGL QUIET REQUIRED)
+@@ -4,7 +4,11 @@ find_package(OpenGL QUIET REQUIRED)
+ 
  bambustudio_add_cmake_project(
    GLEW
++  URL https://sourceforge.net/projects/glew/files/glew/2.2.0/glew-2.2.0.zip
++  URL_HASH SHA256=a9046a913774395a095edcc0b0ac2d81c3aacca61787b39839b941e9be14e0d4
    SOURCE_DIR  ${CMAKE_CURRENT_LIST_DIR}/glew
 +  CMAKE_ARGS
 +      -DGLEW_EGL=ON
@@ -127,5 +130,5 @@ index c2673d6fb657..60c9eddd54f5 100644
  
  if (MSVC)
 -- 
-2.48.1
+2.49.0
 
