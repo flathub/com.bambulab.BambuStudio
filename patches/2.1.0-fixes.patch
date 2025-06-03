@@ -1,0 +1,206 @@
+From a0f2f50053310a9419755494ce094ee7aeed8cec Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 3 Jun 2025 13:19:54 +0200
+Subject: [PATCH 1/4] FIX: Fix missing diff/diff_ex/etc. declarations
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+/run/build/BambuStudio/src/libslic3r/GCode/TimelapsePosPicker.cpp: In member function ‘void Slic3r::TimelapsePosPicker::construct_printable_area_by_printer()’:
+/run/build/BambuStudio/src/libslic3r/GCode/TimelapsePosPicker.cpp:102:49: error: ‘diff’ was not declared in this scope
+  102 |             ExPolygons printable_area = diff_ex(diff(m_bed_polygon, bed_exclude_area), { wipe_tower_area });
+      |                                                 ^~~~
+/run/build/BambuStudio/src/libslic3r/GCode/TimelapsePosPicker.cpp:102:41: error: ‘diff_ex’ was not declared in this scope
+  102 |             ExPolygons printable_area = diff_ex(diff(m_bed_polygon, bed_exclude_area), { wipe_tower_area });
+      |                                         ^~~~~~~
+/run/build/BambuStudio/src/libslic3r/GCode/TimelapsePosPicker.cpp:107:34: error: ‘intersection_ex’ was not declared in this scope
+  107 |                 printable_area = intersection_ex(printable_area, Polygons{ extruder_printable_area });
+      |                                  ^~~~~~~~~~~~~~~
+/run/build/BambuStudio/src/libslic3r/GCode/TimelapsePosPicker.cpp: In member function ‘Slic3r::ExPolygons Slic3r::TimelapsePosPicker::collect_object_slices_data(const Slic3r::Layer*, float, const std::vector<const Slic3r::PrintObject*>&, bool)’:
+/run/build/BambuStudio/src/libslic3r/GCode/TimelapsePosPicker.cpp:154:15: error: ‘union_ex’ was not declared in this scope; did you mean ‘union’?
+  154 |         ret = union_ex(ret);
+      |               ^~~~~~~~
+      |               union
+/run/build/BambuStudio/src/libslic3r/GCode/TimelapsePosPicker.cpp:132:15: warning: unused variable ‘z_target’ [-Wunused-variable]
+  132 |         float z_target = layer->print_z;
+      |               ^~~~~~~~
+/run/build/BambuStudio/src/libslic3r/GCode/TimelapsePosPicker.cpp: In member function ‘Slic3r::Polygons Slic3r::TimelapsePosPicker::collect_limit_areas_for_camera(const std::vector<const Slic3r::PrintObject*>&)’:
+/run/build/BambuStudio/src/libslic3r/GCode/TimelapsePosPicker.cpp:164:15: error: ‘union_’ was not declared in this scope; did you mean ‘union’?
+  164 |         ret = union_(ret);
+      |               ^~~~~~
+      |               union
+/run/build/BambuStudio/src/libslic3r/GCode/TimelapsePosPicker.cpp: In member function ‘Slic3r::Polygon Slic3r::TimelapsePosPicker::expand_object_projection(const Slic3r::Polygon&, bool)’:
+/run/build/BambuStudio/src/libslic3r/GCode/TimelapsePosPicker.cpp:260:20: error: ‘offset’ was not declared in this scope; did you mean ‘off_t’?
+  260 |         auto ret = offset(poly, radius);
+      |                    ^~~~~~
+      |                    off_t
+/run/build/BambuStudio/src/libslic3r/GCode/TimelapsePosPicker.cpp: In function ‘Slic3r::Point Slic3r::pick_pos_internal(const Point&, const ExPolygons&, const ExPolygons&, bool)’:
+/run/build/BambuStudio/src/libslic3r/GCode/TimelapsePosPicker.cpp:406:17: error: ‘intersection_pl’ was not declared in this scope
+  406 |             if (intersection_pl(path, path_collision_area).empty())
+      |                 ^~~~~~~~~~~~~~~
+/run/build/BambuStudio/src/libslic3r/GCode/TimelapsePosPicker.cpp:376:16: warning: unused variable ‘min_distance’ [-Wunused-variable]
+  376 |         double min_distance = std::numeric_limits<double>::max();
+      |                ^~~~~~~~~~~~
+/run/build/BambuStudio/src/libslic3r/GCode/TimelapsePosPicker.cpp: In member function ‘Slic3r::Point Slic3r::TimelapsePosPicker::pick_pos_for_curr_layer(const Slic3r::PosPickCtx&)’:
+/run/build/BambuStudio/src/libslic3r/GCode/TimelapsePosPicker.cpp:474:47: error: ‘union_ex’ was not declared in this scope; did you mean ‘union’?
+  474 |         ExPolygons unplacable_area = union_ex(union_ex(layer_slices, camera_limit_areas), rod_limit_areas);
+      |                                               ^~~~~~~~
+      |                                               union
+/run/build/BambuStudio/src/libslic3r/GCode/TimelapsePosPicker.cpp:474:38: error: ‘union_ex’ was not declared in this scope; did you mean ‘union’?
+  474 |         ExPolygons unplacable_area = union_ex(union_ex(layer_slices, camera_limit_areas), rod_limit_areas);
+      |                                      ^~~~~~~~
+      |                                      union
+/run/build/BambuStudio/src/libslic3r/GCode/TimelapsePosPicker.cpp:477:32: error: ‘diff_ex’ was not declared in this scope
+  477 |         ExPolygons safe_area = diff_ex(extruder_printable_area, unplacable_area);
+      |                                ^~~~~~~
+/run/build/BambuStudio/src/libslic3r/GCode/TimelapsePosPicker.cpp:478:21: error: ‘opening_ex’ was not declared in this scope
+  478 |         safe_area = opening_ex(safe_area, scale_(FILTER_THRESHOLD));
+      |                     ^~~~~~~~~~
+/run/build/BambuStudio/src/libslic3r/GCode/TimelapsePosPicker.cpp: In member function ‘Slic3r::Point Slic3r::TimelapsePosPicker::pick_pos_for_all_layer(const Slic3r::PosPickCtx&)’:
+/run/build/BambuStudio/src/libslic3r/GCode/TimelapsePosPicker.cpp:564:30: error: ‘union_’ was not declared in this scope; did you mean ‘union’?
+  564 |         object_projections = union_(object_projections);
+      |                              ^~~~~~
+      |                              union
+/run/build/BambuStudio/src/libslic3r/GCode/TimelapsePosPicker.cpp:570:39: error: ‘intersection_ex’ was not declared in this scope
+  570 |             extruder_printable_area = intersection_ex(m_extruder_printable_area[0], m_extruder_printable_area[1]);
+      |                                       ^~~~~~~~~~~~~~~
+/run/build/BambuStudio/src/libslic3r/GCode/TimelapsePosPicker.cpp:574:32: error: ‘diff_ex’ was not declared in this scope
+  574 |         ExPolygons safe_area = diff_ex(extruder_printable_area, unplacable_area);
+      |                                ^~~~~~~
+/run/build/BambuStudio/src/libslic3r/GCode/TimelapsePosPicker.cpp:575:21: error: ‘opening_ex’ was not declared in this scope
+  575 |         safe_area = opening_ex(safe_area, scale_(FILTER_THRESHOLD));
+      |                     ^~~~~~~~~~
+---
+ src/libslic3r/GCode/TimelapsePosPicker.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/libslic3r/GCode/TimelapsePosPicker.cpp b/src/libslic3r/GCode/TimelapsePosPicker.cpp
+index 8f2c35c02..32355de1c 100644
+--- a/src/libslic3r/GCode/TimelapsePosPicker.cpp
++++ b/src/libslic3r/GCode/TimelapsePosPicker.cpp
+@@ -1,3 +1,4 @@
++#include "ClipperUtils.hpp"
+ #include "TimelapsePosPicker.hpp"
+ #include "Layer.hpp"
+ 
+-- 
+2.48.1
+
+
+From 6a5b70c75275e807ec4392545db72aecfa48739f Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Wed, 4 Jun 2025 22:28:04 +0200
+Subject: [PATCH 2/4] FIX: Fix missing ClipperLib_Z type definition
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+In file included from /run/build/BambuStudio/src/libslic3r/OverhangDetector.cpp:1:
+/run/build/BambuStudio/src/libslic3r/OverhangDetector.hpp:8:16: error: ‘ClipperLib_Z’ does not name a type
+    8 | using ZPoint = ClipperLib_Z::IntPoint;
+      |                ^~~~~~~~~~~~
+/run/build/BambuStudio/src/libslic3r/OverhangDetector.hpp:9:15: error: ‘ClipperLib_Z’ does not name a type
+    9 | using ZPath = ClipperLib_Z::Path;
+      |               ^~~~~~~~~~~~
+/run/build/BambuStudio/src/libslic3r/OverhangDetector.hpp:10:16: error: ‘ClipperLib_Z’ does not name a type
+   10 | using ZPaths = ClipperLib_Z::Paths;
+      |                ^~~~~~~~~~~~
+---
+ src/libslic3r/OverhangDetector.hpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/libslic3r/OverhangDetector.hpp b/src/libslic3r/OverhangDetector.hpp
+index 5ff07249d..22185ccb7 100644
+--- a/src/libslic3r/OverhangDetector.hpp
++++ b/src/libslic3r/OverhangDetector.hpp
+@@ -2,6 +2,7 @@
+ #define OVERHANG_DETECTOR_HPP
+ 
+ #include "ExtrusionEntityCollection.hpp"
++#include <clipper/clipper_z.hpp>
+ #include "ClipperUtils.hpp"
+ #include "Flow.hpp"
+ #include "AABBTreeLines.hpp"
+-- 
+2.48.1
+
+
+From 0ca7694ef9f57e452fefa2ca0ace9d08fa569296 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Thu, 5 Jun 2025 13:27:27 +0200
+Subject: [PATCH 3/4] FIX: Fix missing diff/intersection/etc. declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+/run/build/BambuStudio/src/libslic3r/PrintApply.cpp:313:28: error: ‘diff’ was not declared in this scope
+  313 |             Polygons res = diff(printable_poly, poly);
+      |                            ^~~~
+/run/build/BambuStudio/src/libslic3r/PrintApply.cpp:317:39: error: ‘intersection’ was not declared in this scope; did you mean ‘Slic3r::line_alg::intersection’?
+  317 |         Polygons all_extruder_polys = intersection({printable_poly}, extruder_polys);
+      |                                       ^~~~~~~~~~~~
+      |                                       Slic3r::line_alg::intersection
+In file included from /run/build/BambuStudio/src/libslic3r/Polygon.hpp:7,
+                 from /run/build/BambuStudio/src/libslic3r/BoundingBox.hpp:7,
+                 from /run/build/BambuStudio/src/libslic3r/Geometry.hpp:5,
+                 from /run/build/BambuStudio/src/libslic3r/Model.hpp:6:
+/run/build/BambuStudio/src/libslic3r/Line.hpp:123:24: note: ‘Slic3r::line_alg::intersection’ declared here
+  123 | template<class L> bool intersection(const L &l1, const L &l2, Vec<Dim<L>, Scalar<L>> *intersection_pt)
+      |                        ^~~~~~~~~~~~
+/run/build/BambuStudio/src/libslic3r/PrintApply.cpp: In lambda function:
+/run/build/BambuStudio/src/libslic3r/PrintApply.cpp:323:22: error: ‘intersection’ is not captured
+  323 |                 if (!intersection(poly, contours[i]).empty()) { result.insert(static_cast<int>(i)); }
+      |                      ^~~~~~~~~~~~
+---
+ src/libslic3r/PrintApply.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/libslic3r/PrintApply.cpp b/src/libslic3r/PrintApply.cpp
+index 59c2adfd8..6f5533458 100644
+--- a/src/libslic3r/PrintApply.cpp
++++ b/src/libslic3r/PrintApply.cpp
+@@ -1,3 +1,4 @@
++#include "ClipperUtils.hpp"
+ #include "Model.hpp"
+ #include "Print.hpp"
+ 
+-- 
+2.48.1
+
+
+From 0de62a9a675912f10c61900d108e4b747603a6aa Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Fri, 6 Jun 2025 10:06:01 +0200
+Subject: [PATCH 4/4] FIX: Fix missing std::set declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+/run/build/BambuStudio/src/slic3r/GUI/PrePrintChecker.cpp: In member function ‘void Slic3r::GUI::PrinterMsgPanel::SetLabelList(const std::vector<wxString>&, const wxColour&)’:
+/run/build/BambuStudio/src/slic3r/GUI/PrePrintChecker.cpp:182:10: error: ‘set’ is not a member of ‘std’
+  182 |     std::set<wxString> unique_texts;
+      |          ^~~
+/run/build/BambuStudio/src/slic3r/GUI/PrePrintChecker.cpp:4:1: note: ‘std::set’ is defined in header ‘<set>’; this is probably fixable by adding ‘#include <set>’
+    3 | #include "I18N.hpp"
+  +++ |+#include <set>
+    4 |
+---
+ src/slic3r/GUI/PrePrintChecker.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/slic3r/GUI/PrePrintChecker.cpp b/src/slic3r/GUI/PrePrintChecker.cpp
+index cbf011c6d..b4dbfa65b 100644
+--- a/src/slic3r/GUI/PrePrintChecker.cpp
++++ b/src/slic3r/GUI/PrePrintChecker.cpp
+@@ -1,7 +1,7 @@
+ #include "PrePrintChecker.hpp"
+ #include "GUI_Utils.hpp"
+ #include "I18N.hpp"
+-
++#include <set>
+ 
+ 
+ namespace Slic3r { namespace GUI {
+-- 
+2.48.1
+
