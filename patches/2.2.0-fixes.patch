@@ -1,0 +1,263 @@
+From f42cdcb6f979e9f40db8652865ca71541c5a099e Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 12 Aug 2025 18:31:20 +0200
+Subject: [PATCH 1/8] FIX: Fix missing BOOST_LOG_TRIVIAL declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+src/slic3r/GUI/Widgets/../DeviceCore/DevConfigUtil.h:100:91: error: ‘BOOST_LOG_TRIVIAL’ was not declared in this scope
+  100 |         catch (...) { assert(0 && "get_value_from_config failed"); BOOST_LOG_TRIVIAL(error) << __FUNCTION__ << " failed"; }// there are file errors
+      |                                                                                           ^
+---
+ src/slic3r/GUI/DeviceCore/DevConfigUtil.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/slic3r/GUI/DeviceCore/DevConfigUtil.h b/src/slic3r/GUI/DeviceCore/DevConfigUtil.h
+index 33d4d0b260ba..d4b44549e175 100644
+--- a/src/slic3r/GUI/DeviceCore/DevConfigUtil.h
++++ b/src/slic3r/GUI/DeviceCore/DevConfigUtil.h
+@@ -12,6 +12,7 @@
+ #include <map>
+ #include <vector>
+ 
++#include <boost/log/trivial.hpp>
+ #include <boost/nowide/fstream.hpp>
+ #include <nlohmann/json.hpp>
+ 
+-- 
+2.50.0
+
+
+From 9d099f6a4c270cb8caf35a30692501f5fac7e71b Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 12 Aug 2025 19:20:40 +0200
+Subject: [PATCH 2/8] FIX: Fix missing BOOST_LOG_TRIVIAL declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+src/slic3r/GUI/DeviceCore/DevUtil.h:49:36: error: ‘BOOST_LOG_TRIVIAL’ was not declared in this scope
+   49 |             BOOST_LOG_TRIVIAL(error) << __FUNCTION__ << ": " << e.what();
+      |                                    ^
+---
+ src/slic3r/GUI/DeviceCore/DevUtil.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/slic3r/GUI/DeviceCore/DevUtil.h b/src/slic3r/GUI/DeviceCore/DevUtil.h
+index 6b734898fd76..4282d31cf792 100644
+--- a/src/slic3r/GUI/DeviceCore/DevUtil.h
++++ b/src/slic3r/GUI/DeviceCore/DevUtil.h
+@@ -11,6 +11,7 @@
+ #include <sstream>
+ #include <stdexcept>
+ 
++#include <boost/log/trivial.hpp>
+ #include "nlohmann/json.hpp"
+ 
+ namespace Slic3r
+-- 
+2.50.0
+
+
+From 01f6760b7ba757b46f7946affc628d8efe7025b3 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 12 Aug 2025 19:32:46 +0200
+Subject: [PATCH 3/8] FIX: Fix missing std::optional declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+src/slic3r/GUI/DeviceCore/DevExtruderSystem.h:136:10: error: ‘optional’ in namespace ‘std’ does not name a template type
+  136 |     std::optional<DevExtder> GetCurrentExtder() const;
+      |          ^~~~~~~~
+---
+ src/slic3r/GUI/DeviceCore/DevExtruderSystem.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/slic3r/GUI/DeviceCore/DevExtruderSystem.h b/src/slic3r/GUI/DeviceCore/DevExtruderSystem.h
+index 1f7ca6bd841a..d0f7c105da9a 100644
+--- a/src/slic3r/GUI/DeviceCore/DevExtruderSystem.h
++++ b/src/slic3r/GUI/DeviceCore/DevExtruderSystem.h
+@@ -1,4 +1,5 @@
+ #pragma once
++#include <optional>
+ #include "libslic3r/CommonDefs.hpp"
+ 
+ #include "slic3r/Utils/json_diff.hpp"
+-- 
+2.50.0
+
+
+From 39356e010f710a801329c34602fb59948bf3564f Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 12 Aug 2025 21:04:25 +0200
+Subject: [PATCH 4/8] FIX: Fix missing std:: declarations
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+In file included from /run/build/BambuStudio/src/slic3r/GUI/DeviceCore/DevPrintTaskInfo.cpp:1:
+src/slic3r/GUI/DeviceCore/DevPrintTaskInfo.h:15:10: error: ‘string’ in namespace ‘std’ does not name a type
+   15 |     std::string content;
+      |          ^~~~~~
+src/slic3r/GUI/DeviceCore/DevPrintTaskInfo.h:16:10: error: ‘vector’ in namespace ‘std’ does not name a template type
+   16 |     std::vector<std::string>  image_url_paths;
+      |          ^~~~~~
+---
+ src/slic3r/GUI/DeviceCore/DevPrintTaskInfo.h | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/slic3r/GUI/DeviceCore/DevPrintTaskInfo.h b/src/slic3r/GUI/DeviceCore/DevPrintTaskInfo.h
+index 0dba522deb33..a2446921384e 100644
+--- a/src/slic3r/GUI/DeviceCore/DevPrintTaskInfo.h
++++ b/src/slic3r/GUI/DeviceCore/DevPrintTaskInfo.h
+@@ -1,5 +1,8 @@
+ #pragma once
+ 
++#include <string>
++#include <vector>
++
+ // TODO classes to handle dev print task management and ratings
+ 
+ namespace Slic3r
+-- 
+2.50.0
+
+
+From 740e52872116f4c81a1f54ecf3d1ec18524e4f45 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 12 Aug 2025 21:06:05 +0200
+Subject: [PATCH 5/8] FIX: Fix missing wxString declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+In file included from /run/build/BambuStudio/src/slic3r/GUI/DeviceCore/DevFirmware.cpp:1:
+src/slic3r/GUI/DeviceCore/DevFirmware.h:33:5: error: ‘wxString’ does not name a type
+   33 |     wxString    product_name;
+      |     ^~~~~~~~
+src/slic3r/GUI/DeviceCore/DevFilaBlackList.h:10:230: error: ‘wxString’ has not been declared
+   10 |     static void check_filaments_in_blacklist(std::string model_id, std::string tag_vendor, std::string tag_type, const std::string& filament_id, int ams_id, int slot_id, std::string tag_name, bool& in_blacklist, std::string& ac, wxString& info);
+      |                                                                                                                                                                                                                                      ^~~~~~~~
+---
+ src/slic3r/GUI/DeviceCore/DevFilaBlackList.h | 1 +
+ src/slic3r/GUI/DeviceCore/DevFirmware.h      | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/src/slic3r/GUI/DeviceCore/DevFilaBlackList.h b/src/slic3r/GUI/DeviceCore/DevFilaBlackList.h
+index b77d8e8b1e76..7eed1f5a9753 100644
+--- a/src/slic3r/GUI/DeviceCore/DevFilaBlackList.h
++++ b/src/slic3r/GUI/DeviceCore/DevFilaBlackList.h
+@@ -1,4 +1,5 @@
+ #pragma once
++#include <wx/string.h>
+ #include "slic3r/Utils/json_diff.hpp"
+ 
+ namespace Slic3r
+diff --git a/src/slic3r/GUI/DeviceCore/DevFirmware.h b/src/slic3r/GUI/DeviceCore/DevFirmware.h
+index c89ed470d87e..35edf9658e68 100644
+--- a/src/slic3r/GUI/DeviceCore/DevFirmware.h
++++ b/src/slic3r/GUI/DeviceCore/DevFirmware.h
+@@ -1,5 +1,6 @@
+ #pragma once
+ #include <nlohmann/json.hpp>
++#include <wx/string.h>
+ #include "slic3r/Utils/json_diff.hpp"
+ 
+ namespace Slic3r {
+-- 
+2.50.0
+
+
+From 3ab8070498837a5140c76bb18df45d22456757fc Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 12 Aug 2025 21:08:29 +0200
+Subject: [PATCH 6/8] FIX: Fix missing std::mutex declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+In file included from /run/build/BambuStudio/src/slic3r/GUI/DeviceCore/DevFilaBlackList.cpp:5:
+/run/build/BambuStudio/src/slic3r/GUI/DeviceCore/DevManager.h:23:10: error: ‘mutex’ in namespace ‘std’ does not name a type
+   23 |     std::mutex listMutex;
+      |          ^~~~~
+---
+ src/slic3r/GUI/DeviceCore/DevManager.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/slic3r/GUI/DeviceCore/DevManager.h b/src/slic3r/GUI/DeviceCore/DevManager.h
+index e99827d602a7..600d5fbaee76 100644
+--- a/src/slic3r/GUI/DeviceCore/DevManager.h
++++ b/src/slic3r/GUI/DeviceCore/DevManager.h
+@@ -1,4 +1,5 @@
+ #pragma once
++#include <mutex>
+ #include "libslic3r/CommonDefs.hpp"
+ 
+ #include "slic3r/Utils/json_diff.hpp"
+-- 
+2.50.0
+
+
+From dea176a4432df813087b77ad5a21847f9f731d4d Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 12 Aug 2025 21:09:30 +0200
+Subject: [PATCH 7/8] FIX: Fix missing wxTimer declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+src/slic3r/GUI/DeviceCore/DevManager.h:108:5: error: ‘wxTimer’ does not name a type
+  108 |     wxTimer* m_timer{ nullptr };
+      |     ^~~~~~~
+---
+ src/slic3r/GUI/DeviceCore/DevManager.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/slic3r/GUI/DeviceCore/DevManager.h b/src/slic3r/GUI/DeviceCore/DevManager.h
+index 600d5fbaee76..5b267cdd1056 100644
+--- a/src/slic3r/GUI/DeviceCore/DevManager.h
++++ b/src/slic3r/GUI/DeviceCore/DevManager.h
+@@ -4,6 +4,7 @@
+ 
+ #include "slic3r/Utils/json_diff.hpp"
+ #include <wx/string.h>
++#include <wx/timer.h>
+ 
+ namespace Slic3r
+ {
+-- 
+2.50.0
+
+
+From ba236fb50138ab33f6491c28b24cf9799126ed75 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 12 Aug 2025 21:48:39 +0200
+Subject: [PATCH 8/8] FIX: Fix missing std::string declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+src/slic3r/GUI/DeviceCore/DevLamp.h:22:41: error: ‘string’ in namespace ‘std’ does not name a type
+   22 |         void SetChamberLight(const std::string& status);
+      |                                         ^~~~~~
+---
+ src/slic3r/GUI/DeviceCore/DevLamp.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/slic3r/GUI/DeviceCore/DevLamp.h b/src/slic3r/GUI/DeviceCore/DevLamp.h
+index 437d7cf89637..205563c03dd0 100644
+--- a/src/slic3r/GUI/DeviceCore/DevLamp.h
++++ b/src/slic3r/GUI/DeviceCore/DevLamp.h
+@@ -1,5 +1,7 @@
+ #pragma once
+ 
++#include <string>
++
+ namespace Slic3r
+ {
+ 
+-- 
+2.50.0
+

@@ -62,8 +62,8 @@ modules:
       - ./b2 -j$FLATPAK_BUILDER_N_JOBS install variant=release cxxstd=17 --layout=system
     sources:
       - type: archive
-        url: https://freefr.dl.sourceforge.net/project/boost/boost/1.78.0/boost_1_78_0.zip
-        sha256: f22143b5528e081123c3c5ed437e92f648fe69748e95fa6e2bd41484e2986cc3
+        url: https://github.com/boostorg/boost/releases/download/boost-1.84.0/boost-1.84.0.tar.gz
+        sha256: 4d27e9efed0f6f152dc28db6430b9d3dfb40c0345da7342eaa5a987dde57bd95
     cleanup:
       - /include
       - /lib/cmake
@@ -269,7 +269,11 @@ modules:
       # BambuStudio Source Archive
       - type: git
         url: https://github.com/bambulab/BambuStudio.git
-        tag: v02.01.01.52
+        tag: v02.02.00.85
+
+      # https://github.com/bambulab/BambuStudio/pull/7829
+      - type: patch
+        path: patches/2.2.0-fixes.patch
 
       # Patched TBB cmake to make build without lto flag
       - type: file
@@ -279,10 +283,6 @@ modules:
       # Apply TTB patches to fix linking failure. More info: https://github.com/prusa3d/PrusaSlicer/issues/8922
       - type: patch
         path: patches/0001-Apply-TBB-LTO-patch.patch
-
-      # https://github.com/bambulab/BambuStudio/pull/7143
-      - type: patch
-        path: patches/2.1.0-fixes.patch
 
       # AppData metainfo for Gnome Software & Co.
       - type: file
