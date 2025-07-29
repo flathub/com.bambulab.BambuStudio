@@ -165,7 +165,7 @@ modules:
           -DCMAKE_BUILD_TYPE=Release \
           -DBBL_RELEASE_TO_PUBLIC=1 \
           -DBBL_INTERNAL_TESTING=0
-        CXXFLAGS=-std=gnu++20 cmake --build . --target install
+        CXXFLAGS=-std=gnu++20 cmake --build . --target install -j $(expr $FLATPAK_BUILDER_N_JOBS / 2)
 
     cleanup:
       - /include
