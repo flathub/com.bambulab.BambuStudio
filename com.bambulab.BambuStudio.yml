@@ -20,6 +20,30 @@ finish-args:
 
 modules:
 
+  # For libOSMesa
+  - name: mesa
+    buildsystem: meson
+    config-opts:
+      - -Dosmesa=classic
+      - -Ddri-drivers=[]
+      - -Dgallium-drivers=[]
+      - -Dvulkan-drivers=[]
+      - -Dplatforms=[]
+    build-options:
+      arch:
+        aarch64:
+          config-opts:
+            - -Dlibunwind=disabled
+    cleanup:
+      - /share/drirc.d
+      - /include
+      - "*.a"
+    sources:
+      - type: archive
+        # url: https://archive.mesa3d.org/mesa-20.2.6.tar.xz
+        url: https://ftp.icm.edu.pl/pub/graphics/mesa/mesa-20.2.6.tar.xz
+        sha256: f12ca3c6c622f11cd79ad66b4220f04514fa96f795062fe92a37339ab19885db
+
   - name: glu
     buildsystem: meson
     sources:
@@ -250,10 +274,6 @@ modules:
       # https://github.com/bambulab/BambuStudio/pull/7829
       - type: patch
         path: patches/2.2.0-fixes.patch
-
-      # https://github.com/bambulab/BambuStudio/pull/7899
-      - type: patch
-        path: patches/osmesa-dep.patch
 
       # Patched TBB cmake to make build without lto flag
       - type: file
