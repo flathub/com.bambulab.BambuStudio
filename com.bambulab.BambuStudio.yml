@@ -113,6 +113,7 @@ modules:
       - -DwxUSE_LIBTIFF=sys
       - -DwxUSE_NANOSVG=OFF
       - -DwxUSE_EXPAT=sys
+      - -DwxUSE_GLCANVAS_EGL=OFF
     sources:
       - type: archive
         url: https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.5/wxWidgets-3.1.5.tar.bz2
