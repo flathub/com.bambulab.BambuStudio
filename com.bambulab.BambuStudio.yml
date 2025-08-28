@@ -270,7 +270,7 @@ modules:
       # BambuStudio Source Archive
       - type: git
         url: https://github.com/bambulab/BambuStudio.git
-        tag: v02.02.01.58
+        tag: v02.02.01.60
 
       # Patched TBB cmake to make build without lto flag
       - type: file
