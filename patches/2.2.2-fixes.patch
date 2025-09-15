@@ -1,0 +1,104 @@
+From e3cbd6768b1d4eed267faa168e5555d65baf8361 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Mon, 15 Sep 2025 12:25:08 +0200
+Subject: [PATCH 1/3] FIX: Fix missing wxPanel declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+In file included from /run/build/BambuStudio/src/slic3r/GUI/Widgets/LinkLabel.cpp:2:
+/run/build/BambuStudio/src/slic3r/GUI/Widgets/LinkLabel.hpp:13:5: error: ‘wxPanel’ does not name a type; did you mean ‘wxPen’?
+   13 |     wxPanel* m_underline{nullptr};
+      |     ^~~~~~~
+      |     wxPen
+---
+ src/slic3r/GUI/Widgets/LinkLabel.hpp | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/slic3r/GUI/Widgets/LinkLabel.hpp b/src/slic3r/GUI/Widgets/LinkLabel.hpp
+index 8752173c9cce..7f7e492eb640 100644
+--- a/src/slic3r/GUI/Widgets/LinkLabel.hpp
++++ b/src/slic3r/GUI/Widgets/LinkLabel.hpp
+@@ -1,6 +1,8 @@
+ #ifndef slic3r_GUI_LinkLabel_hpp_
+ #define slic3r_GUI_LinkLabel_hpp_
+ 
++#include <wx/panel.h>
++
+ #include "Label.hpp"
+ 
+ wxDECLARE_EVENT(EVT_LINK_LABEL_LEFT_DOWN, wxCommandEvent);
+-- 
+2.51.0
+
+
+From 789abf46479caea050057fb5087f804a3f85b9e4 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Mon, 15 Sep 2025 14:59:14 +0200
+Subject: [PATCH 2/3] FIX: Fix missing boost:: declarations
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+/run/build/BambuStudio/src/slic3r/GUI/DeviceCore/DevConfigUtil.cpp: In static member function ‘static std::map<std::__cxx11::basic_string<char>, std::vector<std::__cxx11::basic_string<char> > > Slic3r::DevPrinterConfigUtil::get_all_subseries(std::string)’:
+/run/build/BambuStudio/src/slic3r/GUI/DeviceCore/DevConfigUtil.cpp:167:21: error: ‘boost::filesystem’ has not been declared
+  167 |         if (!boost::filesystem::exists(from_dir))
+      |                     ^~~~~~~~~~
+
+/run/build/BambuStudio/src/slic3r/Utils/HelioDragon.cpp: In member function ‘void Slic3r::HelioBackgroundProcess::clear_helio_file_cache()’:
+/run/build/BambuStudio/src/slic3r/Utils/HelioDragon.cpp:1200: error: ‘remove’ is not a member of ‘boost::nowide’
+ 1200 |             int deleted = boost::nowide::remove(original_path_name.c_str());
+---
+ src/slic3r/Utils/HelioDragon.hpp | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/slic3r/Utils/HelioDragon.hpp b/src/slic3r/Utils/HelioDragon.hpp
+index 066880ee99f9..b2bed146cea1 100644
+--- a/src/slic3r/Utils/HelioDragon.hpp
++++ b/src/slic3r/Utils/HelioDragon.hpp
+@@ -4,8 +4,10 @@
+ #include <string>
+ #include <wx/string.h>
+ #include <boost/optional.hpp>
++#include <boost/filesystem.hpp>
+ #include <boost/asio/ip/address.hpp>
+ #include <boost/date_time/posix_time/posix_time.hpp>
++#include <boost/nowide/cstdio.hpp>
+ 
+ #include <condition_variable>
+ #include <mutex>
+-- 
+2.51.0
+
+
+From bcd6f5be492edba1241e164559eb37b8d7d8df51 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Mon, 15 Sep 2025 16:34:50 +0200
+Subject: [PATCH 3/3] FIX: Fix missing boost::filesystem declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+src/slic3r/GUI/DeviceCore/DevConfigUtil.cpp: In static member function ‘static std::map<std::__cxx11::basic_string<char>, std::vector<std::__cxx11::basic_string<char> > > Slic3r::DevPrinterConfigUtil::get_all_subseries(std::string)’:
+src/slic3r/GUI/DeviceCore/DevConfigUtil.cpp:167:21: error: ‘boost::filesystem’ has not been declared
+  167 |         if (!boost::filesystem::exists(from_dir))
+      |                     ^~~~~~~~~~
+---
+ src/slic3r/GUI/DeviceCore/DevConfigUtil.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/slic3r/GUI/DeviceCore/DevConfigUtil.cpp b/src/slic3r/GUI/DeviceCore/DevConfigUtil.cpp
+index 46bdd1d0d77c..610c600c95c7 100644
+--- a/src/slic3r/GUI/DeviceCore/DevConfigUtil.cpp
++++ b/src/slic3r/GUI/DeviceCore/DevConfigUtil.cpp
+@@ -1,6 +1,7 @@
+ #include "DevConfigUtil.h"
+ 
+ #include <wx/dir.h>
++#include <boost/filesystem/operations.hpp>
+ 
+ using namespace nlohmann;
+ 
+-- 
+2.51.0
+
