@@ -1,0 +1,347 @@
+From 58e5f4b6c2641e120b17c9d8d7b775bf7f3096f4 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Mon, 15 Sep 2025 12:25:08 +0200
+Subject: [PATCH 01/10] FIX: Fix missing wxPanel declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+In file included from /run/build/BambuStudio/src/slic3r/GUI/Widgets/LinkLabel.cpp:2:
+/run/build/BambuStudio/src/slic3r/GUI/Widgets/LinkLabel.hpp:13:5: error: ‘wxPanel’ does not name a type; did you mean ‘wxPen’?
+   13 |     wxPanel* m_underline{nullptr};
+      |     ^~~~~~~
+      |     wxPen
+---
+ src/slic3r/GUI/Widgets/LinkLabel.hpp | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/slic3r/GUI/Widgets/LinkLabel.hpp b/src/slic3r/GUI/Widgets/LinkLabel.hpp
+index 8752173c9cce..7f7e492eb640 100644
+--- a/src/slic3r/GUI/Widgets/LinkLabel.hpp
++++ b/src/slic3r/GUI/Widgets/LinkLabel.hpp
+@@ -1,6 +1,8 @@
+ #ifndef slic3r_GUI_LinkLabel_hpp_
+ #define slic3r_GUI_LinkLabel_hpp_
+ 
++#include <wx/panel.h>
++
+ #include "Label.hpp"
+ 
+ wxDECLARE_EVENT(EVT_LINK_LABEL_LEFT_DOWN, wxCommandEvent);
+-- 
+2.51.0
+
+
+From 688e7c8c91c209026130636b70670de8cc89ff3b Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Mon, 15 Sep 2025 14:59:14 +0200
+Subject: [PATCH 02/10] FIX: Fix missing boost:: declarations
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+/run/build/BambuStudio/src/slic3r/GUI/DeviceCore/DevConfigUtil.cpp: In static member function ‘static std::map<std::__cxx11::basic_string<char>, std::vector<std::__cxx11::basic_string<char> > > Slic3r::DevPrinterConfigUtil::get_all_subseries(std::string)’:
+/run/build/BambuStudio/src/slic3r/GUI/DeviceCore/DevConfigUtil.cpp:167:21: error: ‘boost::filesystem’ has not been declared
+  167 |         if (!boost::filesystem::exists(from_dir))
+      |                     ^~~~~~~~~~
+
+/run/build/BambuStudio/src/slic3r/Utils/HelioDragon.cpp: In member function ‘void Slic3r::HelioBackgroundProcess::clear_helio_file_cache()’:
+/run/build/BambuStudio/src/slic3r/Utils/HelioDragon.cpp:1200: error: ‘remove’ is not a member of ‘boost::nowide’
+ 1200 |             int deleted = boost::nowide::remove(original_path_name.c_str());
+---
+ src/slic3r/Utils/HelioDragon.hpp | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/slic3r/Utils/HelioDragon.hpp b/src/slic3r/Utils/HelioDragon.hpp
+index ac670827bc9d..7940ca5fa0c1 100644
+--- a/src/slic3r/Utils/HelioDragon.hpp
++++ b/src/slic3r/Utils/HelioDragon.hpp
+@@ -4,8 +4,10 @@
+ #include <string>
+ #include <wx/string.h>
+ #include <boost/optional.hpp>
++#include <boost/filesystem.hpp>
+ #include <boost/asio/ip/address.hpp>
+ #include <boost/date_time/posix_time/posix_time.hpp>
++#include <boost/nowide/cstdio.hpp>
+ 
+ #include <condition_variable>
+ #include <mutex>
+-- 
+2.51.0
+
+
+From b8a9e0808baaa1849e4a5f42fcad0f579492592c Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Mon, 15 Sep 2025 16:34:50 +0200
+Subject: [PATCH 03/10] FIX: Fix missing boost::filesystem declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+src/slic3r/GUI/DeviceCore/DevConfigUtil.cpp: In static member function ‘static std::map<std::__cxx11::basic_string<char>, std::vector<std::__cxx11::basic_string<char> > > Slic3r::DevPrinterConfigUtil::get_all_subseries(std::string)’:
+src/slic3r/GUI/DeviceCore/DevConfigUtil.cpp:167:21: error: ‘boost::filesystem’ has not been declared
+  167 |         if (!boost::filesystem::exists(from_dir))
+      |                     ^~~~~~~~~~
+---
+ src/slic3r/GUI/DeviceCore/DevConfigUtil.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/slic3r/GUI/DeviceCore/DevConfigUtil.cpp b/src/slic3r/GUI/DeviceCore/DevConfigUtil.cpp
+index 46bdd1d0d77c..610c600c95c7 100644
+--- a/src/slic3r/GUI/DeviceCore/DevConfigUtil.cpp
++++ b/src/slic3r/GUI/DeviceCore/DevConfigUtil.cpp
+@@ -1,6 +1,7 @@
+ #include "DevConfigUtil.h"
+ 
+ #include <wx/dir.h>
++#include <boost/filesystem/operations.hpp>
+ 
+ using namespace nlohmann;
+ 
+-- 
+2.51.0
+
+
+From e84eee7af7065c46512c8059fb6bc0cd1cf9e74f Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 14 Oct 2025 17:44:21 +0200
+Subject: [PATCH 04/10] FIX: Fix missing boost::nowide::declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+/run/build/BambuStudio/src/slic3r/GUI/GCodeRenderer/AdvancedRenderer.cpp:357: error: ‘fopen’ is not a member of ‘boost::nowide’
+  357 |                 fp = boost::nowide::fopen(filename, "w");
+---
+ src/slic3r/GUI/GCodeRenderer/AdvancedRenderer.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/slic3r/GUI/GCodeRenderer/AdvancedRenderer.cpp b/src/slic3r/GUI/GCodeRenderer/AdvancedRenderer.cpp
+index 890a02112703..c11f1c0c1c1e 100644
+--- a/src/slic3r/GUI/GCodeRenderer/AdvancedRenderer.cpp
++++ b/src/slic3r/GUI/GCodeRenderer/AdvancedRenderer.cpp
+@@ -8,6 +8,7 @@
+ #include "slic3r/GUI/MainFrame.hpp"
+ #include "libslic3r/Geometry/ConvexHull.hpp"
+ #include <GL/glew.h>
++#include <boost/nowide/cstdio.hpp>
+ namespace
+ {
+     Slic3r::Vec2f get_view_data_index_from_view_type(const Slic3r::GUI::gcode::EViewType type)
+-- 
+2.51.0
+
+
+From 106618144fba4e84b772141f1e047e0dd7336f12 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 14 Oct 2025 17:45:51 +0200
+Subject: [PATCH 05/10] FIX: Fix missing wxNumberFormatter declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+/run/build/BambuStudio/src/slic3r/GUI/GCodeRenderer/AdvancedRenderer.cpp:977: error: ‘wxNumberFormatter’ has not been declared
+  977 |                                                     _L("Loading gcode data") + ": " + wxNumberFormatter::ToString(progress_value, 0, wxNumberFormatter::Style_None) + "%");
+---
+ src/slic3r/GUI/GCodeRenderer/AdvancedRenderer.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/slic3r/GUI/GCodeRenderer/AdvancedRenderer.cpp b/src/slic3r/GUI/GCodeRenderer/AdvancedRenderer.cpp
+index c11f1c0c1c1e..3544bce87cbe 100644
+--- a/src/slic3r/GUI/GCodeRenderer/AdvancedRenderer.cpp
++++ b/src/slic3r/GUI/GCodeRenderer/AdvancedRenderer.cpp
+@@ -9,6 +9,7 @@
+ #include "libslic3r/Geometry/ConvexHull.hpp"
+ #include <GL/glew.h>
+ #include <boost/nowide/cstdio.hpp>
++#include <wx/numformatter.h>
+ namespace
+ {
+     Slic3r::Vec2f get_view_data_index_from_view_type(const Slic3r::GUI::gcode::EViewType type)
+-- 
+2.51.0
+
+
+From fc114dc01b5c4c7292a45b73b93512cc8914fa0f Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 14 Oct 2025 17:56:34 +0200
+Subject: [PATCH 06/10] FIX: Fix missing intersection declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+/run/build/BambuStudio/src/slic3r/GUI/GCodeRenderer/AdvancedRenderer.cpp:1006: error: ‘intersection’ was not declared in this scope; did you mean ‘Slic3r::line_alg::intersection’?
+ 1006 |                                 if (intersection({ p }, { convex_hull_2d }).empty() == false)
+---
+ src/slic3r/GUI/GCodeRenderer/AdvancedRenderer.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/slic3r/GUI/GCodeRenderer/AdvancedRenderer.cpp b/src/slic3r/GUI/GCodeRenderer/AdvancedRenderer.cpp
+index 3544bce87cbe..ae7d66e0c528 100644
+--- a/src/slic3r/GUI/GCodeRenderer/AdvancedRenderer.cpp
++++ b/src/slic3r/GUI/GCodeRenderer/AdvancedRenderer.cpp
+@@ -6,6 +6,7 @@
+ #include "slic3r/GUI/OpenGLManager.hpp"
+ #include "slic3r/GUI/IMSlider.hpp"
+ #include "slic3r/GUI/MainFrame.hpp"
++#include "libslic3r/ClipperUtils.hpp"
+ #include "libslic3r/Geometry/ConvexHull.hpp"
+ #include <GL/glew.h>
+ #include <boost/nowide/cstdio.hpp>
+-- 
+2.51.0
+
+
+From 59062d541fe9ffd290ef6c87368781cedf77d92e Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 14 Oct 2025 18:14:06 +0200
+Subject: [PATCH 07/10] FIX: Fix missing BOOST_LOG_TRIVIAL declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+/run/build/BambuStudio/src/slic3r/Utils/FileTransferUtils.hpp:65:27: error: ‘info’ was not declared in this scope
+   65 |         BOOST_LOG_TRIVIAL(info) << std::string("symbol not found: ") + name;
+      |                           ^~~~
+/run/build/BambuStudio/src/slic3r/Utils/FileTransferUtils.hpp:65:9: error: there are no arguments to ‘BOOST_LOG_TRIVIAL’ that depend on a template parameter, so a declaration of ‘BOOST_LOG_TRIVIAL’ must be available [-fpermissive]
+   65 |         BOOST_LOG_TRIVIAL(info) << std::string("symbol not found: ") + name;
+      |         ^~~~~~~~~~~~~~~~~
+---
+ src/slic3r/Utils/FileTransferUtils.hpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/slic3r/Utils/FileTransferUtils.hpp b/src/slic3r/Utils/FileTransferUtils.hpp
+index a7f89cf91958..037a1bef0cb2 100644
+--- a/src/slic3r/Utils/FileTransferUtils.hpp
++++ b/src/slic3r/Utils/FileTransferUtils.hpp
+@@ -8,6 +8,7 @@
+ #include <utility>
+ #include <cstring>
+ #include <memory>
++#include <boost/log/trivial.hpp>
+ 
+ #ifdef _WIN32
+ #include <windows.h>
+-- 
+2.51.0
+
+
+From 125f1f9cf530f0ae04bae0d22516afe6edd5d9ec Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 14 Oct 2025 18:16:18 +0200
+Subject: [PATCH 08/10] FIX: Fix missing uint8_t declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+In file included from /run/build/BambuStudio/src/slic3r/Utils/CertificateVerify.cpp:1:
+/run/build/BambuStudio/src/slic3r/Utils/CertificateVerify.hpp:10:20: error: ‘uint8_t’ was not declared in this scope
+   10 |         std::array<uint8_t, 32> cert_sha256;
+      |                    ^~~~~~~
+---
+ src/slic3r/Utils/CertificateVerify.hpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/slic3r/Utils/CertificateVerify.hpp b/src/slic3r/Utils/CertificateVerify.hpp
+index b3f70c53b637..edd9fa6d1bfb 100644
+--- a/src/slic3r/Utils/CertificateVerify.hpp
++++ b/src/slic3r/Utils/CertificateVerify.hpp
+@@ -1,6 +1,7 @@
+ #pragma once
+ 
+ #include <array>
++#include <cstdint>
+ #include <string>
+ #include <optional>
+ 
+-- 
+2.51.0
+
+
+From ddd6e1807c12390cf6f45a7318d33a51a742efb5 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 14 Oct 2025 18:29:55 +0200
+Subject: [PATCH 09/10] FIX: Fix missing stringstream declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+In file included from /run/build/BambuStudio/src/slic3r/Utils/CertificateVerify.cpp:1:
+/run/build/BambuStudio/src/slic3r/Utils/CertificateVerify.hpp: In member function ‘std::string Slic3r::SignerSummary::as_print() const’:
+/run/build/BambuStudio/src/slic3r/Utils/CertificateVerify.hpp:25:31: error: aggregate ‘std::stringstream ss’ has incomplete type and cannot be defined
+   25 |             std::stringstream ss;
+      |                               ^~
+---
+ src/slic3r/Utils/CertificateVerify.hpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/slic3r/Utils/CertificateVerify.hpp b/src/slic3r/Utils/CertificateVerify.hpp
+index edd9fa6d1bfb..1e231d4b35b8 100644
+--- a/src/slic3r/Utils/CertificateVerify.hpp
++++ b/src/slic3r/Utils/CertificateVerify.hpp
+@@ -3,6 +3,7 @@
+ #include <array>
+ #include <cstdint>
+ #include <string>
++#include <sstream>
+ #include <optional>
+ 
+ namespace Slic3r {
+-- 
+2.51.0
+
+
+From ce24b5ab23e51f6bb350351804b37bb940ae0e42 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 14 Oct 2025 20:27:26 +0200
+Subject: [PATCH 10/10] FIX: Fix missing std::optional declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+/run/build/BambuStudio/src/slic3r/GUI/DeviceCore/DevFilaAmsSetting.h:16:10: error: ‘optional’ in namespace ‘std’ does not name a template type
+   16 |     std::optional<bool> IsDetectOnInsertEnabled() const { return m_enable_detect_on_insert; };
+      |          ^~~~~~~~
+/run/build/BambuStudio/src/slic3r/GUI/DeviceCore/DevFilaAmsSetting.h:4:1: note: ‘std::optional’ is defined in header ‘<optional>’; this is probably fixable by adding ‘#include <optional>’
+    3 | #include "DevCtrl.h"
+  +++ |+#include <optional>
+    4 |
+
+/run/build/BambuStudio/src/slic3r/GUI/DeviceCore/DevFilaSystem.h:174:10: error: ‘optional’ in namespace ‘std’ does not name a template type
+  174 |     std::optional<bool>  IsDetectOnInsertEnabled() const { return m_ams_system_setting.IsDetectOnInsertEnabled(); };
+      |          ^~~~~~~~
+/run/build/BambuStudio/src/slic3r/GUI/DeviceCore/DevFilaSystem.h:13:1: note: ‘std::optional’ is defined in header ‘<optional>’; this is probably fixable by adding ‘#include <optional>’
+   12 | #include <wx/colour.h>
+  +++ |+#include <optional>
+   13 |
+---
+ src/slic3r/GUI/DeviceCore/DevFilaAmsSetting.h | 1 +
+ src/slic3r/GUI/DeviceCore/DevFilaSystem.h     | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/src/slic3r/GUI/DeviceCore/DevFilaAmsSetting.h b/src/slic3r/GUI/DeviceCore/DevFilaAmsSetting.h
+index dbc57773faa0..5cecbd550748 100644
+--- a/src/slic3r/GUI/DeviceCore/DevFilaAmsSetting.h
++++ b/src/slic3r/GUI/DeviceCore/DevFilaAmsSetting.h
+@@ -1,4 +1,5 @@
+ #pragma once
++#include <optional>
+ #include <nlohmann/json.hpp>
+ #include "DevCtrl.h"
+ 
+diff --git a/src/slic3r/GUI/DeviceCore/DevFilaSystem.h b/src/slic3r/GUI/DeviceCore/DevFilaSystem.h
+index 910eaf155802..f6c1a2d42076 100644
+--- a/src/slic3r/GUI/DeviceCore/DevFilaSystem.h
++++ b/src/slic3r/GUI/DeviceCore/DevFilaSystem.h
+@@ -7,6 +7,7 @@
+ #include "DevUtil.h"
+ 
+ #include <map>
++#include <optional>
+ #include <memory>
+ #include <wx/string.h>
+ #include <wx/colour.h>
+-- 
+2.51.0
+
