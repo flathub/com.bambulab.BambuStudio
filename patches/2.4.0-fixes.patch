@@ -1,0 +1,239 @@
+From 156343b0ddb2ff117a62a352fdcfd5c130ab6b33 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 18 Nov 2025 17:17:47 +0100
+Subject: [PATCH 1/7] FIX: Fix missing intersection_pl declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+/run/build/BambuStudio/src/libslic3r/Fill/FillLightning.cpp: In member function ‘virtual void Slic3r::FillLightning::Filler::_fill_surface_single(const Slic3r::FillParams&, unsigned int, const std::pair<float, Slic3r::Point>&, Slic3r::ExPolygon, Slic3r::Polylines&)’:
+/run/build/BambuStudio/src/libslic3r/Fill/FillLightning.cpp:22:31: error: ‘intersection_pl’ was not declared in this scope
+   22 |     Polylines all_polylines = intersection_pl(std::move(fill_lines), expolygon);
+      |                               ^~~~~~~~~~~~~~~
+---
+ src/libslic3r/Fill/FillLightning.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/libslic3r/Fill/FillLightning.cpp b/src/libslic3r/Fill/FillLightning.cpp
+index ddd472b65227..d75138639120 100644
+--- a/src/libslic3r/Fill/FillLightning.cpp
++++ b/src/libslic3r/Fill/FillLightning.cpp
+@@ -1,6 +1,7 @@
+ #include "../Print.hpp"
+ #include "../ShortestPath.hpp"
+ 
++#include "ClipperUtils.hpp"
+ #include "FillLightning.hpp"
+ #include "Lightning/Generator.hpp"
+ 
+-- 
+2.51.0
+
+
+From 8ae8ba69eba32e27903837e4c90b63bc7ac498b1 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 18 Nov 2025 17:32:51 +0100
+Subject: [PATCH 2/7] FIX: Fix missing BOOST_LOG_TRIVIAL declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+/run/build/BambuStudio/src/libslic3r/GCode/ToolOrdering.cpp:1121:13: error: ‘BOOST_LOG_TRIVIAL’ was not declared in this scope
+ 1121 |             BOOST_LOG_TRIVIAL(error) << "Failed to build nozzle group result from filament nozzle map!";
+      |             ^~~~~~~~~~~~~~~~~
+---
+ src/libslic3r/GCode/ToolOrdering.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/libslic3r/GCode/ToolOrdering.cpp b/src/libslic3r/GCode/ToolOrdering.cpp
+index b4bae96c273d..6753263898c3 100644
+--- a/src/libslic3r/GCode/ToolOrdering.cpp
++++ b/src/libslic3r/GCode/ToolOrdering.cpp
+@@ -22,6 +22,7 @@
+ #include <unordered_map>
+ 
+ #include <libslic3r.h>
++#include <boost/log/trivial.hpp>
+ 
+ namespace Slic3r {
+ 
+-- 
+2.51.0
+
+
+From 750ad67bceae10b9cb54d351cf4430d9ceca4be1 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 18 Nov 2025 17:47:59 +0100
+Subject: [PATCH 3/7] FIX: Fix missing tbb declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+/run/build/BambuStudio/src/libslic3r/Interlocking/InterlockingGenerator.cpp: In static member function ‘static void Slic3r::InterlockingGenerator::generate_embedding_wall(Slic3r::PrintObject*)’:
+/run/build/BambuStudio/src/libslic3r/Interlocking/InterlockingGenerator.cpp:40:5: error: ‘tbb’ has not been declared
+   40 |     tbb::parallel_for(
+      |     ^~~
+---
+ src/libslic3r/Interlocking/InterlockingGenerator.cpp | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/libslic3r/Interlocking/InterlockingGenerator.cpp b/src/libslic3r/Interlocking/InterlockingGenerator.cpp
+index c6fc71627105..070701ab7e8d 100644
+--- a/src/libslic3r/Interlocking/InterlockingGenerator.cpp
++++ b/src/libslic3r/Interlocking/InterlockingGenerator.cpp
+@@ -1,6 +1,8 @@
+ // Copyright (c) 2023 UltiMaker
+ // CuraEngine is released under the terms of the AGPLv3 or higher.
+ 
++#include <tbb/parallel_for.h>
++
+ #include "ClipperUtils.hpp"
+ #include "InterlockingGenerator.hpp"
+ #include "Layer.hpp"
+-- 
+2.51.0
+
+
+From 547cf210f53fe636ed7ac27e50205ac00ccda7b4 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 18 Nov 2025 18:07:22 +0100
+Subject: [PATCH 4/7] FIX: Fix missing BOOST_LOG_TRIVIAL declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+/run/build/BambuStudio/src/libslic3r/FilamentGroup.cpp:1213:17: error: ‘BOOST_LOG_TRIVIAL’ was not declared in this scope
+ 1213 |                 BOOST_LOG_TRIVIAL(info) << "Filament group" << count++ << ", score : " << cached_group.score << " , flush : " << cached_group.flush << " , time : " << cached_group.time << " , prefer : " << cached_group.prefer_level;
+      |                 ^~~~~~~~~~~~~~~~~
+---
+ src/libslic3r/FilamentGroup.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/libslic3r/FilamentGroup.cpp b/src/libslic3r/FilamentGroup.cpp
+index e615e1fafacb..f895156c2a89 100644
+--- a/src/libslic3r/FilamentGroup.cpp
++++ b/src/libslic3r/FilamentGroup.cpp
+@@ -5,6 +5,7 @@
+ #include <random>
+ #include <cassert>
+ #include <sstream>
++#include <boost/log/trivial.hpp>
+ 
+ namespace Slic3r
+ {
+-- 
+2.51.0
+
+
+From 0ab58fe8bbf6231d9ed6a0780ba60df9ef159980 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 18 Nov 2025 18:12:36 +0100
+Subject: [PATCH 5/7] FIX: Fix missing wxWHITE declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+/run/build/BambuStudio/src/slic3r/GUI/Widgets/StateColor.cpp: In static member function ‘static StateColor StateColor::createButtonStyleGray()’:
+/run/build/BambuStudio/src/slic3r/GUI/Widgets/StateColor.cpp:195:35: error: ‘wxWHITE’ was not declared in this scope
+  195 |         std::pair<wxColour, int>(*wxWHITE, StateColor::Focused),
+      |                                   ^~~~~~~
+---
+ src/slic3r/GUI/Widgets/StateColor.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/slic3r/GUI/Widgets/StateColor.cpp b/src/slic3r/GUI/Widgets/StateColor.cpp
+index d3164edf5bb2..184c79f72637 100644
+--- a/src/slic3r/GUI/Widgets/StateColor.cpp
++++ b/src/slic3r/GUI/Widgets/StateColor.cpp
+@@ -1,4 +1,5 @@
+ #include "StateColor.hpp"
++#include <wx/gdicmn.h>
+ 
+ static bool gDarkMode = false;
+ 
+-- 
+2.51.0
+
+
+From 2a072e82fb612d9bca6154ece0578b02fcc536cb Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 18 Nov 2025 19:21:43 +0100
+Subject: [PATCH 6/7] FIX: Fix missing std::set declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+In file included from /run/build/BambuStudio/src/slic3r/GUI/PrePrintChecker.cpp:1:
+/run/build/BambuStudio/src/slic3r/GUI/PrePrintChecker.hpp:221:10: error: ‘set’ in namespace ‘std’ does not name a template type
+  221 |     std::set<prePrintInfo> m_not_show_again_infos;
+      |          ^~~
+/run/build/BambuStudio/src/slic3r/GUI/PrePrintChecker.hpp:6:1: note: ‘std::set’ is defined in header ‘<set>’; this is probably fixable by adding ‘#include <set>’
+    5 | #include "Widgets/Label.hpp"
+  +++ |+#include <set>
+    6 |
+---
+ src/slic3r/GUI/PrePrintChecker.hpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/slic3r/GUI/PrePrintChecker.hpp b/src/slic3r/GUI/PrePrintChecker.hpp
+index 07f47ebe76dd..94b6365a80b9 100644
+--- a/src/slic3r/GUI/PrePrintChecker.hpp
++++ b/src/slic3r/GUI/PrePrintChecker.hpp
+@@ -1,6 +1,7 @@
+ #ifndef slic3r_GUI_PRE_PRINT_CHECK_hpp_
+ #define slic3r_GUI_PRE_PRINT_CHECK_hpp_
+ 
++#include <set>
+ #include <wx/wx.h>
+ #include "Widgets/Label.hpp"
+ 
+-- 
+2.51.0
+
+
+From eb7b719683f7eb47420a46693c77bb489a3325ac Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 18 Nov 2025 19:37:17 +0100
+Subject: [PATCH 7/7] FIX: Fix missing boost::lexical_cast declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+/run/build/BambuStudio/src/slic3r/GUI/DeviceCore/DevMappingNozzle.cpp:42: error: ‘lexical_cast’ is not a member of ‘boost’
+   42 |         float dia = boost::lexical_cast<float>(diameter);
+
+/run/build/BambuStudio/src/slic3r/GUI/DeviceCore/DevUtilBackend.cpp: In static member function ‘static std::unordered_map<NozzleDef, int> Slic3r::DevUtilBackend::CollectNozzleInfo(Slic3r::MultiNozzleUtils::MultiNozzleGroupResult*, int)’:
+/run/build/BambuStudio/src/slic3r/GUI/DeviceCore/DevUtilBackend.cpp:47: error: ‘lexical_cast’ is not a member of ‘boost’
+   47 |             data.nozzle_diameter = boost::lexical_cast<float>(slicing_nozzle.diameter);
+---
+ src/slic3r/GUI/DeviceCore/DevMappingNozzle.cpp | 1 +
+ src/slic3r/GUI/DeviceCore/DevUtilBackend.cpp   | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/src/slic3r/GUI/DeviceCore/DevMappingNozzle.cpp b/src/slic3r/GUI/DeviceCore/DevMappingNozzle.cpp
+index 2e068a4cd1db..e98491e826af 100644
+--- a/src/slic3r/GUI/DeviceCore/DevMappingNozzle.cpp
++++ b/src/slic3r/GUI/DeviceCore/DevMappingNozzle.cpp
+@@ -15,6 +15,7 @@
+ 
+ #include "slic3r/GUI/GUI_App.hpp"
+ 
++#include <boost/lexical_cast.hpp>
+ #include <nlohmann/json.hpp>
+ using namespace nlohmann;
+ 
+diff --git a/src/slic3r/GUI/DeviceCore/DevUtilBackend.cpp b/src/slic3r/GUI/DeviceCore/DevUtilBackend.cpp
+index 3dc461a7dbaa..c29806f75c85 100644
+--- a/src/slic3r/GUI/DeviceCore/DevUtilBackend.cpp
++++ b/src/slic3r/GUI/DeviceCore/DevUtilBackend.cpp
+@@ -6,6 +6,7 @@
+ #include "slic3r/GUI/Plater.hpp"
+ #include "slic3r/GUI/GUI_App.hpp"
+ 
++#include <boost/lexical_cast.hpp>
+ #include <wx/string.h>
+ 
+ namespace Slic3r
+-- 
+2.51.0
+
