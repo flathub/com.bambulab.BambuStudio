@@ -7,7 +7,8 @@ separate-locales: true
 rename-icon: BambuStudio
 finish-args:
   - --share=ipc
-  - --socket=x11
+  - --socket=fallback-x11
+  - --socket=wayland
   - --share=network
   - --device=all
   - --filesystem=home
@@ -68,12 +69,23 @@ modules:
       - /include
       - /lib/cmake
 
+  - name: extra-cmake-modules
+    buildsystem: cmake-ninja
+    config-opts:
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DBUILD_TESTING=OFF
+    sources:
+      - type: git
+        url: https://invent.kde.org/frameworks/extra-cmake-modules.git
+        commit: 7dd28cc56c339c3f8fb356f7c53c0e8f61433d81
+        tag: v6.10.0
+
   - name: glfw
     buildsystem: cmake-ninja
     config-opts:
       - -DCMAKE_BUILD_TYPE=RelWithDebInfo
       - -DBUILD_SHARED_LIBS:BOOL=ON
-      - -DGLFW_BUILD_WAYLAND=OFF
+      - -DGLFW_BUILD_WAYLAND=ON
       - -DGLFW_BUILD_X11=ON
       - -DGLFW_BUILD_DOCS=OFF
       - -DGLFW_BUILD_TESTS=OFF
@@ -100,6 +112,7 @@ modules:
       - -DwxUSE_UNICODE=ON
       - -DwxUSE_PRIVATE_FONTS=1
       - -DwxUSE_OPENGL=ON
+      - -DwxUSE_GLCANVAS_EGL=ON
       - -DwxUSE_WEBREQUEST=ON
       - -DwxUSE_WEBVIEW=ON
       - -DwxUSE_REGEX=sys
@@ -116,17 +129,11 @@ modules:
       - -DwxUSE_GLCANVAS_EGL=OFF
     sources:
       - type: archive
-        url: https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.5/wxWidgets-3.1.5.tar.bz2
-        sha256: d7b3666de33aa5c10ea41bb9405c40326e1aeb74ee725bb88f90f1d50270a224
-      # https://github.com/wxWidgets/wxWidgets/issues/23630
+        url: https://github.com/wxWidgets/wxWidgets/releases/download/v3.2.7/wxWidgets-3.2.7.tar.bz2
+        sha256: 69a1722f874d91cd1c9e742b72df49e0fab02890782cf794791c3104cee868c6
+      # https://github.com/wxWidgets/wxWidgets/pull/25264
       - type: patch
-        path: patches/0001-Add-support-for-building-WebView-with-libwebkit2gtk-.patch
-      # wx-config/build fixes between 3.1.5 and 3.1.6
-      - type: patch
-        path: patches/wxwidgets-not-found.patch
-      # dark theme support
-      - type: patch
-        path: patches/0001-Enable-using-a-dark-theme-when-Gnome-dark-style-is-s.patch
+        path: patches/0001-Fix-using-GL-and-WebView-when-using-cmake-install.patch
     cleanup:
       - /include
       - /lib/cmake
@@ -213,6 +220,12 @@ modules:
         dest: external-packages/GMP
         sha256: 705ae57ee2014b2c6fc0f572c85ee43276b99b6b256ee16c1a9d3a8c4e3609d5
 
+      # GLEW
+      - type: file
+        url: https://sourceforge.net/projects/glew/files/glew/2.2.0/glew-2.2.0.zip
+        dest: external-packages/GLEW
+        sha256: a9046a913774395a095edcc0b0ac2d81c3aacca61787b39839b941e9be14e0d4
+
       # MPFR
       - type: file
         url: https://www.mpfr.org/mpfr-3.1.6/mpfr-3.1.6.tar.bz2
@@ -288,6 +301,10 @@ modules:
       # Apply TTB patches to fix linking failure. More info: https://github.com/prusa3d/PrusaSlicer/issues/8922
       - type: patch
         path: patches/0001-Apply-TBB-LTO-patch.patch
+
+      # XXX
+      - type: patch
+        path: patches/wayland-wip.patch
 
       # AppData metainfo for Gnome Software & Co.
       - type: file

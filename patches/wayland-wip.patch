@@ -1,0 +1,134 @@
+From ae98a9bce1364ca2fb6f213041066e538b98faff Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Thu, 6 Feb 2025 09:44:17 +0100
+Subject: [PATCH 1/2] main: Require libx11 1.8
+
+Require a version of libX11 new enough that it will initialise threads
+support itself, and not require X11 specific code in our startup.
+
+See https://gitlab.freedesktop.org/xorg/lib/libx11/-/commit/afcdb6fb0045c6186aa83d9298f327a7ec1b2cb9
+---
+ src/BambuStudio.cpp | 4 ----
+ src/CMakeLists.txt  | 2 ++
+ 2 files changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/src/BambuStudio.cpp b/src/BambuStudio.cpp
+index 016b4e89599c..847260f15d6e 100644
+--- a/src/BambuStudio.cpp
++++ b/src/BambuStudio.cpp
+@@ -1216,10 +1216,6 @@ int CLI::run(int argc, char **argv)
+     ::setenv("GDK_BACKEND", "x11", /* replace */ true);
+ 
+     ::setenv("WEBKIT_DISABLE_COMPOSITING_MODE", "1", /* replace */ false);
+-
+-    // Also on Linux, we need to tell Xlib that we will be using threads,
+-    // lest we crash when we fire up GStreamer.
+-    XInitThreads();
+ #endif
+ 
+ 	// Switch boost::filesystem to utf8.
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index 9e193d5a0e66..0c6dc7dca1d3 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -40,6 +40,8 @@ if (SLIC3R_GUI)
+     endif()
+ 
+     if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
++        pkg_check_modules(LIBX11 REQUIRED x11>=1.8)
++
+         set (wxWidgets_CONFIG_OPTIONS "--toolkit=gtk${SLIC3R_GTK}")
+         if (SLIC3R_WX_STABLE)
+             find_package(wxWidgets 3.0 REQUIRED COMPONENTS base core adv html gl aui net media webview)
+-- 
+2.48.1
+
+
+From 9d171e7b08d2f0cc76938fc80a3b9b611846c688 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Thu, 6 Feb 2025 09:45:55 +0100
+Subject: [PATCH 2/2] main: Remove forcing X11 GDK backend on startup
+
+---
+ src/BambuStudio.cpp | 9 ---------
+ 1 file changed, 9 deletions(-)
+
+diff --git a/src/BambuStudio.cpp b/src/BambuStudio.cpp
+index 847260f15d6e..b1073c98c034 100644
+--- a/src/BambuStudio.cpp
++++ b/src/BambuStudio.cpp
+@@ -1209,15 +1209,6 @@ int CLI::run(int argc, char **argv)
+     // Save the thread ID of the main thread.
+     save_main_thread_id();
+ 
+-#ifdef __WXGTK__
+-    // On Linux, wxGTK has no support for Wayland, and the app crashes on
+-    // startup if gtk3 is used. This env var has to be set explicitly to
+-    // instruct the window manager to fall back to X server mode.
+-    ::setenv("GDK_BACKEND", "x11", /* replace */ true);
+-
+-    ::setenv("WEBKIT_DISABLE_COMPOSITING_MODE", "1", /* replace */ false);
+-#endif
+-
+ 	// Switch boost::filesystem to utf8.
+     try {
+         boost::nowide::nowide_filesystem();
+-- 
+2.48.1
+
+From 34938fdc9699baf3ff97efd23b1319e2886422ab Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Fri, 7 Feb 2025 15:10:03 +0100
+Subject: [PATCH] titlebar
+
+---
+ src/slic3r/GUI/GUI_App.cpp | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/src/slic3r/GUI/GUI_App.cpp b/src/slic3r/GUI/GUI_App.cpp
+index 568869668754..0b5dafd6b543 100644
+--- a/src/slic3r/GUI/GUI_App.cpp
++++ b/src/slic3r/GUI/GUI_App.cpp
+@@ -2887,6 +2887,10 @@ bool GUI_App::on_init_inner()
+     //sidebar().aux_list()->init_auxiliary();
+     //mainframe->m_auxiliary->init_auxiliary();
+ 
++#ifdef __WXGTK3__
++    gtk_window_set_titlebar(GTK_WINDOW(mainframe), GTK_WIDGET(mainframe->topbar()));
++#endif
++
+ //     update_mode(); // !!! do that later
+     SetTopWindow(mainframe);
+ 
+-- 
+2.48.1
+
+From 964dcf6a1cc0afe1924b540d08c971ec4897caa9 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Fri, 7 Mar 2025 17:45:46 +0100
+Subject: [PATCH] deps: Build GLEW with EGL support
+
+EGL support is necessary for Wayland.
+---
+ deps/GLEW/GLEW.cmake | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/deps/GLEW/GLEW.cmake b/deps/GLEW/GLEW.cmake
+index c2673d6fb657..fdca9081a296 100644
+--- a/deps/GLEW/GLEW.cmake
++++ b/deps/GLEW/GLEW.cmake
+@@ -4,7 +4,11 @@ find_package(OpenGL QUIET REQUIRED)
+ 
+ bambustudio_add_cmake_project(
+   GLEW
++  URL https://sourceforge.net/projects/glew/files/glew/2.2.0/glew-2.2.0.zip
++  URL_HASH SHA256=a9046a913774395a095edcc0b0ac2d81c3aacca61787b39839b941e9be14e0d4
+   SOURCE_DIR  ${CMAKE_CURRENT_LIST_DIR}/glew
++  CMAKE_ARGS
++      -DGLEW_EGL=ON
+ )
+ 
+ if (MSVC)
+-- 
+2.49.0
+
