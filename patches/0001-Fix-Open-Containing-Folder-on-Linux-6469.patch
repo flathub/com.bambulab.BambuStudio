@@ -1,0 +1,57 @@
+From addc114cbd267d719c334c5cf0dea260b1fd2ad8 Mon Sep 17 00:00:00 2001
+From: Noisyfox <timemanager.rick@gmail.com>
+Date: Sun, 18 Aug 2024 16:31:39 +0800
+Subject: [PATCH] Fix "Open Containing Folder" on Linux
+ (SoftFever/OrcaSlicer#6449)
+
+Signed-off-by: Frederic Crozat <fcrozat@suse.com>
+---
+ src/slic3r/GUI/GUI.cpp | 11 +++++++++--
+ src/slic3r/GUI/GUI.hpp |  2 +-
+ 2 files changed, 10 insertions(+), 3 deletions(-)
+
+diff --git a/src/slic3r/GUI/GUI.cpp b/src/slic3r/GUI/GUI.cpp
+index cd2217f00..a54dd43fb 100644
+--- a/src/slic3r/GUI/GUI.cpp
++++ b/src/slic3r/GUI/GUI.cpp
+@@ -566,7 +566,7 @@ void desktop_open_datadir_folder()
+ #endif
+ }
+ 
+-void desktop_open_any_folder( const std::string path )
++void desktop_open_any_folder( const std::string& path )
+ {
+     // Execute command to open a file explorer, platform dependent.
+     // FIXME: The const_casts aren't needed in wxWidgets 3.1, remove them when we upgrade.
+@@ -577,7 +577,14 @@ void desktop_open_any_folder( const std::string path )
+ #elif __APPLE__
+     openFolderForFile(from_u8(path));
+ #else
+-    const char *argv[] = {"nautilus", path.data(), nullptr};
++
++    // Orca#6449: Open containing dir instead of opening the file directly.
++    std::string new_path = path;
++    boost::filesystem::path p(new_path);
++    if (!fs::is_directory(p)) {
++        new_path = p.parent_path().string();
++    }
++    const char* argv[] = {"xdg-open", new_path.data(), nullptr};
+ 
+     // Check if we're running in an AppImage container, if so, we need to remove AppImage's env vars,
+     // because they may mess up the environment expected by the file manager.
+diff --git a/src/slic3r/GUI/GUI.hpp b/src/slic3r/GUI/GUI.hpp
+index 765406583..db8cf06a6 100644
+--- a/src/slic3r/GUI/GUI.hpp
++++ b/src/slic3r/GUI/GUI.hpp
+@@ -83,7 +83,7 @@ extern void login();
+ // Ask the destop to open the datadir using the default file explorer.
+ extern void desktop_open_datadir_folder();
+ // Ask the destop to open one folder
+-extern void desktop_open_any_folder(const std::string path);
++extern void desktop_open_any_folder(const std::string& path);
+ } // namespace GUI
+ } // namespace Slic3r
+ 
+-- 
+2.52.0
+
