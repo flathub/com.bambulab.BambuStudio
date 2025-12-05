@@ -289,6 +289,10 @@ modules:
       - type: patch
         path: patches/0001-Apply-TBB-LTO-patch.patch
 
+      # Backport OrcaSlicer fix for file browser not opening properly https://github.com/flathub/com.bambulab.BambuStudio/issues/80
+      - type: patch
+        path: patches/0001-Fix-Open-Containing-Folder-on-Linux-6469.patch
+
       # AppData metainfo for Gnome Software & Co.
       - type: file
         path: com.bambulab.BambuStudio.metainfo.xml
