@@ -264,6 +264,13 @@ modules:
         dest: external-packages/Cereal
         sha256: 71642cb54658e98c8f07a0f0d08bf9766f1c3771496936f6014169d3726d9657
 
+      # GLEW
+      # https://github.com/bambulab/BambuStudio/blob/master/deps/GLEW/GLEW.cmake
+      - type: file
+        url: https://github.com/nigels-com/glew/releases/download/glew-2.3.0/glew-2   sha256: p
+        dest: external-packages/GLEW
+        sha256: fe8fdbaa77cfa354ff400da323ea5e32b3641ad58a218607de74d2998b872e66
+
       # NLopt
       # https://github.com/bambulab/BambuStudio/blob/master/deps/NLopt/NLopt.cmake
       - type: file
@@ -410,6 +417,10 @@ modules:
       # https://github.com/bambulab/BambuStudio/pull/11782
       - type: patch
         path: patches/no-boost-system.patch
+
+      # https://github.com/bambulab/BambuStudio/pull/9315
+      - type: patch
+        path: patches/upstream-glew.patch
 
       # AppData metainfo for Gnome Software & Co.
       - type: file
