@@ -198,6 +198,12 @@ modules:
         dest: external-packages/CGAL
         sha256: d7605e0a5a5ca17da7547592f6f6e4a59430a0bc861948974254d0de43eab4c0
 
+      # GLEW
+      - type: file
+        url: https://github.com/nigels-com/glew/releases/download/glew-2.3.0/glew-2.3.0.zip
+        dest: external-packages/GLEW
+        sha256: fe8fdbaa77cfa354ff400da323ea5e32b3641ad58a218607de74d2998b872e66
+
       # GMP
       - type: file
         url: https://github.com/bambulab/gmp/archive/refs/tags/6.2.1.tar.gz
@@ -283,6 +289,10 @@ modules:
       # Backport OrcaSlicer fix for file browser not opening properly https://github.com/flathub/com.bambulab.BambuStudio/issues/80
       - type: patch
         path: patches/0001-Fix-Open-Containing-Folder-on-Linux-6469.patch
+
+      # https://github.com/bambulab/BambuStudio/pull/9315
+      - type: patch
+        path: patches/upstream-glew.patch
 
       # AppData metainfo for Gnome Software & Co.
       - type: file
