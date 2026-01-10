@@ -284,6 +284,11 @@ modules:
       - type: patch
         path: patches/0001-Fix-Open-Containing-Folder-on-Linux-6469.patch
 
+      # Backport from https://github.com/OrcaSlicer/OrcaSlicer/pull/11897
+      # https://github.com/bambulab/BambuStudio/pull/9379
+      - type: patch
+        path: patches/less-warnings.patch
+
       # AppData metainfo for Gnome Software & Co.
       - type: file
         path: com.bambulab.BambuStudio.metainfo.xml
