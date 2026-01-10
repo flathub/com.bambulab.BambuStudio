@@ -1,0 +1,143 @@
+From e2575cc96408ecfb8794d39527d82ff6e527a8a9 Mon Sep 17 00:00:00 2001
+From: bdunks <brian.duncan@gmail.com>
+Date: Fri, 9 Jan 2026 09:40:33 -0500
+Subject: [PATCH 1/2] Fix Gtk-Critical assertion in PresetComboBoxes
+
+Resolve the `gtk_cell_layout_get_cells: assertion GTK_IS_CELL_LAYOUT
+failed` error by switching from `gtk_cell_layout_get_cells()` to
+`gtk_container_get_children()` with direct PangoLayout ellipsization
+on GtkEntry widgets.
+
+Picked from PrusaSlicer:
+https://github.com/prusa3d/PrusaSlicer/commit/e855ab5d
+---
+ src/slic3r/GUI/PresetComboBoxes.cpp | 36 ++++++++++++++++++-----------
+ 1 file changed, 22 insertions(+), 14 deletions(-)
+
+diff --git a/src/slic3r/GUI/PresetComboBoxes.cpp b/src/slic3r/GUI/PresetComboBoxes.cpp
+index 91b303bcba5d..1339b57bf166 100644
+--- a/src/slic3r/GUI/PresetComboBoxes.cpp
++++ b/src/slic3r/GUI/PresetComboBoxes.cpp
+@@ -201,20 +201,28 @@ void PresetComboBox::update_selection()
+ 
+ // A workaround for a set of issues related to text fitting into gtk widgets:
+ #if defined(__WXGTK20__) || defined(__WXGTK3__)
+-    GList* cells = gtk_cell_layout_get_cells(GTK_CELL_LAYOUT(m_widget));
+-
+-    // 'cells' contains the GtkCellRendererPixBuf for the icon,
+-    // 'cells->next' contains GtkCellRendererText for the text we need to ellipsize
+-    if (!cells || !cells->next) return;
+-
+-    auto cell = static_cast<GtkCellRendererText *>(cells->next->data);
+-
+-    if (!cell) return;
+-
+-    g_object_set(G_OBJECT(cell), "ellipsize", PANGO_ELLIPSIZE_END, (char*)NULL);
+-
+-    // Only the list of cells must be freed, the renderer isn't ours to free
+-    g_list_free(cells);
++  GtkWidget* widget = m_widget;
++    if (GTK_IS_CONTAINER(widget)) {
++        GList* children = gtk_container_get_children(GTK_CONTAINER(widget));
++        if (children) {
++            widget = GTK_WIDGET(children->data);
++            g_list_free(children);
++        }
++    }
++    if (GTK_IS_ENTRY(widget)) {
++        // Set ellipsization for the entry
++        gtk_entry_set_width_chars(GTK_ENTRY(widget), 20);  // Adjust this value as needed
++        gtk_entry_set_max_width_chars(GTK_ENTRY(widget), 20);  // Adjust this value as needed
++        // Create a PangoLayout for the entry and set ellipsization
++        PangoLayout* layout = gtk_entry_get_layout(GTK_ENTRY(widget));
++        if (layout) { 
++            pango_layout_set_ellipsize(layout, PANGO_ELLIPSIZE_END);
++        } else {
++            g_warning("Unable to get PangoLayout from GtkEntry");
++        }
++    } else {
++        g_warning("Expected GtkEntry, but got %s", G_OBJECT_TYPE_NAME(widget));
++    }
+ #endif
+ }
+ 
+-- 
+2.52.0
+
+
+From 99319689bd798a5cacd8453d0999846e5d49f472 Mon Sep 17 00:00:00 2001
+From: bdunks <brian.duncan@gmail.com>
+Date: Fri, 9 Jan 2026 09:44:26 -0500
+Subject: [PATCH 2/2] Add defensive guards for GTK widget sizing
+
+Fix Gtk-CRITICAL assertions in TextInput and DropDown widgets that
+occur when the widget attempt relative sizing against window size
+before GTK completes the window layout.
+
+Changes include:
+- TextInput.cpp: Clamp textSize.x >= -1 to prevent
+  `gtk_widget_set_size_request` failures.
+  - Picked from Prusa Slicer:
+    https://github.com/prusa3d/PrusaSlicer/commit/e855ab5d
+- DropDown.cpp: Guard against zero/negative dimensions during early
+  initialization:
+  - Prevent szContent.x = 0 when parent size is unavailable.
+    - Unique to OrcaSlicer
+    - Triggers during initializing DesignerPanel --> BasicInfo -->
+      License DropDown before a parent size is available.
+    - Latent bug exists in Bambu Studio, but Bambu does not have
+      License field enabled on this panel.
+    - Created global guard for future resilience.
+  - Clamp szContent.y >= 1 for dropdowns before content initialized.
+    - Bug exists in BambuStudio
+    - Prusa did not implement the "ENH: ComboBox Second DropDown"
+---
+ src/slic3r/GUI/Widgets/DropDown.cpp  | 5 +++--
+ src/slic3r/GUI/Widgets/TextInput.cpp | 1 +
+ 2 files changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/src/slic3r/GUI/Widgets/DropDown.cpp b/src/slic3r/GUI/Widgets/DropDown.cpp
+index 03e291b87475..f8da3c0e2ce3 100644
+--- a/src/slic3r/GUI/Widgets/DropDown.cpp
++++ b/src/slic3r/GUI/Widgets/DropDown.cpp
+@@ -1,6 +1,7 @@
+ #include "DropDown.hpp"
+ #include "Label.hpp"
+ 
++#include <cstdio>
+ #include <wx/display.h>
+ #include <wx/dcbuffer.h>
+ #include <wx/dcgraph.h>
+@@ -533,7 +534,7 @@ void DropDown::messureSize()
+     if (count > 15) szContent.x += 6;
+     if (GetParent() && group.IsEmpty()) {
+         auto x = GetParent()->GetSize().x;
+-        if (!use_content_width || x > szContent.x)
++        if (x > 0 && (!use_content_width || x > szContent.x))
+             szContent.x = x;
+     }
+     rowSize = szContent;
+@@ -544,7 +545,7 @@ void DropDown::messureSize()
+             szContent = rowSize;
+         }
+     }
+-    szContent.y *= std::min((size_t) 15, count);
++    szContent.y *= std::min((size_t) 15, std::max(count, (size_t) 1));
+     szContent.y += items.size() > 15 ? rowSize.y / 2 : 0;
+     wxWindow::SetSize(szContent);
+ #ifdef __WXGTK__
+diff --git a/src/slic3r/GUI/Widgets/TextInput.cpp b/src/slic3r/GUI/Widgets/TextInput.cpp
+index 38146c472241..0627fd779601 100644
+--- a/src/slic3r/GUI/Widgets/TextInput.cpp
++++ b/src/slic3r/GUI/Widgets/TextInput.cpp
+@@ -214,6 +214,7 @@ void TextInput::DoSetSize(int x, int y, int width, int height, int sizeFlags)
+         int unit_space = (m_unit.IsEmpty() ? 0 : unitSize.x + 5) + 10;
+         wxSize textSize = text_ctrl->GetSize();
+         textSize.x = size.x - textPos.x - labelSize.x - unit_space;
++        if(textSize.x < -1) textSize.x = -1;
+         text_ctrl->SetSize(textSize);
+         text_ctrl->SetPosition({textPos.x, (size.y - textSize.y) / 2});
+     }
+-- 
+2.52.0
+
