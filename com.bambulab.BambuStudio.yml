@@ -289,6 +289,10 @@ modules:
       - type: patch
         path: patches/less-warnings.patch
 
+      # https://github.com/bambulab/BambuStudio/pull/9387
+      - type: patch
+        path: patches/0001-BUG-Fix-Cannot-register-URI-scheme-.-more-than-once.patch
+
       # AppData metainfo for Gnome Software & Co.
       - type: file
         path: com.bambulab.BambuStudio.metainfo.xml
