@@ -1,0 +1,219 @@
+From 4877abc42e74e02ed4bbf89cf65bfb3b77c586d8 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 13 Jan 2026 22:44:59 +0100
+Subject: [PATCH 1/3] BUG: Fix netwoking_module typo in NetworkAgent
+
+s/netwoking/networking/
+---
+ src/slic3r/Utils/NetworkAgent.cpp | 50 +++++++++++++++----------------
+ 1 file changed, 25 insertions(+), 25 deletions(-)
+
+diff --git a/src/slic3r/Utils/NetworkAgent.cpp b/src/slic3r/Utils/NetworkAgent.cpp
+index 61861062b3fb..d95c9d44477f 100644
+--- a/src/slic3r/Utils/NetworkAgent.cpp
++++ b/src/slic3r/Utils/NetworkAgent.cpp
+@@ -21,10 +21,10 @@ namespace Slic3r {
+ #define BAMBU_SOURCE_LIBRARY "BambuSource"
+ 
+ #if defined(_MSC_VER) || defined(_WIN32)
+-static HMODULE netwoking_module = NULL;
++static HMODULE networking_module = NULL;
+ static HMODULE source_module = NULL;
+ #else
+-static void* netwoking_module = NULL;
++static void* networking_module = NULL;
+ static void* source_module = NULL;
+ #endif
+ 
+@@ -204,15 +204,15 @@ int NetworkAgent::initialize_network_module(bool using_backup, bool validate_cer
+         module_cert_summary = SummarizeModule(library);
+         if (module_cert_summary) {
+             if (IsSamePublisher(*self_cert_summary, *module_cert_summary))
+-                netwoking_module = LoadLibrary(lib_wstr);
++                networking_module = LoadLibrary(lib_wstr);
+             else
+                 BOOST_LOG_TRIVIAL(info) << "module is from another publisher:" << module_cert_summary->as_print();
+         }
+         else
+             BOOST_LOG_TRIVIAL(info) << "module_cert is null";
+     } else
+-        netwoking_module = LoadLibrary(lib_wstr);
+-    if (!netwoking_module) {
++        networking_module = LoadLibrary(lib_wstr);
++    if (!networking_module) {
+         BOOST_LOG_TRIVIAL(info) << __FUNCTION__ << boost::format(", try load library directly from current directory");
+ 
+         std::string library_path = get_libpath_in_current_directory(std::string(BAMBU_NETWORK_LIBRARY));
+@@ -226,7 +226,7 @@ int NetworkAgent::initialize_network_module(bool using_backup, bool validate_cer
+             module_cert_summary = SummarizeModule(library_path);
+             if (module_cert_summary) {
+                 if (IsSamePublisher(*self_cert_summary, *module_cert_summary))
+-                    netwoking_module = LoadLibrary(lib_wstr);
++                    networking_module = LoadLibrary(lib_wstr);
+                 else
+                     BOOST_LOG_TRIVIAL(info) << "module is from another publisher:" << module_cert_summary->as_print();
+             }
+@@ -234,7 +234,7 @@ int NetworkAgent::initialize_network_module(bool using_backup, bool validate_cer
+                 BOOST_LOG_TRIVIAL(info) << "module_cert is null";
+         }
+         else
+-            netwoking_module = LoadLibrary(lib_wstr);
++            networking_module = LoadLibrary(lib_wstr);
+     }
+ #else
+     #if defined(__WXMAC__)
+@@ -248,7 +248,7 @@ int NetworkAgent::initialize_network_module(bool using_backup, bool validate_cer
+         module_cert_summary = SummarizeModule(library);
+         if (module_cert_summary) {
+             if (IsSamePublisher(*self_cert_summary, *module_cert_summary))
+-                netwoking_module = dlopen(library.c_str(), RTLD_LAZY);
++                networking_module = dlopen(library.c_str(), RTLD_LAZY);
+             else
+                 BOOST_LOG_TRIVIAL(info) << "module is from another publisher:" << module_cert_summary->as_print();
+         }
+@@ -256,23 +256,23 @@ int NetworkAgent::initialize_network_module(bool using_backup, bool validate_cer
+             BOOST_LOG_TRIVIAL(info) << "module_cert is null";
+     }
+     else
+-        netwoking_module = dlopen( library.c_str(), RTLD_LAZY);
+-    if (!netwoking_module) {
++        networking_module = dlopen( library.c_str(), RTLD_LAZY);
++    if (!networking_module) {
+         char* dll_error = dlerror();
+         std::string err       = dll_error ? std::string(dll_error) : std::string("(null)");
+         BOOST_LOG_TRIVIAL(warning) << __FUNCTION__ << boost::format(", error, dlerror is %1%") % err;
+     }
+-    printf("after dlopen, network_module is %p\n", netwoking_module);
++    printf("after dlopen, network_module is %p\n", networking_module);
+ #endif
+ 
+-    if (!netwoking_module) {
++    if (!networking_module) {
+         BOOST_LOG_TRIVIAL(warning) << __FUNCTION__ << boost::format(", line %1%, can not Load Library, using_backup %2%\n")%__LINE__ %using_backup;
+         return -1;
+     }
+-    BOOST_LOG_TRIVIAL(info) << __FUNCTION__ << boost::format(", line %1%,  successfully loaded library, using_backup %2%, module %3%")%__LINE__ %using_backup %netwoking_module;
++    BOOST_LOG_TRIVIAL(info) << __FUNCTION__ << boost::format(", line %1%,  successfully loaded library, using_backup %2%, module %3%")%__LINE__ %using_backup %networking_module;
+ 
+     // load file transfer interface
+-    InitFTModule(netwoking_module);
++    InitFTModule(networking_module);
+ 
+     //load the functions
+     check_debug_consistent_ptr        =  reinterpret_cast<func_check_debug_consistent>(get_network_function("bambu_network_check_debug_consistent"));
+@@ -384,21 +384,21 @@ int NetworkAgent::initialize_network_module(bool using_backup, bool validate_cer
+ 
+ int NetworkAgent::unload_network_module()
+ {
+-    BOOST_LOG_TRIVIAL(info) << __FUNCTION__ << boost::format(", network module %1%")%netwoking_module;
++    BOOST_LOG_TRIVIAL(info) << __FUNCTION__ << boost::format(", network module %1%")%networking_module;
+     UnloadFTModule();
+ #if defined(_MSC_VER) || defined(_WIN32)
+-    if (netwoking_module) {
+-        FreeLibrary(netwoking_module);
+-        netwoking_module = NULL;
++    if (networking_module) {
++        FreeLibrary(networking_module);
++        networking_module = NULL;
+     }
+     if (source_module) {
+         FreeLibrary(source_module);
+         source_module = NULL;
+     }
+ #else
+-    if (netwoking_module) {
+-        dlclose(netwoking_module);
+-        netwoking_module = NULL;
++    if (networking_module) {
++        dlclose(networking_module);
++        networking_module = NULL;
+     }
+     if (source_module) {
+         dlclose(source_module);
+@@ -511,7 +511,7 @@ HMODULE NetworkAgent::get_bambu_source_entry()
+ void* NetworkAgent::get_bambu_source_entry()
+ #endif
+ {
+-    if ((source_module) || (!netwoking_module))
++    if ((source_module) || (!networking_module))
+         return source_module;
+ 
+     //int ret = -1;
+@@ -563,13 +563,13 @@ void* NetworkAgent::get_network_function(const char* name)
+ {
+     void* function = nullptr;
+ 
+-    if (!netwoking_module)
++    if (!networking_module)
+         return function;
+ 
+ #if defined(_MSC_VER) || defined(_WIN32)
+-    function = GetProcAddress(netwoking_module, name);
++    function = GetProcAddress(networking_module, name);
+ #else
+-    function = dlsym(netwoking_module, name);
++    function = dlsym(networking_module, name);
+ #endif
+ 
+     if (!function) {
+-- 
+2.52.0
+
+
+From 771452760c5323e7cb0a4bc8e505c764851a0aed Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 13 Jan 2026 22:14:29 +0100
+Subject: [PATCH 2/3] BUG: Fix "after dlopen, network_module is..." warning
+
+---
+ src/slic3r/Utils/NetworkAgent.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/slic3r/Utils/NetworkAgent.cpp b/src/slic3r/Utils/NetworkAgent.cpp
+index d95c9d44477f..3c525cb5f535 100644
+--- a/src/slic3r/Utils/NetworkAgent.cpp
++++ b/src/slic3r/Utils/NetworkAgent.cpp
+@@ -262,7 +262,7 @@ int NetworkAgent::initialize_network_module(bool using_backup, bool validate_cer
+         std::string err       = dll_error ? std::string(dll_error) : std::string("(null)");
+         BOOST_LOG_TRIVIAL(warning) << __FUNCTION__ << boost::format(", error, dlerror is %1%") % err;
+     }
+-    printf("after dlopen, network_module is %p\n", networking_module);
++    BOOST_LOG_TRIVIAL(info) << boost::format("after dlopen, network_module is %1%") % networking_module;
+ #endif
+ 
+     if (!networking_module) {
+-- 
+2.52.0
+
+
+From ab89c82624ac58f8c43aaa26098ac6312e153e49 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 13 Jan 2026 23:44:02 +0100
+Subject: [PATCH 3/3] BUG: Remove "add font of ... returns ..." warnings
+
+---
+ src/slic3r/GUI/Widgets/Label.cpp | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/src/slic3r/GUI/Widgets/Label.cpp b/src/slic3r/GUI/Widgets/Label.cpp
+index 5fdb5cf3bef1..be48956f28c6 100644
+--- a/src/slic3r/GUI/Widgets/Label.cpp
++++ b/src/slic3r/GUI/Widgets/Label.cpp
+@@ -67,12 +67,10 @@ void Label::initSysFont(std::string lang_code, bool load_font_resource)
+         const std::string& resource_path = Slic3r::resources_dir();
+         wxString font_path = wxString::FromUTF8(resource_path+"/fonts/HarmonyOS_Sans_SC_Bold.ttf");
+         bool result = wxFont::AddPrivateFont(font_path);
+-        //BOOST_LOG_TRIVIAL(info) << boost::format("add font of HarmonyOS_Sans_SC_Bold returns %1%")%result;
+-        printf("add font of HarmonyOS_Sans_SC_Bold returns %d\n", result);
++        BOOST_LOG_TRIVIAL(info) << boost::format("add font of HarmonyOS_Sans_SC_Bold returns %1%")%result;
+         font_path = wxString::FromUTF8(resource_path+"/fonts/HarmonyOS_Sans_SC_Regular.ttf");
+         result = wxFont::AddPrivateFont(font_path);
+-        //BOOST_LOG_TRIVIAL(info) << boost::format("add font of HarmonyOS_Sans_SC_Regular returns %1%")%result;
+-        printf("add font of HarmonyOS_Sans_SC_Regular returns %d\n", result);
++        BOOST_LOG_TRIVIAL(info) << boost::format("add font of HarmonyOS_Sans_SC_Regular returns %1%")%result;
+     }
+ #endif
+     Head_48 = Label::sysFont(48, true, lang_code);
+-- 
+2.52.0
+
