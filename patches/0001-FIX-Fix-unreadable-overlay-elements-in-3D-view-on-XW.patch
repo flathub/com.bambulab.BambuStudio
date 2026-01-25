@@ -1,0 +1,33 @@
+From 94b9f14445184cc39e4018895c33ab4f5b987663 Mon Sep 17 00:00:00 2001
+From: Pedro Sland <pedro_sland@hotmail.com>
+Date: Tue, 2 Dec 2025 23:23:21 +0000
+Subject: [PATCH] FIX: Fix unreadable overlay elements in 3D view on
+ XWayland/Intel
+
+Backported from:
+https://github.com/OrcaSlicer/OrcaSlicer/pull/11557
+
+Tested in:
+https://github.com/flathub/com.bambulab.BambuStudio/pull/90
+---
+ src/slic3r/GUI/ImGuiWrapper.cpp | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/src/slic3r/GUI/ImGuiWrapper.cpp b/src/slic3r/GUI/ImGuiWrapper.cpp
+index 6987500a6de0..72625f72b241 100644
+--- a/src/slic3r/GUI/ImGuiWrapper.cpp
++++ b/src/slic3r/GUI/ImGuiWrapper.cpp
+@@ -2641,6 +2641,10 @@ void ImGuiWrapper::init_font(bool compress)
+     builder.BuildRanges(&ranges); // Build the final result (ordered ranges with all the unique characters submitted)
+ 
+     io.Fonts->Flags |= ImFontAtlasFlags_NoPowerOfTwoHeight;
++    // Limit texture height to avoid exceeding GL_MAX_TEXTURE_SIZE
++    // Make the atlas wider to keep it shorter (height limit might be 16384 on XWayland)
++    io.Fonts->TexDesiredWidth = 8192;
++
+     ImFontConfig cfg = ImFontConfig();
+     cfg.OversampleH = cfg.OversampleV = 1;
+     //FIXME replace with io.Fonts->AddFontFromMemoryTTF(buf_decompressed_data, (int)buf_decompressed_size, m_font_size, nullptr, ranges.Data);
+-- 
+2.52.0
+

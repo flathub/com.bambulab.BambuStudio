@@ -293,6 +293,10 @@ modules:
       - type: patch
         path: patches/0001-BUG-Fix-Cannot-register-URI-scheme-.-more-than-once.patch
 
+      # https://github.com/bambulab/BambuStudio/pull/9485
+      - type: patch
+        path: patches/0001-FIX-Fix-unreadable-overlay-elements-in-3D-view-on-XW.patch
+
       # https://github.com/bambulab/BambuStudio/pull/9388
       - type: patch
         path: patches/remove-warnings.patch
