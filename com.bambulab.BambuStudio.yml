@@ -261,15 +261,12 @@ modules:
       # BambuStudio Source Archive
       - type: git
         url: https://github.com/bambulab/BambuStudio.git
-        tag: v02.04.00.70
+        tag: v02.05.00.64
+        commit: 16d0c45a757dbdcae9ef7b896894362ca181f06c
 
-      # https://github.com/bambulab/BambuStudio/pull/8834
+      # https://github.com/bambulab/BambuStudio/pull/9504
       - type: patch
-        path: patches/2.4.0-fixes.patch
-
-      # https://github.com/bambulab/BambuStudio/pull/8869
-      - type: patch
-        path: patches/0001-FIX-Fix-timelapse-videos-not-playing-on-Linux.patch
+        path: patches/2.5.0-fixes.patch
 
       # Patched TBB cmake to make build without lto flag
       - type: file
@@ -280,26 +277,9 @@ modules:
       - type: patch
         path: patches/0001-Apply-TBB-LTO-patch.patch
 
-      # Backport OrcaSlicer fix for file browser not opening properly https://github.com/flathub/com.bambulab.BambuStudio/issues/80
-      - type: patch
-        path: patches/0001-Fix-Open-Containing-Folder-on-Linux-6469.patch
-
-      # Backport from https://github.com/OrcaSlicer/OrcaSlicer/pull/11897
-      # https://github.com/bambulab/BambuStudio/pull/9379
-      - type: patch
-        path: patches/less-warnings.patch
-
-      # https://github.com/bambulab/BambuStudio/pull/9387
-      - type: patch
-        path: patches/0001-BUG-Fix-Cannot-register-URI-scheme-.-more-than-once.patch
-
       # https://github.com/bambulab/BambuStudio/pull/9485
       - type: patch
         path: patches/0001-FIX-Fix-unreadable-overlay-elements-in-3D-view-on-XW.patch
-
-      # https://github.com/bambulab/BambuStudio/pull/9388
-      - type: patch
-        path: patches/remove-warnings.patch
 
       # AppData metainfo for Gnome Software & Co.
       - type: file
