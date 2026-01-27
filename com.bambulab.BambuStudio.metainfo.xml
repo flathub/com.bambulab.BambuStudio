@@ -37,6 +37,9 @@
       </p>
     </description>
     <releases>
+        <release version="2.5.0 Public Release" date="2026-01-27">
+            <url>https://github.com/bambulab/BambuStudio/releases/tag/v02.05.00.64</url>
+        </release>
         <release version="2.4.0 Public Release" date="2025-11-18">
             <url>https://github.com/bambulab/BambuStudio/releases/tag/v02.04.00.70</url>
         </release>
