@@ -6,7 +6,7 @@
         <id>com.bambulab.BambuStudio.desktop</id>
     </provides>
     <name>Bambu Studio</name>
-    <summary>Get perfect 3D prints!</summary>
+    <summary>Bambu Lab 3D printer software</summary>
     <developer_name>Bambu Lab</developer_name>
     <url type="homepage">https://bambulab.com/en/download/studio</url>
     <url type="help">https://wiki.bambulab.com/en/software</url>

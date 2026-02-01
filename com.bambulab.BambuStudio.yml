@@ -122,6 +122,14 @@ modules:
       - /include
       - /lib/cmake
 
+  - name: icns
+    sources:
+      - type: git
+        url: https://git.code.sf.net/p/icns/code
+        commit: '194962'
+    cleanup:
+      - '*'
+
   - name: BambuStudio
     buildsystem: simple
     build-commands:
@@ -165,7 +173,12 @@ modules:
     post-install:
 
       - | # Desktop Integration files
-        install -Dm644 -t /app/share/icons/hicolor/scalable/apps/ resources/images/BambuStudio.svg
+        for size in 256 512 ; do
+          icns2png -x -o . -d 32 -s ${size}x${size} ./resources/Icon.icns
+          install -Dm644 -D Icon_${size}x${size}x32.png /app/share/icons/hicolor/${size}x${size}/apps/${FLATPAK_ID}.png
+        done
+        convert -resize 128x128 ./Icon_512x512x32.png ${FLATPAK_ID}.png
+        install -Dm644 -t /app/share/icons/hicolor/128x128/apps/ ${FLATPAK_ID}.png
         install -Dm644 ${FLATPAK_ID}.metainfo.xml /app/share/metainfo/${FLATPAK_ID}.metainfo.xml
         mv /app/share/applications/BambuStudio.desktop /app/share/applications/${FLATPAK_ID}.desktop
         desktop-file-edit --set-key=Exec --set-value="entrypoint %U" /app/share/applications/${FLATPAK_ID}.desktop
