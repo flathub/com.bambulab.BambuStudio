@@ -168,7 +168,7 @@ modules:
         install -Dm644 -t /app/share/icons/hicolor/scalable/apps/ resources/images/BambuStudio.svg
         install -Dm644 ${FLATPAK_ID}.metainfo.xml /app/share/metainfo/${FLATPAK_ID}.metainfo.xml
         mv /app/share/applications/BambuStudio.desktop /app/share/applications/${FLATPAK_ID}.desktop
-        desktop-file-edit --set-key=Exec --set-value="entrypoint %U" --add-mime-type=model/step /app/share/applications/${FLATPAK_ID}.desktop
+        desktop-file-edit --set-key=Exec --set-value="entrypoint %U" /app/share/applications/${FLATPAK_ID}.desktop
         install -Dm755 entrypoint /app/bin
         install -Dm755 umount /app/bin
 
@@ -261,8 +261,8 @@ modules:
       # BambuStudio Source Archive
       - type: git
         url: https://github.com/bambulab/BambuStudio.git
-        tag: v02.05.01.52
-        commit: 55656f1e6f7be7ecf0588031131878baba8f4bf4
+        tag: v02.05.02.51
+        commit: bf08f23c70311cae62e5d3226e8156d260d336bb
 
       # Patched TBB cmake to make build without lto flag
       - type: file
@@ -272,10 +272,6 @@ modules:
       # Apply TTB patches to fix linking failure. More info: https://github.com/prusa3d/PrusaSlicer/issues/8922
       - type: patch
         path: patches/0001-Apply-TBB-LTO-patch.patch
-
-      # https://github.com/bambulab/BambuStudio/pull/9485
-      - type: patch
-        path: patches/0001-FIX-Fix-unreadable-overlay-elements-in-3D-view-on-XW.patch
 
       # AppData metainfo for Gnome Software & Co.
       - type: file
