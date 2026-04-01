@@ -2,9 +2,6 @@
 <component type="desktop">
     <id>com.bambulab.BambuStudio</id>
     <launchable type="desktop-id">com.bambulab.BambuStudio.desktop</launchable>
-    <provides>
-        <id>com.bambulab.BambuStudio.desktop</id>
-    </provides>
     <name>Bambu Studio</name>
     <summary>Get perfect 3D prints!</summary>
     <developer_name>Bambu Lab</developer_name>
