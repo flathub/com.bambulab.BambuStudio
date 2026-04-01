@@ -3,7 +3,6 @@ runtime: org.gnome.Platform
 runtime-version: "48"
 sdk: org.gnome.Sdk
 command: entrypoint
-separate-locales: true
 rename-icon: BambuStudio
 finish-args:
   - --share=ipc
