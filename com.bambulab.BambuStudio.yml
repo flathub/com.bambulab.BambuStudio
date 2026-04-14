@@ -139,7 +139,7 @@ modules:
           -DDEP_BUILD_GLFW=OFF \
           -DDEP_BUILD_FREETYPE=OFF \
           -DDEP_BUILD_WXWIDGETS=OFF
-        cmake --build . --target dep_TBB dep_Cereal dep_NLopt dep_OpenVDB dep_Qhull dep_OpenCSG dep_OpenCV dep_CGAL dep_OCCT
+        cmake --build . --target dep_TBB dep_Cereal dep_NLopt dep_libnoise dep_OpenVDB dep_Qhull dep_OpenCSG dep_OpenCV dep_CGAL dep_OCCT
       - |
         mkdir -p build && cd build
         CXXFLAGS=-std=gnu++20 cmake ../ \
@@ -240,6 +240,12 @@ modules:
         dest: external-packages/OpenEXR
         sha256: 0307a3d7e1fa1e77e9d84d7e9a8694583fbbbfd50bdc6884e2c96b8ef6b902de
 
+      # libnoise
+      - type: file
+        url: https://github.com/bambulab/libnoise/archive/refs/tags/v1.0.0.zip
+        dest: external-packages/libnoise
+        sha256: 7aae3433e4c841a1b15ddf40dc995b3d32efb154b92b6796888002e275bff859
+
       # OpenVDB
       - type: file
         url: https://github.com/tamasmeszaros/openvdb/archive/a68fd58d0e2b85f01adeb8b13d7555183ab10aa5.zip
@@ -261,8 +267,16 @@ modules:
       # BambuStudio Source Archive
       - type: git
         url: https://github.com/bambulab/BambuStudio.git
-        tag: v02.05.02.51
-        commit: bf08f23c70311cae62e5d3226e8156d260d336bb
+        tag: v02.05.03.61
+        commit: 2678bb7fbbda1173175b4a828579ca7a40d88ae7
+
+      # https://github.com/bambulab/BambuStudio/issues/10204
+      - type: patch
+        path: patches/revert-2.5.3-dos-mode.patch
+
+      # https://github.com/bambulab/BambuStudio/pull/10213
+      - type: patch
+        path: patches/2.5.3-fixes.patch
 
       # Patched TBB cmake to make build without lto flag
       - type: file
