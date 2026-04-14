@@ -1,0 +1,150 @@
+From db5799335386ccef2289a9c37e65eda59f516714 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Wed, 15 Apr 2026 00:25:31 +0200
+Subject: [PATCH] FIX: Revert text mode changes to DOS
+
+This broke application of patches.
+---
+ deps/OpenEXR/0001-OpenEXR-GCC13.patch | 62 +++++++++++++--------------
+ deps/TBB/0001-TBB-GCC13.patch         | 22 +++++-----
+ deps/TBB/TBB.cmake                    | 36 ++++++++--------
+ 3 files changed, 60 insertions(+), 60 deletions(-)
+
+diff --git a/deps/OpenEXR/0001-OpenEXR-GCC13.patch b/deps/OpenEXR/0001-OpenEXR-GCC13.patch
+index 8f29f2bbe0db..bf7d6ae82b76 100644
+--- a/deps/OpenEXR/0001-OpenEXR-GCC13.patch
++++ b/deps/OpenEXR/0001-OpenEXR-GCC13.patch
+@@ -1,31 +1,31 @@
+---- a/OpenEXR/IlmImf/ImfDwaCompressor.cpp
+-+++ b/OpenEXR/IlmImf/ImfDwaCompressor.cpp
+-@@ -159,6 +159,7 @@
+- #include <limits>
+-
+- #include <cstddef>
+-+#include <cstdint>
+-
+-
+- // Windows specific addition to prevent the indirect import of the redefined min/max macros
+---- a/OpenEXR/IlmImf/ImfHuf.h
+-+++ b/OpenEXR/IlmImf/ImfHuf.h
+-@@ -40,6 +40,8 @@
+- #include "ImfExport.h"
+- #include "ImfNamespace.h"
+-
+-+#include <cstdint>
+-+
+- //-----------------------------------------------------------------------------
+- //
+- //	16-bit Huffman compression and decompression:
+---- a/OpenEXR/IlmImf/ImfMisc.h
+-+++ b/OpenEXR/IlmImf/ImfMisc.h
+-@@ -51,6 +51,7 @@
+- #include "ImfForward.h"
+-
+- #include <cstddef>
+-+#include <cstdint>
+- #include <vector>
+-
+-
++--- a/OpenEXR/IlmImf/ImfDwaCompressor.cpp
+++++ b/OpenEXR/IlmImf/ImfDwaCompressor.cpp
++@@ -159,6 +159,7 @@
++ #include <limits>
++
++ #include <cstddef>
+++#include <cstdint>
++
++
++ // Windows specific addition to prevent the indirect import of the redefined min/max macros
++--- a/OpenEXR/IlmImf/ImfHuf.h
+++++ b/OpenEXR/IlmImf/ImfHuf.h
++@@ -40,6 +40,8 @@
++ #include "ImfExport.h"
++ #include "ImfNamespace.h"
++
+++#include <cstdint>
+++
++ //-----------------------------------------------------------------------------
++ //
++ //	16-bit Huffman compression and decompression:
++--- a/OpenEXR/IlmImf/ImfMisc.h
+++++ b/OpenEXR/IlmImf/ImfMisc.h
++@@ -51,6 +51,7 @@
++ #include "ImfForward.h"
++
++ #include <cstddef>
+++#include <cstdint>
++ #include <vector>
++
++
+diff --git a/deps/TBB/0001-TBB-GCC13.patch b/deps/TBB/0001-TBB-GCC13.patch
+index 9365a8ab86d1..047daa4497b6 100644
+--- a/deps/TBB/0001-TBB-GCC13.patch
++++ b/deps/TBB/0001-TBB-GCC13.patch
+@@ -1,11 +1,11 @@
+---- a/include/tbb/task.h
+-+++ b/include/tbb/task.h
+-@@ -219,7 +219,7 @@
+- #if __TBB_TASK_PRIORITY
+-         //! Pointer to the next offloaded lower priority task.
+-         /** Used to maintain a list of offloaded tasks inside the scheduler. **/
+--        task* next_offloaded;
+-+        tbb::task* next_offloaded;
+-         };
+- #endif /* __TBB_TASK_PRIORITY */
+-
++--- a/include/tbb/task.h
+++++ b/include/tbb/task.h
++@@ -219,7 +219,7 @@
++ #if __TBB_TASK_PRIORITY
++         //! Pointer to the next offloaded lower priority task.
++         /** Used to maintain a list of offloaded tasks inside the scheduler. **/
++-        task* next_offloaded;
+++        tbb::task* next_offloaded;
++         };
++ #endif /* __TBB_TASK_PRIORITY */
++
+diff --git a/deps/TBB/TBB.cmake b/deps/TBB/TBB.cmake
+index 650f12797842..87b76828a8aa 100644
+--- a/deps/TBB/TBB.cmake
++++ b/deps/TBB/TBB.cmake
+@@ -1,18 +1,18 @@
+-bambustudio_add_cmake_project(
+-    TBB
+-    URL "https://github.com/oneapi-src/oneTBB/archive/refs/tags/v2021.5.0.zip"
+-    URL_HASH SHA256=83ea786c964a384dd72534f9854b419716f412f9d43c0be88d41874763e7bb47
+-    #PATCH_COMMAND ${PATCH_CMD} ${CMAKE_CURRENT_LIST_DIR}/0001-TBB-GCC13.patch
+-    CMAKE_ARGS          
+-        -DTBB_BUILD_SHARED=OFF
+-        -DTBB_BUILD_TESTS=OFF
+-        -DTBB_TEST=OFF
+-        -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+-        -DCMAKE_DEBUG_POSTFIX=_debug
+-)
+-
+-if (MSVC)
+-    add_debug_dep(dep_TBB)
+-endif ()
+-
+-
++bambustudio_add_cmake_project(
++    TBB
++    URL "https://github.com/oneapi-src/oneTBB/archive/refs/tags/v2021.5.0.zip"
++    URL_HASH SHA256=83ea786c964a384dd72534f9854b419716f412f9d43c0be88d41874763e7bb47
++    #PATCH_COMMAND ${PATCH_CMD} ${CMAKE_CURRENT_LIST_DIR}/0001-TBB-GCC13.patch
++    CMAKE_ARGS          
++        -DTBB_BUILD_SHARED=OFF
++        -DTBB_BUILD_TESTS=OFF
++        -DTBB_TEST=OFF
++        -DCMAKE_POSITION_INDEPENDENT_CODE=ON
++        -DCMAKE_DEBUG_POSTFIX=_debug
++)
++
++if (MSVC)
++    add_debug_dep(dep_TBB)
++endif ()
++
++
+-- 
+2.53.0
+
