@@ -1,0 +1,53 @@
+From 42575b11f856bfd4fee72381323f1317818e7dff Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Thu, 16 Apr 2026 00:37:57 +0200
+Subject: [PATCH] ENH: Allow using system Blosc
+
+To make it easier to test newer versions, or apply system specific
+patches.
+---
+ deps/CMakeLists.txt        | 7 ++++++-
+ deps/OpenVDB/OpenVDB.cmake | 2 +-
+ 2 files changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/deps/CMakeLists.txt b/deps/CMakeLists.txt
+index ec7bdff7b296..503de6fc4fea 100644
+--- a/deps/CMakeLists.txt
++++ b/deps/CMakeLists.txt
+@@ -40,6 +40,7 @@ option(DEP_BUILD_TIFF "Compile libtiff" ON)
+ option(DEP_BUILD_BOOST "Compile boost" ON)
+ option(DEP_BUILD_OPENSSL "Compile openssl" ON)
+ option(DEP_BUILD_GLFW "Compile GLFW" ON)
++option(DEP_BUILD_BLOSC "Compile Blosc" ON)
+ option(DEP_BUILD_FREETYPE "Compile freetype" ON)
+ option(DEP_BUILD_WXWIDGETS "Compile wxWidgets" ON)
+ option(DEP_BUILD_FFMPEG "Compile ffmpeg" ON)
+@@ -241,7 +242,11 @@ include(OpenCSG/OpenCSG.cmake)
+ 
+ include(TBB/TBB.cmake)
+ 
+-include(Blosc/Blosc.cmake)
++set(BLOSC_PKG "")
++if (DEP_BUILD_BLOSC)
++    include(Blosc/Blosc.cmake)
++    set(BLOSC_PKG dep_Blosc)
++endif ()
+ include(OpenEXR/OpenEXR.cmake)
+ include(OpenVDB/OpenVDB.cmake)
+ 
+diff --git a/deps/OpenVDB/OpenVDB.cmake b/deps/OpenVDB/OpenVDB.cmake
+index a5f66c8770d5..e6816a98a8e9 100644
+--- a/deps/OpenVDB/OpenVDB.cmake
++++ b/deps/OpenVDB/OpenVDB.cmake
+@@ -22,7 +22,7 @@ bambustudio_add_cmake_project(OpenVDB
+     PATCH_COMMAND git apply ${OPENVDB_DIRECTORY_FLAG} --verbose --ignore-space-change --whitespace=fix ${CMAKE_CURRENT_LIST_DIR}/0001-clang19.patch
+     # URL https://github.com/AcademySoftwareFoundation/openvdb/archive/refs/tags/v10.0.1.zip
+     # URL_HASH SHA256=48C2CFA9853B58FA86282DF1F83F0E99D07858CC03EB2BA8227DC447A830100A
+-    DEPENDS dep_TBB dep_Blosc dep_OpenEXR ${BOOST_PKG}
++    DEPENDS dep_TBB ${BLOSC_PKG} dep_OpenEXR ${BOOST_PKG}
+     CMAKE_ARGS
+         -DCMAKE_POSITION_INDEPENDENT_CODE=ON 
+         -DOPENVDB_BUILD_PYTHON_MODULE=OFF
+-- 
+2.53.0
+
