@@ -267,12 +267,8 @@ modules:
       # BambuStudio Source Archive
       - type: git
         url: https://github.com/bambulab/BambuStudio.git
-        tag: v02.05.03.61
-        commit: 2678bb7fbbda1173175b4a828579ca7a40d88ae7
-
-      # https://github.com/bambulab/BambuStudio/issues/10204
-      - type: patch
-        path: patches/revert-2.5.3-dos-mode.patch
+        tag: v02.05.03.62
+        commit: 0829bc5f18bddc372db815f706384e7c4284bcb5
 
       # https://github.com/bambulab/BambuStudio/pull/10213
       - type: patch
