@@ -1,0 +1,133 @@
+From 29d11e371f27b9dc6f09040215fdd49e4aa04fb5 Mon Sep 17 00:00:00 2001
+From: Maciej Lisiewski <maciej.lisiewski@gmail.com>
+Date: Thu, 15 May 2025 10:57:14 -0400
+Subject: [PATCH 1/5] Patch GMP to build on GCC15
+
+Co-authored-by: Bastien Nocera <hadess@hadess.net>
+---
+ deps/GMP/0001-GMP_GCC15.patch | 32 ++++++++++++++++++++++++++++++++
+ deps/GMP/GMP.cmake            |  5 +++--
+ 2 files changed, 35 insertions(+), 2 deletions(-)
+ create mode 100644 deps/GMP/0001-GMP_GCC15.patch
+
+diff --git a/deps/GMP/0001-GMP_GCC15.patch b/deps/GMP/0001-GMP_GCC15.patch
+new file mode 100644
+index 000000000000..e005120acdcf
+--- /dev/null
++++ b/deps/GMP/0001-GMP_GCC15.patch
+@@ -0,0 +1,32 @@
++--- GMP/acinclude.m4	2025-05-14 18:50:11.396354745 -0400
+++++ GMP/acinclude.m4.2	2025-05-14 18:57:20.757853503 -0400
++@@ -609,7 +609,7 @@
++
++ #if defined (__GNUC__) && ! defined (__cplusplus)
++ typedef unsigned long long t1;typedef t1*t2;
++-void g(){}
+++void g(int,t1 const*,t1,t2,t1 const*,int){}
++ void h(){}
++ static __inline__ t1 e(t2 rp,t2 up,int n,t1 v0)
++ {t1 c,x,r;int i;if(v0){c=1;for(i=1;i<n;i++){x=up[i];r=x+1;rp[i]=r;}}return c;}
++
++--- GMP/configure	2025-05-14 19:33:35.730593315 -0400
+++++ GMP/configure	2025-05-14 19:35:37.805619186 -0400
++@@ -6526,7 +6526,7 @@
++
++ #if defined (__GNUC__) && ! defined (__cplusplus)
++ typedef unsigned long long t1;typedef t1*t2;
++-void g(){}
+++void g(int,t1 const*,t1,t2,t1 const*,int){}
++ void h(){}
++ static __inline__ t1 e(t2 rp,t2 up,int n,t1 v0)
++ {t1 c,x,r;int i;if(v0){c=1;for(i=1;i<n;i++){x=up[i];r=x+1;rp[i]=r;}}return c;}
++@@ -8145,7 +8145,7 @@
++
++ #if defined (__GNUC__) && ! defined (__cplusplus)
++ typedef unsigned long long t1;typedef t1*t2;
++-void g(){}
+++void g(int,t1 const*,t1,t2,t1 const*,int){}
++ void h(){}
++ static __inline__ t1 e(t2 rp,t2 up,int n,t1 v0)
++ {t1 c,x,r;int i;if(v0){c=1;for(i=1;i<n;i++){x=up[i];r=x+1;rp[i]=r;}}return c;}
+diff --git a/deps/GMP/GMP.cmake b/deps/GMP/GMP.cmake
+index bc7ef4332255..12c7e77a494b 100644
+--- a/deps/GMP/GMP.cmake
++++ b/deps/GMP/GMP.cmake
+@@ -25,7 +25,7 @@ if (MSVC)
+         COMMAND ${CMAKE_COMMAND} -E copy ${_srcdir}/lib/${_gmplib} ${_dstdir}/lib/
+         COMMAND ${CMAKE_COMMAND} -E copy ${_srcdir}/lib/${_gmpdll} ${_dstdir}/bin/
+     )
+-    
++
+     add_custom_target(dep_GMP SOURCES ${_output})
+ 
+ else ()
+@@ -72,7 +72,8 @@ else ()
+         URL https://github.com/bambulab/gmp/archive/refs/tags/6.2.1.tar.gz
+         URL_HASH SHA256=705ae57ee2014b2c6fc0f572c85ee43276b99b6b256ee16c1a9d3a8c4e3609d5
+         DOWNLOAD_DIR ${DEP_DOWNLOAD_DIR}/GMP
+-        BUILD_IN_SOURCE ON 
++        PATCH_COMMAND git apply --verbose ${CMAKE_CURRENT_LIST_DIR}/0001-GMP_GCC15.patch
++        BUILD_IN_SOURCE ON
+         CONFIGURE_COMMAND  env "CFLAGS=${_gmp_ccflags}" "CXXFLAGS=${_gmp_ccflags}" ./configure ${_cross_compile_arg} --enable-shared=no --enable-cxx=yes --enable-static=yes "--prefix=${DESTDIR}/usr/local" ${_gmp_build_tgt}
+         BUILD_COMMAND     make -j
+         INSTALL_COMMAND   make install
+-- 
+2.53.0
+
+
+From f3fd7b0a6e94964e36fac2ea7b319ac78e142103 Mon Sep 17 00:00:00 2001
+From: Maciej Lisiewski <maciej.lisiewski@gmail.com>
+Date: Fri, 16 May 2025 07:49:45 -0400
+Subject: [PATCH 2/5] Update GMP PATCH_COMMAND to work without a valid git repo
+
+Co-authored-by: Bastien Nocera <hadess@hadess.net>
+---
+ deps/GMP/GMP.cmake | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/deps/GMP/GMP.cmake b/deps/GMP/GMP.cmake
+index 12c7e77a494b..e84b2ecee824 100644
+--- a/deps/GMP/GMP.cmake
++++ b/deps/GMP/GMP.cmake
+@@ -72,7 +72,7 @@ else ()
+         URL https://github.com/bambulab/gmp/archive/refs/tags/6.2.1.tar.gz
+         URL_HASH SHA256=705ae57ee2014b2c6fc0f572c85ee43276b99b6b256ee16c1a9d3a8c4e3609d5
+         DOWNLOAD_DIR ${DEP_DOWNLOAD_DIR}/GMP
+-        PATCH_COMMAND git apply --verbose ${CMAKE_CURRENT_LIST_DIR}/0001-GMP_GCC15.patch
++        PATCH_COMMAND git apply ${GMP_DIRECTORY_FLAG} --verbose ${CMAKE_CURRENT_LIST_DIR}/0001-GMP_GCC15.patch
+         BUILD_IN_SOURCE ON
+         CONFIGURE_COMMAND  env "CFLAGS=${_gmp_ccflags}" "CXXFLAGS=${_gmp_ccflags}" ./configure ${_cross_compile_arg} --enable-shared=no --enable-cxx=yes --enable-static=yes "--prefix=${DESTDIR}/usr/local" ${_gmp_build_tgt}
+         BUILD_COMMAND     make -j
+-- 
+2.53.0
+
+
+From 1e64b906f3bfb1ff55b718d8bff72d62a69bb984 Mon Sep 17 00:00:00 2001
+From: Maciej Lisiewski <maciej.lisiewski@gmail.com>
+Date: Fri, 16 May 2025 09:21:26 -0400
+Subject: [PATCH 3/5] Set GMP_DIRECTORY_FLAG
+
+Co-authored-by: Bastien Nocera <hadess@hadess.net>
+---
+ deps/GMP/GMP.cmake | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/deps/GMP/GMP.cmake b/deps/GMP/GMP.cmake
+index e84b2ecee824..d7432743c010 100644
+--- a/deps/GMP/GMP.cmake
++++ b/deps/GMP/GMP.cmake
+@@ -2,6 +2,10 @@
+ set(_srcdir ${CMAKE_CURRENT_LIST_DIR}/gmp)
+ set(_dstdir ${DESTDIR}/usr/local)
+ 
++if (IN_GIT_REPO)
++    set(GMP_DIRECTORY_FLAG --directory ${BINARY_DIR_REL}/dep_GMP-prefix/src/dep_GMP)
++endif ()
++
+ if (MSVC)
+     if ((CMAKE_SYSTEM_PROCESSOR MATCHES "^(ARM64|aarch64)$") OR (CMAKE_GENERATOR_PLATFORM STREQUAL "ARM64"))
+         set(_gmpheader win_arm64/gmp.h)
+-- 
+2.53.0
+
+
