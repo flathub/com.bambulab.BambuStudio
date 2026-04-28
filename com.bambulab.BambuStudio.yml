@@ -288,12 +288,8 @@ modules:
       # BambuStudio Source Archive
       - type: git
         url: https://github.com/bambulab/BambuStudio.git
-        tag: v02.06.00.51
-        commit: b506005bc4ee62124e24bf00e0f58656db3646a6
-
-      # https://github.com/bambulab/BambuStudio/pull/10224
-      - type: patch
-        path: patches/0001-ENH-Allow-using-system-Blosc.patch
+        tag: v02.06.01.55
+        commit: 6eb52d6ac75e32ba2116239c1d756d913053f364
 
       # https://github.com/bambulab/BambuStudio/pull/10217
       - type: patch
@@ -302,6 +298,10 @@ modules:
       # https://github.com/bambulab/BambuStudio/pull/10607
       - type: patch
         path: patches/0001-FIX-Fix-crash-when-clicking-View-all-object-settings.patch
+
+      # https://github.com/bambulab/BambuStudio/pull/10422
+      - type: patch
+        path: patches/2.6.1-fixes.patch
 
       # Patched TBB cmake to make build without lto flag
       - type: file
