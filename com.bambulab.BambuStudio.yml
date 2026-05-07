@@ -299,6 +299,10 @@ modules:
       - type: patch
         path: patches/gmp-fixes.patch
 
+      # https://github.com/bambulab/BambuStudio/pull/10607
+      - type: patch
+        path: patches/0001-FIX-Fix-crash-when-clicking-View-all-object-settings.patch
+
       # Patched TBB cmake to make build without lto flag
       - type: file
         dest: deps/TBB
