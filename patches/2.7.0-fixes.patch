@@ -1,0 +1,41 @@
+From b9691221b25b4b91b2bf6c2ac8f527bb79ded2c7 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Thu, 14 May 2026 19:39:56 +0200
+Subject: [PATCH] FIX: Work-around undeclared boost::prior
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+In file included from /run/build/BambuStudio/deps/build/destdir/usr/local/include/CGAL/Intersections_3/Plane_3_Triangle_3.h:25,
+                 from /run/build/BambuStudio/deps/build/destdir/usr/local/include/CGAL/intersection_3.h:59,
+                 from /run/build/BambuStudio/deps/build/destdir/usr/local/include/CGAL/Kernel/function_objects.h:29,
+                 from /run/build/BambuStudio/deps/build/destdir/usr/local/include/CGAL/Cartesian/function_objects.h:20,
+                 from /run/build/BambuStudio/deps/build/destdir/usr/local/include/CGAL/Cartesian/Cartesian_base.h:62,
+                 from /run/build/BambuStudio/deps/build/destdir/usr/local/include/CGAL/Simple_cartesian.h:20,
+                 from /run/build/BambuStudio/deps/build/destdir/usr/local/include/CGAL/Exact_predicates_inexact_constructions_kernel.h:20,
+                 from /run/build/BambuStudio/src/libslic3r/TextureToColor/CgalUtils.hpp:3,
+                 from /run/build/BambuStudio/src/libslic3r/TextureToColor/TextureToColor.cpp:12:
+/run/build/BambuStudio/deps/build/destdir/usr/local/include/CGAL/Intersections_3/internal/Plane_3_Triangle_3_intersection.h: In function ‘typename CGAL::Intersection_traits<K, typename K::Plane_3, typename K::Triangle_3>::result_type CGAL::Intersections::internal::intersection(const typename K::Plane_3&, const typename K::Triangle_3&, const K&)’:
+/run/build/BambuStudio/deps/build/destdir/usr/local/include/CGAL/Intersections_3/internal/Plane_3_Triangle_3_intersection.h:144:65: error: ‘prior’ is not a member of ‘boost’; did you mean ‘boost::mpl::prior’? [-Wtemplate-body]
+  144 |            k.construct_segment_3_object()(*pts.begin(), *boost::prior(pts.end())));
+      |                                                                 ^~~~~
+---
+ src/libslic3r/TextureToColor/ColorUtils.cpp | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/libslic3r/TextureToColor/ColorUtils.cpp b/src/libslic3r/TextureToColor/ColorUtils.cpp
+index edf6258e8c51..443723e5c25f 100644
+--- a/src/libslic3r/TextureToColor/ColorUtils.cpp
++++ b/src/libslic3r/TextureToColor/ColorUtils.cpp
+@@ -9,6 +9,8 @@
+ #include <iostream>
+ #include <numeric>
+ 
++#include <boost/next_prior.hpp>
++
+ #include <CGAL/AABB_face_graph_triangle_primitive.h>
+ #include <CGAL/AABB_traits.h>
+ #include <CGAL/AABB_tree.h>
+-- 
+2.54.0
+
