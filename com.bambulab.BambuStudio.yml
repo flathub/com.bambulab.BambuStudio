@@ -332,6 +332,10 @@ modules:
       - type: patch
         path: patches/nodejs-arm64.patch
 
+      # FIXME
+      - type: patch
+        path: patches/2.7.0-fixes.patch
+
       # Patched TBB cmake to make build without lto flag
       - type: file
         dest: deps/TBB
