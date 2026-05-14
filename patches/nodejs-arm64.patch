@@ -1,0 +1,150 @@
+From 539ab5c669340513b83fe0b22e133c09e1122524 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Thu, 14 May 2026 19:20:27 +0200
+Subject: [PATCH 1/4] FIX: Add Linux ARM64 support to new nodejs dep
+
+Linux ARM64 doesn't have network plugin support, but the application
+still builds and works.
+
+Keep this working by adding ARM64 download URLs for the new deps, nodejs
+and pnpm.
+---
+ src/slic3r/GUI/DeviceWeb/CMakeLists.txt | 30 +++++++++++++++++--------
+ 1 file changed, 21 insertions(+), 9 deletions(-)
+
+diff --git a/src/slic3r/GUI/DeviceWeb/CMakeLists.txt b/src/slic3r/GUI/DeviceWeb/CMakeLists.txt
+index 5706ce34015e..3a38bccd34d9 100644
+--- a/src/slic3r/GUI/DeviceWeb/CMakeLists.txt
++++ b/src/slic3r/GUI/DeviceWeb/CMakeLists.txt
+@@ -44,15 +44,27 @@ function(prepare_node_env)
+         set(NODE_EXEC "node")
+         set(PNPM_EXEC_NAME "pnpm")
+     else()
+-        set(NODE_URL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz")
+-        set(NODE_ARCHIVE_NAME "node-v${NODE_VERSION}-linux-x64.tar.xz")
+-        set(NODE_BIN_DIR "node-v${NODE_VERSION}-linux-x64/bin")
+-        set(NODE_EXEC "node")
+-        set(NODE_HASH "88fd1ce767091fd8d4a99fdb2356e98c819f93f3b1f8663853a2dee9b438068a")
+-
+-        set(PNPM_URL "https://github.com/pnpm/pnpm/releases/download/v${PNPM_VERSION}/pnpm-linux-x64")
+-        set(PNPM_EXEC_NAME "pnpm")
+-        set(PNPM_HASH "eb2dc1f109bca046ce734d062c8dd8f34db2b58a115992f9b086456efd7b2305")
++        if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
++            set(NODE_URL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-arm64.tar.xz")
++            set(NODE_ARCHIVE_NAME "node-v${NODE_VERSION}-linux-arm64.tar.xz")
++            set(NODE_BIN_DIR "node-v${NODE_VERSION}-linux-arm64/bin")
++            set(NODE_EXEC "node")
++            set(NODE_HASH "e9e1930fd321a470e29bb68f30318bf58e3ecb4acb4f1533fb19c58328a091fe")
++
++            set(PNPM_URL "https://github.com/pnpm/pnpm/releases/download/v${PNPM_VERSION}/pnpm-linux-arm64")
++            set(PNPM_EXEC_NAME "pnpm")
++            set(PNPM_HASH "c2f9e9d42d81f9f40a0f895513d014a08d5ecb0abc9e15c426ecfde6f492706b")
++        else()
++            set(NODE_URL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz")
++            set(NODE_ARCHIVE_NAME "node-v${NODE_VERSION}-linux-x64.tar.xz")
++            set(NODE_BIN_DIR "node-v${NODE_VERSION}-linux-x64/bin")
++            set(NODE_EXEC "node")
++            set(NODE_HASH "88fd1ce767091fd8d4a99fdb2356e98c819f93f3b1f8663853a2dee9b438068a")
++
++            set(PNPM_URL "https://github.com/pnpm/pnpm/releases/download/v${PNPM_VERSION}/pnpm-linux-x64")
++            set(PNPM_EXEC_NAME "pnpm")
++            set(PNPM_HASH "eb2dc1f109bca046ce734d062c8dd8f34db2b58a115992f9b086456efd7b2305")
++        endif()
+     endif()
+ 
+     # 定义最终的可执行文件路径
+-- 
+2.54.0
+
+
+From b862141b43be7a2d4dd9523829a4f97645747118 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Thu, 14 May 2026 19:21:53 +0200
+Subject: [PATCH 2/4] ENH: Add some debug to nodejs/pnpm detection
+
+Print some debug of where the script expected nodejs and pnpm to be made
+available, to make it easier to provide those files ready for use when
+downloading is not permitted, such as during Flatpak builds.
+---
+ src/slic3r/GUI/DeviceWeb/CMakeLists.txt | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/slic3r/GUI/DeviceWeb/CMakeLists.txt b/src/slic3r/GUI/DeviceWeb/CMakeLists.txt
+index 3a38bccd34d9..f0ad4047531a 100644
+--- a/src/slic3r/GUI/DeviceWeb/CMakeLists.txt
++++ b/src/slic3r/GUI/DeviceWeb/CMakeLists.txt
+@@ -72,6 +72,9 @@ function(prepare_node_env)
+     # pnpm 放到 node 同目录，这样执行 pnpm 时 PATH 中天然能找到 node
+     set(PNPM_EXECUTABLE "${NODE_CACHE_DIR}/${NODE_BIN_DIR}/${PNPM_EXEC_NAME}")
+ 
++    message(STATUS "Checking for node binary at ${NODE_EXECUTABLE}")
++    message(STATUS "Checking for pnpm binary ${PNPM_EXECUTABLE}")
++
+     # ============ Node.js 下载 + 解压 ============
+     if(NOT EXISTS "${NODE_EXECUTABLE}")
+         message(STATUS "Downloading Node.js v${NODE_VERSION} from ${NODE_URL}")
+-- 
+2.54.0
+
+
+From bb793cc1ab246a7463213c1586dad8cb2e9dbd1e Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 2 Jun 2026 23:37:46 +0200
+Subject: [PATCH 3/4] FIX: Add debug to web resources creation commands
+
+---
+ src/slic3r/GUI/DeviceWeb/CMakeLists.txt | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/src/slic3r/GUI/DeviceWeb/CMakeLists.txt b/src/slic3r/GUI/DeviceWeb/CMakeLists.txt
+index f0ad4047531a..2034691f734d 100644
+--- a/src/slic3r/GUI/DeviceWeb/CMakeLists.txt
++++ b/src/slic3r/GUI/DeviceWeb/CMakeLists.txt
+@@ -195,9 +195,13 @@ set(PNPM_STORE_DIR "${CMAKE_CURRENT_BINARY_DIR}/.pnpm-store")
+ file(MAKE_DIRECTORY "${PNPM_STORE_DIR}")
+ 
+ add_custom_target(device_page_build ALL
++    COMMAND echo "Running PNPM install"
+     COMMAND ${CMAKE_COMMAND} -E env "PATH=${DEVICE_PAGE_PATH}" "PNPM_STORE_DIR=${PNPM_STORE_DIR}" ${PNPM_EXECUTABLE} install
++    COMMAND echo "Running PNPM run build"
+     COMMAND ${CMAKE_COMMAND} -E env "PATH=${DEVICE_PAGE_PATH}" "PNPM_STORE_DIR=${PNPM_STORE_DIR}" ${PNPM_EXECUTABLE} run build
++    COMMAND echo "Creating page target directory"
+     COMMAND  ${CMAKE_COMMAND} -E make_directory "${DEVICE_PAGE_TARGET_DIR}"
++    COMMAND echo "Copying directory to target"
+     COMMAND  ${CMAKE_COMMAND} -E copy_directory "${DEVICE_PAGE_DIST_DIR}" "${DEVICE_PAGE_TARGET_DIR}"
+     WORKING_DIRECTORY ${DEVICE_PAGE_SRC_DIR}
+     COMMENT "Installing dependencies and building device_page..."
+-- 
+2.54.0
+
+
+From d00ca654a2d91991e52502d243844ed4b1a55108 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Sat, 6 Jun 2026 19:04:23 +0200
+Subject: [PATCH 4/4] FIX: Fix useless PNPM_STORE_DIR envvar
+
+The PNPM_STORE_DIR envvar doesn't change the store directory location
+when running PNPM. Use the --store-dir command-line option instead.
+---
+ src/slic3r/GUI/DeviceWeb/CMakeLists.txt | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/slic3r/GUI/DeviceWeb/CMakeLists.txt b/src/slic3r/GUI/DeviceWeb/CMakeLists.txt
+index 2034691f734d..d5ba292b4660 100644
+--- a/src/slic3r/GUI/DeviceWeb/CMakeLists.txt
++++ b/src/slic3r/GUI/DeviceWeb/CMakeLists.txt
+@@ -196,9 +196,9 @@ file(MAKE_DIRECTORY "${PNPM_STORE_DIR}")
+ 
+ add_custom_target(device_page_build ALL
+     COMMAND echo "Running PNPM install"
+-    COMMAND ${CMAKE_COMMAND} -E env "PATH=${DEVICE_PAGE_PATH}" "PNPM_STORE_DIR=${PNPM_STORE_DIR}" ${PNPM_EXECUTABLE} install
++    COMMAND ${CMAKE_COMMAND} -E env "PATH=${DEVICE_PAGE_PATH}" ${PNPM_EXECUTABLE} install --store-dir ${PNPM_STORE_DIR}
+     COMMAND echo "Running PNPM run build"
+-    COMMAND ${CMAKE_COMMAND} -E env "PATH=${DEVICE_PAGE_PATH}" "PNPM_STORE_DIR=${PNPM_STORE_DIR}" ${PNPM_EXECUTABLE} run build
++    COMMAND ${CMAKE_COMMAND} -E env "PATH=${DEVICE_PAGE_PATH}" ${PNPM_EXECUTABLE} run build --store-dir ${PNPM_STORE_DIR}
+     COMMAND echo "Creating page target directory"
+     COMMAND  ${CMAKE_COMMAND} -E make_directory "${DEVICE_PAGE_TARGET_DIR}"
+     COMMAND echo "Copying directory to target"
+-- 
+2.54.0
+
