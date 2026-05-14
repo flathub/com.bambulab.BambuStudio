@@ -165,10 +165,13 @@ modules:
           -DDEP_BUILD_GLFW=OFF \
           -DDEP_BUILD_FREETYPE=OFF \
           -DDEP_BUILD_WXWIDGETS=OFF \
-          -DDEP_BUILD_BLOSC=OFF
-        cmake --build . --target dep_TBB dep_Cereal dep_NLopt dep_libnoise dep_OpenVDB dep_Qhull dep_OpenCSG dep_OpenCV dep_CGAL dep_OCCT
+          -DDEP_BUILD_BLOSC=OFF \
+          -DDEP_BUILD_GMP=OFF \
+          -DDEP_BUILD_MPFR=OFF
+        cmake --build . --target dep_TBB dep_Cereal dep_NLopt dep_libnoise dep_OpenVDB dep_Qhull dep_OpenCSG dep_OpenCV dep_Assimp dep_CGAL dep_OCCT
       - |
         mkdir -p build && cd build
+        mkdir -p ../../node-cache/ && pushd ../../node-cache/ && tar xJf ../BambuStudio/external-packages/node*.tar.xz && cp -a ../BambuStudio/external-packages/pnpm node-*/bin/ && chmod +x node-*/bin/pnpm && popd
         CXXFLAGS=-std=gnu++20 cmake ../ \
           -GNinja \
           -DCMAKE_INSTALL_PREFIX=/app \
@@ -219,18 +222,6 @@ modules:
         dest: external-packages/CGAL
         sha256: d7605e0a5a5ca17da7547592f6f6e4a59430a0bc861948974254d0de43eab4c0
 
-      # GMP
-      - type: file
-        url: https://github.com/bambulab/gmp/archive/refs/tags/6.2.1.tar.gz
-        dest: external-packages/GMP
-        sha256: 705ae57ee2014b2c6fc0f572c85ee43276b99b6b256ee16c1a9d3a8c4e3609d5
-
-      # MPFR
-      - type: file
-        url: https://www.mpfr.org/mpfr-3.1.6/mpfr-3.1.6.tar.bz2
-        dest: external-packages/MPFR
-        sha256: cf4f4b2d80abb79e820e78c8077b6725bbbb4e8f41896783c899087be0e94068
-
       # NLopt
       - type: file
         url: https://github.com/stevengj/nlopt/archive/v2.5.0.tar.gz
@@ -248,6 +239,12 @@ modules:
         url: https://github.com/opencv/opencv/archive/refs/tags/4.6.0.tar.gz
         dest: external-packages/OpenCV
         sha256: 1ec1cba65f9f20fe5a41fda1586e01c70ea0c9a6d7b67c9e13edf0cfe2239277
+
+      # Assimp
+      - type: file
+        url: https://github.com/assimp/assimp/archive/refs/tags/v5.4.3.tar.gz
+        dest: external-packages/Assimp
+        sha256: 66dfbaee288f2bc43172440a55d0235dfc7bf885dda6435c038e8000e79582cb
 
       # OpenCSG
       - type: file
@@ -285,23 +282,59 @@ modules:
         dest: external-packages/TBB
         sha256: 83ea786c964a384dd72534f9854b419716f412f9d43c0be88d41874763e7bb47
 
+      # Nodejs
+      - type: file
+        url: https://nodejs.org/dist/v22.22.2/node-v22.22.2-linux-x64.tar.xz
+        dest: external-packages
+        sha256: 88fd1ce767091fd8d4a99fdb2356e98c819f93f3b1f8663853a2dee9b438068a
+        only-arches:
+          - x86_64
+      - type: file
+        url: https://nodejs.org/dist/v22.22.2/node-v22.22.2-linux-arm64.tar.xz
+        dest: external-packages
+        sha256: e9e1930fd321a470e29bb68f30318bf58e3ecb4acb4f1533fb19c58328a091fe
+        only-arches:
+          - aarch64
+
+      # PNPM
+      - type: file
+        url: https://github.com/pnpm/pnpm/releases/download/v10.12.1/pnpm-linux-x64
+        dest: external-packages/
+        sha256: eb2dc1f109bca046ce734d062c8dd8f34db2b58a115992f9b086456efd7b2305
+        dest-filename: pnpm
+        only-arches:
+          - x86_64
+      - type: file
+        url: https://github.com/pnpm/pnpm/releases/download/v10.12.1/pnpm-linux-arm64
+        dest: external-packages/
+        sha256: c2f9e9d42d81f9f40a0f895513d014a08d5ecb0abc9e15c426ecfde6f492706b
+        dest-filename: pnpm
+        only-arches:
+          - aarch64
+
       # BambuStudio Source Archive
       - type: git
         url: https://github.com/bambulab/BambuStudio.git
-        tag: v02.06.01.55
-        commit: 6eb52d6ac75e32ba2116239c1d756d913053f364
+        tag: v02.07.01.57
+        commit: 3f126b717ed1f10fee0f32f05ed9731808d0c8bb
 
-      # https://github.com/bambulab/BambuStudio/pull/10217
+      # https://github.com/bambulab/BambuStudio/pull/10712
       - type: patch
-        path: patches/gmp-fixes.patch
+        path: patches/nodejs-arm64.patch
 
-      # https://github.com/bambulab/BambuStudio/pull/10607
-      - type: patch
-        path: patches/0001-FIX-Fix-crash-when-clicking-View-all-object-settings.patch
+      # flatpak-node-generator --no-devel  pnpm src/slic3r/GUI/DeviceWeb/device_page/pnpm-lock.yaml
+      - generated-sources.json
 
-      # https://github.com/bambulab/BambuStudio/pull/10422
+      # https://github.com/bambulab/BambuStudio/pull/11059
       - type: patch
-        path: patches/2.6.1-fixes.patch
+        path: patches/2.7.1-fixes.patch
+
+      - type: patch
+        path: patches/offline-npm.patch
+
+      # https://github.com/bambulab/BambuStudio/pull/11058
+      - type: patch
+        path: patches/system-cgal.patch
 
       # Patched TBB cmake to make build without lto flag
       - type: file

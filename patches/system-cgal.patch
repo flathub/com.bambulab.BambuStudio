@@ -1,0 +1,76 @@
+From 62ee5aa874c099c8e8505c974f06b45c2849b93d Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Sat, 6 Jun 2026 19:02:10 +0200
+Subject: [PATCH] ENH: Allow using system GMP and MPFR
+
+To make it easier to test newer versions, or apply system specific
+patches.
+
+In the case of Flatpak builds, GMP and MPFR are already available
+in the Freedesktop runtime.
+---
+ deps/CGAL/CGAL.cmake |  2 +-
+ deps/CMakeLists.txt  | 14 ++++++++++++--
+ deps/MPFR/MPFR.cmake |  2 +-
+ 3 files changed, 14 insertions(+), 4 deletions(-)
+
+diff --git a/deps/CGAL/CGAL.cmake b/deps/CGAL/CGAL.cmake
+index bafe3fb26064..c53fec6e31f4 100644
+--- a/deps/CGAL/CGAL.cmake
++++ b/deps/CGAL/CGAL.cmake
+@@ -7,7 +7,7 @@ bambustudio_add_cmake_project(
+     URL      https://github.com/CGAL/cgal/archive/refs/tags/v5.4.zip
+     URL_HASH SHA256=d7605e0a5a5ca17da7547592f6f6e4a59430a0bc861948974254d0de43eab4c0
+     PATCH_COMMAND git apply ${CGAL_DIRECTORY_FLAG} --verbose --ignore-space-change --whitespace=fix ${CMAKE_CURRENT_LIST_DIR}/0001-clang19.patch
+-    DEPENDS ${BOOST_PKG} dep_GMP dep_MPFR
++    DEPENDS ${BOOST_PKG} ${GMP_PKG} ${MPFR_PKG}
+ )
+ 
+ include(GNUInstallDirs)
+diff --git a/deps/CMakeLists.txt b/deps/CMakeLists.txt
+index 179973f8de2a..77310e07094d 100644
+--- a/deps/CMakeLists.txt
++++ b/deps/CMakeLists.txt
+@@ -43,6 +43,8 @@ option(DEP_BUILD_GLFW "Compile GLFW" ON)
+ option(DEP_BUILD_BLOSC "Compile Blosc" ON)
+ option(DEP_BUILD_FREETYPE "Compile freetype" ON)
+ option(DEP_BUILD_WXWIDGETS "Compile wxWidgets" ON)
++option(DEP_BUILD_GMP "Compile GMP" ON)
++option(DEP_BUILD_MPFR "Compile MPFR" ON)
+ option(DEP_BUILD_FFMPEG "Compile ffmpeg" ON)
+ 
+ set(DESTDIR "${CMAKE_CURRENT_BINARY_DIR}/destdir" CACHE PATH "Destination directory")
+@@ -250,8 +252,16 @@ endif ()
+ include(OpenEXR/OpenEXR.cmake)
+ include(OpenVDB/OpenVDB.cmake)
+ 
+-include(GMP/GMP.cmake)
+-include(MPFR/MPFR.cmake)
++set(GMP_PKG "")
++if (DEP_BUILD_GMP)
++    include(GMP/GMP.cmake)
++    set(GMP_PKG dep_GMP)
++endif ()
++set(MPFR_PKG "")
++if (DEP_BUILD_MPFR)
++    include(MPFR/MPFR.cmake)
++    set(MPFR_PKG dep_MPFR)
++endif ()
+ include(CGAL/CGAL.cmake)
+ 
+ include(NLopt/NLopt.cmake)
+diff --git a/deps/MPFR/MPFR.cmake b/deps/MPFR/MPFR.cmake
+index 6bf881f000b3..f97380264898 100644
+--- a/deps/MPFR/MPFR.cmake
++++ b/deps/MPFR/MPFR.cmake
+@@ -46,6 +46,6 @@ else ()
+         CONFIGURE_COMMAND env "CFLAGS=${_gmp_ccflags}" "CXXFLAGS=${_gmp_ccflags}" ./configure ${_cross_compile_arg} --prefix=${DESTDIR}/usr/local --enable-shared=no --enable-static=yes --with-gmp=${DESTDIR}/usr/local ${_gmp_build_tgt}
+         BUILD_COMMAND make -j
+         INSTALL_COMMAND make install
+-        DEPENDS dep_GMP
++        DEPENDS ${GMP_PKG}
+     )
+ endif ()
+-- 
+2.54.0
+
