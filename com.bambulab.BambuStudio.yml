@@ -135,6 +135,12 @@ modules:
       - type: archive
         url: https://github.com/wxWidgets/wxWidgets/releases/download/v3.2.9/wxWidgets-3.2.9.tar.bz2
         sha256: fb90f9538bffd6a02edbf80037a0c14c2baf9f509feac8f76ab2a5e4321f112b
+        x-checker-data:
+          is-important: true
+          type: git
+          tag-pattern: ^v([\d\.]+)$
+          versions:
+            <: '3.3'
     cleanup:
       - /include
       - /lib/cmake
