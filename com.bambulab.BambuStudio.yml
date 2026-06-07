@@ -1,6 +1,6 @@
 app-id: com.bambulab.BambuStudio
 runtime: org.gnome.Platform
-runtime-version: "50"
+runtime-version: '50'
 sdk: org.gnome.Sdk
 command: entrypoint
 rename-icon: BambuStudio
@@ -38,7 +38,7 @@ modules:
     cleanup:
       - /share/drirc.d
       - /include
-      - "*.a"
+      - '*.a'
     sources:
       - type: archive
         url: https://archive.mesa3d.org/older-versions/20.x/mesa-20.2.6.tar.xz
@@ -222,14 +222,14 @@ modules:
 
     post-install:
 
-      - | # Desktop Integration files
+      # Desktop Integration files
+      - |
         install -Dm644 -t /app/share/icons/hicolor/scalable/apps/ resources/images/BambuStudio.svg
         install -Dm644 ${FLATPAK_ID}.metainfo.xml /app/share/metainfo/${FLATPAK_ID}.metainfo.xml
         mv /app/share/applications/BambuStudio.desktop /app/share/applications/${FLATPAK_ID}.desktop
         desktop-file-edit --set-key=Exec --set-value="entrypoint %U" /app/share/applications/${FLATPAK_ID}.desktop
         install -Dm755 entrypoint /app/bin
         install -Dm755 umount /app/bin
-
     sources:
       # -
       # Section bellow fetches all BambuStudio dependencies before the build process and stores them in external-packages/*/* .
