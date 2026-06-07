@@ -92,8 +92,13 @@ modules:
     sources:
       - type: git
         url: https://github.com/glfw/glfw.git
-        tag: "3.4"
+        tag: '3.4'
         commit: 7b6aead9fb88b3623e3b3725ebb42670cbe4c579
+        x-checker-data:
+          type: anitya
+          project-id: 1180
+          stable-only: true
+          tag-template: $version
     cleanup:
       - /include
       - /lib/cmake
