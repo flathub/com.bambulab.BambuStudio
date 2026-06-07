@@ -16,6 +16,8 @@ finish-args:
   - --system-talk-name=org.freedesktop.UDisks2
   # Work-around https://github.com/bambulab/BambuStudio/issues/6013
   - --env=SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
+# sdk-extensions:
+#   - org.freedesktop.Sdk.Extension.node22
 
 modules:
 
