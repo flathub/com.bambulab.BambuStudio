@@ -239,78 +239,91 @@ modules:
       # -
 
       # Cereal
+      # https://github.com/bambulab/BambuStudio/blob/master/deps/Cereal/Cereal.cmake
       - type: file
         url: https://github.com/USCiLab/cereal/archive/refs/tags/v1.3.0.zip
         dest: external-packages/Cereal
         sha256: 71642cb54658e98c8f07a0f0d08bf9766f1c3771496936f6014169d3726d9657
 
       # CGAL
+      # https://github.com/bambulab/BambuStudio/blob/master/deps/CGAL/CGAL.cmake
       - type: file
         url: https://github.com/CGAL/cgal/archive/refs/tags/v5.4.zip
         dest: external-packages/CGAL
         sha256: d7605e0a5a5ca17da7547592f6f6e4a59430a0bc861948974254d0de43eab4c0
 
       # NLopt
+      # https://github.com/bambulab/BambuStudio/blob/master/deps/NLopt/NLopt.cmake
       - type: file
         url: https://github.com/stevengj/nlopt/archive/v2.5.0.tar.gz
         dest: external-packages/NLopt
         sha256: c6dd7a5701fff8ad5ebb45a3dc8e757e61d52658de3918e38bab233e7fd3b4ae
 
       # OCCT
+      # https://github.com/bambulab/BambuStudio/blob/master/deps/OCCT/OCCT.cmake
       - type: file
         url: https://github.com/Open-Cascade-SAS/OCCT/archive/refs/tags/V7_6_0.zip
         dest: external-packages/OCCT
         sha256: 28334f0e98f1b1629799783e9b4d21e05349d89e695809d7e6dfa45ea43e1dbc
 
       # OpenCV
+      # https://github.com/bambulab/BambuStudio/blob/master/deps/OpenCV/OpenCV.cmake
       - type: file
         url: https://github.com/opencv/opencv/archive/refs/tags/4.6.0.tar.gz
         dest: external-packages/OpenCV
         sha256: 1ec1cba65f9f20fe5a41fda1586e01c70ea0c9a6d7b67c9e13edf0cfe2239277
 
       # Assimp
+      # https://github.com/bambulab/BambuStudio/blob/master/deps/Assimp/Assimp.cmake
       - type: file
         url: https://github.com/assimp/assimp/archive/refs/tags/v5.4.3.tar.gz
         dest: external-packages/Assimp
         sha256: 66dfbaee288f2bc43172440a55d0235dfc7bf885dda6435c038e8000e79582cb
 
       # OpenCSG
+      # https://github.com/bambulab/BambuStudio/blob/master/deps/OpenCSG/OpenCSG.cmake
       - type: file
         url: https://github.com/floriankirsch/OpenCSG/archive/refs/tags/opencsg-1-4-2-release.zip
         dest: external-packages/OpenCSG
         sha256: 51afe0db79af8386e2027d56d685177135581e0ee82ade9d7f2caff8deab5ec5
 
       # OpenEXR
+      # https://github.com/bambulab/BambuStudio/blob/master/deps/OpenEXR/OpenEXR.cmake
       - type: file
         url: https://github.com/AcademySoftwareFoundation/openexr/archive/refs/tags/v2.5.5.zip
         dest: external-packages/OpenEXR
         sha256: 0307a3d7e1fa1e77e9d84d7e9a8694583fbbbfd50bdc6884e2c96b8ef6b902de
 
       # libnoise
+      # https://github.com/bambulab/BambuStudio/blob/master/deps/libnoise/libnoise.cmake
       - type: file
         url: https://github.com/bambulab/libnoise/archive/refs/tags/v1.0.0.zip
         dest: external-packages/libnoise
         sha256: 7aae3433e4c841a1b15ddf40dc995b3d32efb154b92b6796888002e275bff859
 
       # OpenVDB
+      # https://github.com/bambulab/BambuStudio/blob/master/deps/OpenVDB/OpenVDB.cmake
       - type: file
         url: https://github.com/tamasmeszaros/openvdb/archive/a68fd58d0e2b85f01adeb8b13d7555183ab10aa5.zip
         dest: external-packages/OpenVDB
         sha256: f353e7b99bd0cbfc27ac9082de51acf32a8bc0b3e21ff9661ecca6f205ec1d81
 
       # Qhull
+      # https://github.com/bambulab/BambuStudio/blob/master/deps/Qhull/Qhull.cmake
       - type: file
         url: https://github.com/qhull/qhull/archive/v8.0.1.zip
         dest: external-packages/Qhull
         sha256: 5287f5edd6a0372588f5d6640799086a4033d89d19711023ef8229dd9301d69b
 
       # TBB
+      # https://github.com/bambulab/BambuStudio/blob/master/deps/TBB/TBB.cmake
       - type: file
         url: https://github.com/oneapi-src/oneTBB/archive/refs/tags/v2021.5.0.zip
         dest: external-packages/TBB
         sha256: 83ea786c964a384dd72534f9854b419716f412f9d43c0be88d41874763e7bb47
 
       # Nodejs
+      # https://github.com/bambulab/BambuStudio/blob/master/src/slic3r/GUI/DeviceWeb/CMakeLists.txt
       - type: file
         url: https://nodejs.org/dist/v22.22.2/node-v22.22.2-linux-x64.tar.xz
         dest: external-packages
@@ -325,6 +338,7 @@ modules:
           - aarch64
 
       # PNPM
+      # https://github.com/bambulab/BambuStudio/blob/master/src/slic3r/GUI/DeviceWeb/CMakeLists.txt
       - type: file
         url: https://github.com/pnpm/pnpm/releases/download/v10.12.1/pnpm-linux-x64
         dest: external-packages/
