@@ -70,6 +70,11 @@ modules:
       - type: archive
         url: https://github.com/boostorg/boost/releases/download/boost-1.84.0/boost-1.84.0.tar.gz
         sha256: 4d27e9efed0f6f152dc28db6430b9d3dfb40c0345da7342eaa5a987dde57bd95
+        x-checker-data:
+          type: anitya
+          project-id: 6845
+          stable-only: true
+          url-template: https://github.com/boostorg/boost/releases/download/boost-$version/boost-$version-cmake.tar.gz
     cleanup:
       - /include
       - /lib/cmake
