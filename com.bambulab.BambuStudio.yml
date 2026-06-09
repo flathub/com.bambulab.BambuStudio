@@ -79,7 +79,7 @@ modules:
           type: anitya
           project-id: 6845
           stable-only: true
-          url-template: https://github.com/boostorg/boost/releases/download/boost-$version/boost-$version-cmake.tar.gz
+          url-template: https://github.com/boostorg/boost/releases/download/boost-$version/boost-$version.tar.gz
     cleanup:
       - /include
       - /lib/cmake
