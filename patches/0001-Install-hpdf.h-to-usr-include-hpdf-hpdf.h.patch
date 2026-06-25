@@ -1,0 +1,25 @@
+From 1f208dbbd26436097abb6524fbf8f7ae8f43cff9 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Fri, 26 Jun 2026 14:17:16 +0200
+Subject: [PATCH] Install hpdf.h to /usr/include/hpdf/hpdf.h
+
+---
+ CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 0139a13b61f9..54472a920837 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -131,7 +131,7 @@ set(
+ )
+ 
+ # install header files
+-install(FILES ${haru_HDRS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
++install(FILES ${haru_HDRS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/hpdf)
+ 
+ # install various files
+ install(FILES README.md CHANGES DESTINATION ${CMAKE_INSTALL_DOCDIR})
+-- 
+2.54.0
+

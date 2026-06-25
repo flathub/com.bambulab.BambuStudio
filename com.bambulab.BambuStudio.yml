@@ -181,6 +181,16 @@ modules:
       - /include
       - /lib/cmake
 
+  - name: libharu
+    buildsystem: cmake-ninja
+    sources:
+      - type: git
+        url: https://github.com/libharu/libharu.git
+        tag: v2.4.5
+        commit: 8fe5a738541a04642885fb7a75b2b5b9c5b416fa
+      - type: patch
+        path: patches/0001-Install-hpdf.h-to-usr-include-hpdf-hpdf.h.patch
+
   - name: BambuStudio
     buildsystem: simple
     build-options:
@@ -359,19 +369,15 @@ modules:
       # BambuStudio Source Archive
       - type: git
         url: https://github.com/bambulab/BambuStudio.git
-        tag: v02.07.01.62
-        commit: 42d319c6692fa8e64790fddf0cdaafd2a4254bcc
+        tag: v02.08.00.50
+        commit: a78684a11de4abddad9a6d19eeb75a6a1d2e82a5
 
       # https://github.com/bambulab/BambuStudio/pull/10712
       - type: patch
         path: patches/nodejs-arm64.patch
 
-      # flatpak-node-generator --no-devel  pnpm src/slic3r/GUI/DeviceWeb/device_page/pnpm-lock.yaml
+      # flatpak-node-generator --no-devel pnpm src/slic3r/GUI/DeviceWeb/device_page/pnpm-lock.yaml
       - generated-sources.json
-
-      # https://github.com/bambulab/BambuStudio/pull/11059
-      - type: patch
-        path: patches/2.7.1-fixes.patch
 
       # https://github.com/bambulab/BambuStudio/pull/11804
       - type: patch
