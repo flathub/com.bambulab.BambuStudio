@@ -1,0 +1,32 @@
+From 94033822654e465327beae24b64e8090a424abc8 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Wed, 29 Jul 2026 10:03:24 +0200
+Subject: [PATCH] FIX: Fix boost::format declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+In file included from /run/build/BambuStudio/src/slic3r/GUI/DeviceCore/DevAxis.cpp:2:
+/run/build/BambuStudio/src/slic3r/GUI/DeviceCore/DevUtil.h: In function ‘std::string Slic3r::s_get_diameter_str(float)’:
+/run/build/BambuStudio/src/slic3r/GUI/DeviceCore/DevUtil.h:173:20: error: ‘format’ is not a member of ‘boost’
+  173 |     return (boost::format("%.2f") % diameter).str();
+      |                    ^~~~~~
+---
+ src/slic3r/GUI/DeviceCore/DevUtil.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/slic3r/GUI/DeviceCore/DevUtil.h b/src/slic3r/GUI/DeviceCore/DevUtil.h
+index 0b02dd25a91b..eb85ef3de829 100644
+--- a/src/slic3r/GUI/DeviceCore/DevUtil.h
++++ b/src/slic3r/GUI/DeviceCore/DevUtil.h
+@@ -11,6 +11,7 @@
+ #include <sstream>
+ #include <stdexcept>
+ 
++#include <boost/format.hpp>
+ #include <boost/log/trivial.hpp>
+ #include <boost/lexical_cast.hpp>
+ 
+-- 
+2.55.0
+
