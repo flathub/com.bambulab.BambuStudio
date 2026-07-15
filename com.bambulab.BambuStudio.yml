@@ -369,8 +369,12 @@ modules:
       # BambuStudio Source Archive
       - type: git
         url: https://github.com/bambulab/BambuStudio.git
-        tag: v02.08.00.50
-        commit: a78684a11de4abddad9a6d19eeb75a6a1d2e82a5
+        tag: v02.08.01.55
+        commit: ba049f6a2e08c3b6033660bb84da80c08722974b
+
+      # https://github.com/bambulab/BambuStudio/pull/11754
+      - type: patch
+        path: patches/0001-FIX-Fix-boost-format-declaration.patch
 
       # https://github.com/bambulab/BambuStudio/pull/10712
       - type: patch
@@ -385,10 +389,6 @@ modules:
 
       - type: patch
         path: patches/offline-npm.patch
-
-      # https://github.com/bambulab/BambuStudio/pull/11058
-      - type: patch
-        path: patches/system-gmp-mpfr.patch
 
       # https://github.com/bambulab/BambuStudio/pull/11827
       - type: patch
