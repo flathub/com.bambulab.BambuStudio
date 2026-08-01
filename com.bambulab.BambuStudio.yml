@@ -387,6 +387,10 @@ modules:
       - type: patch
         path: patches/0001-Apply-TBB-LTO-patch.patch
 
+      # https://github.com/bambulab/BambuStudio/pull/11782
+      - type: patch
+        path: patches/no-boost-system.patch
+
       # AppData metainfo for Gnome Software & Co.
       - type: file
         path: com.bambulab.BambuStudio.metainfo.xml
