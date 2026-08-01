@@ -68,7 +68,7 @@ modules:
   - name: boost
     buildsystem: simple
     build-commands:
-      - ./bootstrap.sh --prefix=/app --with-libraries=system,iostreams,filesystem,thread,log,locale,regex,date_time
+      - ./bootstrap.sh --prefix=/app --with-libraries=iostreams,filesystem,thread,log,locale,regex,date_time
       - ./b2 headers
       - ./b2 -j$FLATPAK_BUILDER_N_JOBS install variant=release cxxstd=17 --layout=system
     sources:
