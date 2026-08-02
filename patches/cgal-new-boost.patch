@@ -1,0 +1,701 @@
+From 35785029de69bc83780df7c96d619cfbc83648ab Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?S=C3=A9bastien=20Loriot?= <sebastien.loriot@cgal.org>
+Date: Mon, 3 Mar 2025 10:15:51 +0100
+Subject: [PATCH 1/2] add missing include
+
+---
+ Algebraic_foundations/include/CGAL/number_utils.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/Algebraic_foundations/include/CGAL/number_utils.h b/Algebraic_foundations/include/CGAL/number_utils.h
+index 5fc8c6e45706..1db203ba48a7 100644
+--- a/Algebraic_foundations/include/CGAL/number_utils.h
++++ b/Algebraic_foundations/include/CGAL/number_utils.h
+@@ -21,6 +21,7 @@
+ #include <CGAL/Algebraic_structure_traits.h>
+ #include <CGAL/Real_embeddable_traits.h>
+ #include <CGAL/Kernel/Same_uncertainty.h>
++#include <boost/mpl/if.hpp>
+ 
+ namespace CGAL {
+ CGAL_NTS_BEGIN_NAMESPACE
+-- 
+2.55.0
+
+
+From c9c54d42c49331ec07238ebd6e3e806412054a9e Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Sun, 2 Aug 2026 11:10:08 +0200
+Subject: [PATCH 2/2] FIX: Fix is_zero() with newer versions of Boost
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+/run/build/BambuStudio/deps/build/destdir/usr/local/include/CGAL/Intersections_3/internal/Line_3_Line_3_intersection.h:62:23: error: ‘is_zero’ was not declared in this scope; did you mean ‘CGAL::INTERN_INTERVAL_NT::is_zero’?
+   62 |   if(certainly(is_zero(sl)))
+      |                ~~~~~~~^~~~
+      |                CGAL::INTERN_INTERVAL_NT::is_zero
+/run/build/BambuStudio/deps/build/destdir/usr/local/include/CGAL/Interval_nt.h:1224:3: note: ‘CGAL::INTERN_INTERVAL_NT::is_zero’ declared here
+ 1224 |   is_zero (const Interval_nt<Protected> & d)
+      |   ^~~~~~~
+
+See: https://github.com/MPI-IS/mesh/issues/120#issue-3552662008
+---
+ Bounding_volumes/include/CGAL/Min_sphere_d.h  |  2 +-
+ .../CGAL/Min_sphere_d/Optimisation_sphere_d.h |  6 +--
+ .../include/CGAL/Cartesian/ConicCPA2.h        | 46 +++++++++----------
+ .../include/CGAL/Cartesian/Plane_3.h          |  4 +-
+ .../include/CGAL/Cartesian/Sphere_3.h         |  2 +-
+ .../include/CGAL/Cartesian/Vector_2.h         |  2 +-
+ .../include/CGAL/Cartesian/Vector_3.h         |  4 +-
+ .../include/CGAL/Cartesian/function_objects.h |  8 ++--
+ .../include/CGAL/constructions/kernel_ftC2.h  |  4 +-
+ .../include/CGAL/predicates/kernel_ftC2.h     | 12 ++---
+ .../include/CGAL/Homogeneous/ConicHPA2.h      | 46 +++++++++----------
+ .../CGAL/Homogeneous/function_objects.h       |  2 +-
+ .../internal/Line_3_Line_3_intersection.h     |  2 +-
+ .../internal/Plane_3_Sphere_3_intersection.h  |  2 +-
+ Kernel_23/include/CGAL/Circle_2.h             |  2 +-
+ Kernel_23/include/CGAL/Kernel/Conic_misc.h    |  2 +-
+ .../include/CGAL/Kernel/function_objects.h    |  6 +--
+ Number_types/include/CGAL/Lazy_exact_nt.h     |  2 +-
+ .../CGAL/Sqrt_extension/Sqrt_extension_type.h | 16 +++----
+ .../CGAL/QP_solver/QP_functions_impl.h        |  8 ++--
+ 20 files changed, 89 insertions(+), 89 deletions(-)
+
+diff --git a/Bounding_volumes/include/CGAL/Min_sphere_d.h b/Bounding_volumes/include/CGAL/Min_sphere_d.h
+index 96d11c863680..43bdfd2a0cef 100644
+--- a/Bounding_volumes/include/CGAL/Min_sphere_d.h
++++ b/Bounding_volumes/include/CGAL/Min_sphere_d.h
+@@ -263,7 +263,7 @@ public:
+         else {
+           CGAL_optimisation_precondition
+           (d == tco.access_dimension_d_object()(p));
+-           return (CGAL_NTS is_zero (ms_basis.get_sphere(Rep_tag()).excess (p)));
++           return (CGAL::is_zero (ms_basis.get_sphere(Rep_tag()).excess (p)));
+         }
+     }
+ 
+diff --git a/Bounding_volumes/include/CGAL/Min_sphere_d/Optimisation_sphere_d.h b/Bounding_volumes/include/CGAL/Min_sphere_d/Optimisation_sphere_d.h
+index 02c554f9610f..2659079b4079 100644
+--- a/Bounding_volumes/include/CGAL/Min_sphere_d/Optimisation_sphere_d.h
++++ b/Bounding_volumes/include/CGAL/Min_sphere_d/Optimisation_sphere_d.h
+@@ -188,7 +188,7 @@ class Optimisation_sphere_d<Cartesian_tag, FT, RT, PT, Traits>;
+ 
+                 // compute z
+                 FT z = FT_(2)*v_basis[m+1] - prod(v,x,m+1);
+-                CGAL_optimisation_assertion (!CGAL_NTS is_zero (z));
++                CGAL_optimisation_assertion (!CGAL::is_zero (z));
+                 FT inv_z = FT_(1)/z;
+ 
+                 // set up A^{-1}_{B^m}
+@@ -461,7 +461,7 @@ class Optimisation_sphere_d<Cartesian_tag, FT, RT, PT, Traits>;
+                 // compute \tilde{z}
+                 RT old_denom = denom[m-1];
+                 RT z = old_denom*RT_(2)*sqr_q_m - prod(v,x,m+1);
+-                CGAL_optimisation_assertion (!CGAL_NTS is_zero (z));
++                CGAL_optimisation_assertion (!CGAL::is_zero (z));
+ 
+                 // set up \tilde{A}^{-1}_{B^m}
+                 RT** M = inv[m-1];          // \tilde{A}^{-1}_B, old matrix
+@@ -503,7 +503,7 @@ class Optimisation_sphere_d<Cartesian_tag, FT, RT, PT, Traits>;
+ 
+                 // get h_p
+                 RT h_p = *(i++);
+-                CGAL_optimisation_precondition (!CGAL_NTS is_zero (h_p));
++                CGAL_optimisation_precondition (!CGAL::is_zero (h_p));
+ 
+                 // compute (h_p h D)^2 (c-p)^2
+                 RT sqr_dist(RT(0));
+diff --git a/Cartesian_kernel/include/CGAL/Cartesian/ConicCPA2.h b/Cartesian_kernel/include/CGAL/Cartesian/ConicCPA2.h
+index 99edffd11862..70adeee8721e 100644
+--- a/Cartesian_kernel/include/CGAL/Cartesian/ConicCPA2.h
++++ b/Cartesian_kernel/include/CGAL/Cartesian/ConicCPA2.h
+@@ -195,7 +195,7 @@ class ConicCPA2
+             break;
+         case PARABOLA:
+             {
+-                if (!CGAL_NTS is_zero (r())) {
++                if (!CGAL::is_zero (r())) {
+                     trivial         = false;
+                     degenerate      = (t()*u() == FT(2)*r()*v());
+                     if (degenerate) {
+@@ -219,7 +219,7 @@ class ConicCPA2
+                         empty = false;
+                         o = (CGAL::Orientation)(-CGAL_NTS sign (r()));
+                     }
+-                } else if (!CGAL_NTS is_zero (s())) {
++                } else if (!CGAL::is_zero (s())) {
+                     trivial         = false;
+                     degenerate      = (t()*v() == FT(2)*s()*u());
+                     if (degenerate) {
+@@ -245,9 +245,9 @@ class ConicCPA2
+                     }
+                 } else { // r=0, s=0
+                     degenerate      = true;
+-                    bool uv_zero    =    CGAL_NTS is_zero (u())
+-                                      && CGAL_NTS is_zero (v());
+-                    trivial         = uv_zero && CGAL_NTS is_zero (w());
++                    bool uv_zero    =    CGAL::is_zero (u())
++                                      && CGAL::is_zero (v());
++                    trivial         = uv_zero && CGAL::is_zero (w());
+                     empty           = uv_zero && !trivial;
+                     if (empty)
+                         o = (CGAL::Orientation)(CGAL_NTS sign (w()));
+@@ -271,7 +271,7 @@ class ConicCPA2
+                     empty = CGAL_NTS sign (z_prime) == CGAL::NEGATIVE ;
+                     empty ? o = CGAL::NEGATIVE : o = CGAL::POSITIVE;
+                 }
+-                degenerate = empty || CGAL_NTS is_zero (z_prime);
++                degenerate = empty || CGAL::is_zero (z_prime);
+ 
+ 
+             }
+@@ -342,7 +342,7 @@ class ConicCPA2
+ 
+     bool is_circle () const
+     {
+-        return (type == ELLIPSE && (r()==s()) && CGAL_NTS is_zero (t()));
++        return (type == ELLIPSE && (r()==s()) && CGAL::is_zero (t()));
+     }
+ 
+     bool is_empty () const
+@@ -382,12 +382,12 @@ class ConicCPA2
+ 
+     bool has_on_boundary (const PT& p) const
+     {
+-       return (CGAL_NTS is_zero (evaluate(p)));
++       return (CGAL::is_zero (evaluate(p)));
+     }
+ 
+     bool has_on (const PT& p) const
+     {
+-       return (CGAL_NTS is_zero (evaluate(p)));
++       return (CGAL::is_zero (evaluate(p)));
+     }
+ 
+ 
+@@ -419,22 +419,22 @@ class ConicCPA2
+     {
+         // find coefficient != 0
+         FT  factor1(0);
+-        if ( ! CGAL_NTS is_zero( r())) factor1 = r(); else
+-        if ( ! CGAL_NTS is_zero( s())) factor1 = s(); else
+-        if ( ! CGAL_NTS is_zero( t())) factor1 = t(); else
+-        if ( ! CGAL_NTS is_zero( u())) factor1 = u(); else
+-        if ( ! CGAL_NTS is_zero( v())) factor1 = v(); else
+-        if ( ! CGAL_NTS is_zero( w())) factor1 = w(); else
++        if ( ! CGAL::is_zero( r())) factor1 = r(); else
++        if ( ! CGAL::is_zero( s())) factor1 = s(); else
++        if ( ! CGAL::is_zero( t())) factor1 = t(); else
++        if ( ! CGAL::is_zero( u())) factor1 = u(); else
++        if ( ! CGAL::is_zero( v())) factor1 = v(); else
++        if ( ! CGAL::is_zero( w())) factor1 = w(); else
+         CGAL_kernel_assertion_msg( false, "all coefficients zero");
+ 
+         // find coefficient != 0
+         FT  factor2(0);
+-        if ( ! CGAL_NTS is_zero( c.r())) factor2 = c.r(); else
+-        if ( ! CGAL_NTS is_zero( c.s())) factor2 = c.s(); else
+-        if ( ! CGAL_NTS is_zero( c.t())) factor2 = c.t(); else
+-        if ( ! CGAL_NTS is_zero( c.u())) factor2 = c.u(); else
+-        if ( ! CGAL_NTS is_zero( c.v())) factor2 = c.v(); else
+-        if ( ! CGAL_NTS is_zero( c.w())) factor2 = c.w(); else
++        if ( ! CGAL::is_zero( c.r())) factor2 = c.r(); else
++        if ( ! CGAL::is_zero( c.s())) factor2 = c.s(); else
++        if ( ! CGAL::is_zero( c.t())) factor2 = c.t(); else
++        if ( ! CGAL::is_zero( c.u())) factor2 = c.u(); else
++        if ( ! CGAL::is_zero( c.v())) factor2 = c.v(); else
++        if ( ! CGAL::is_zero( c.w())) factor2 = c.w(); else
+         CGAL_kernel_assertion_msg( false, "all coefficients zero");
+ 
+         return(    ( r()*factor2 == c.r()*factor1)
+@@ -467,7 +467,7 @@ class ConicCPA2
+ 
+      // precondition: p1, p2, p3 not collinear
+      FT det = -x3*y2+x1*y2+x2*y3-x1*y3+x3*y1-x2*y1;
+-     CGAL_kernel_precondition (!CGAL_NTS is_zero (det));
++     CGAL_kernel_precondition (!CGAL::is_zero (det));
+ 
+      // Cramer's rule
+      FT sqr1 = -x1*x1 - y1*y1;
+@@ -527,7 +527,7 @@ class ConicCPA2
+ 
+         // precondition: p1, p2, p3 not collinear
+         FT det = -x3*y2+x1*y2+x2*y3-x1*y3+x3*y1-x2*y1;
+-        CGAL_kernel_precondition (!CGAL_NTS is_zero (det));
++        CGAL_kernel_precondition (!CGAL::is_zero (det));
+ 
+         FT x1x1 = x1*x1, y1y1 = y1*y1,
+            x2x2 = x2*x2, y2y2 = y2*y2,
+diff --git a/Cartesian_kernel/include/CGAL/Cartesian/Plane_3.h b/Cartesian_kernel/include/CGAL/Cartesian/Plane_3.h
+index faffed7b7653..f9e501230431 100644
+--- a/Cartesian_kernel/include/CGAL/Cartesian/Plane_3.h
++++ b/Cartesian_kernel/include/CGAL/Cartesian/Plane_3.h
+@@ -294,8 +294,8 @@ typename R::Boolean
+ PlaneC3<R>::
+ is_degenerate() const
+ { // FIXME : predicate
+-  return CGAL_NTS is_zero(a()) && CGAL_NTS is_zero(b()) &&
+-         CGAL_NTS is_zero(c());
++  return CGAL::is_zero(a()) && CGAL::is_zero(b()) &&
++         CGAL::is_zero(c());
+ }
+ 
+ } //namespace CGAL
+diff --git a/Cartesian_kernel/include/CGAL/Cartesian/Sphere_3.h b/Cartesian_kernel/include/CGAL/Cartesian/Sphere_3.h
+index 3dee104e4c65..6eae0f5efeda 100644
+--- a/Cartesian_kernel/include/CGAL/Cartesian/Sphere_3.h
++++ b/Cartesian_kernel/include/CGAL/Cartesian/Sphere_3.h
+@@ -269,7 +269,7 @@ SphereC3<R>::
+ is_degenerate() const
+ {
+     // FIXME: it's a predicate (?)
+-  return CGAL_NTS is_zero(squared_radius());
++  return CGAL::is_zero(squared_radius());
+ }
+ 
+ template < class R >
+diff --git a/Cartesian_kernel/include/CGAL/Cartesian/Vector_2.h b/Cartesian_kernel/include/CGAL/Cartesian/Vector_2.h
+index 905d766907fa..d902bdb7e636 100644
+--- a/Cartesian_kernel/include/CGAL/Cartesian/Vector_2.h
++++ b/Cartesian_kernel/include/CGAL/Cartesian/Vector_2.h
+@@ -123,7 +123,7 @@ inline
+ bool
+ operator==(const VectorC2<R> &v, const Null_vector &)
+ {
+-  return CGAL_NTS is_zero(v.x()) && CGAL_NTS is_zero(v.y());
++  return CGAL::is_zero(v.x()) && CGAL::is_zero(v.y());
+ }
+ 
+ template < class R >
+diff --git a/Cartesian_kernel/include/CGAL/Cartesian/Vector_3.h b/Cartesian_kernel/include/CGAL/Cartesian/Vector_3.h
+index 222d73652e31..a555edacabe7 100644
+--- a/Cartesian_kernel/include/CGAL/Cartesian/Vector_3.h
++++ b/Cartesian_kernel/include/CGAL/Cartesian/Vector_3.h
+@@ -158,8 +158,8 @@ inline
+ bool
+ operator==(const VectorC3<R> &v, const Null_vector &)
+ {
+-  return CGAL_NTS is_zero(v.x()) && CGAL_NTS is_zero(v.y()) &&
+-         CGAL_NTS is_zero(v.z());
++  return CGAL::is_zero(v.x()) && CGAL::is_zero(v.y()) &&
++         CGAL::is_zero(v.z());
+ }
+ 
+ template < class R >
+diff --git a/Cartesian_kernel/include/CGAL/Cartesian/function_objects.h b/Cartesian_kernel/include/CGAL/Cartesian/function_objects.h
+index 05cdeb2ac54e..a9d053a74a2a 100644
+--- a/Cartesian_kernel/include/CGAL/Cartesian/function_objects.h
++++ b/Cartesian_kernel/include/CGAL/Cartesian/function_objects.h
+@@ -1880,13 +1880,13 @@ namespace CartesianKernelFunctors {
+     operator()( const Plane_3& h, int index ) const
+     {
+       if (index == 1) {
+-        if ( CGAL_NTS is_zero(h.a()) )  // parallel to x-axis
++        if ( CGAL::is_zero(h.a()) )  // parallel to x-axis
+           return Vector_3(FT(1), FT(0), FT(0));
+ 
+-        if ( CGAL_NTS is_zero(h.b()) )  // parallel to y-axis
++        if ( CGAL::is_zero(h.b()) )  // parallel to y-axis
+           return Vector_3(FT(0), FT(1), FT(0));
+ 
+-        if ( CGAL_NTS is_zero(h.c()) )  // parallel to z-axis
++        if ( CGAL::is_zero(h.c()) )  // parallel to z-axis
+           return Vector_3(FT(0), FT(0), FT(1));
+ 
+         FT a = CGAL::abs(h.a()),
+@@ -2340,7 +2340,7 @@ namespace CartesianKernelFunctors {
+       FT den   = determinant(qpx,qpy,qpz,
+                              rpx,rpy,rpz,
+                              spx,spy,spz);
+-      CGAL_kernel_assertion( ! CGAL_NTS is_zero(den) );
++      CGAL_kernel_assertion( ! CGAL::is_zero(den) );
+       FT inv = 1 / (2 * den);
+ 
+       FT x = p.x() + num_x*inv;
+diff --git a/Cartesian_kernel/include/CGAL/constructions/kernel_ftC2.h b/Cartesian_kernel/include/CGAL/constructions/kernel_ftC2.h
+index d4a62c21c91c..a0d820b48a27 100644
+--- a/Cartesian_kernel/include/CGAL/constructions/kernel_ftC2.h
++++ b/Cartesian_kernel/include/CGAL/constructions/kernel_ftC2.h
+@@ -52,7 +52,7 @@ circumcenter_translateC2(const FT &dqx, const FT &dqy,
+ 
+   // The 3 points aren't collinear.
+   // Hopefully, this is already checked at the upper level.
+-  CGAL_kernel_assertion ( ! CGAL_NTS is_zero(den) );
++  CGAL_kernel_assertion ( ! CGAL::is_zero(den) );
+ 
+   // One possible optimization here is to precompute 1/den, to avoid one
+   // division.  However, we lose precision, and it's maybe not worth it (?).
+@@ -281,7 +281,7 @@ void
+ line_get_pointC2(const FT &a, const FT &b, const FT &c, const FT &i,
+                  FT &x, FT &y)
+ {
+-  if (CGAL_NTS is_zero(b))
++  if (CGAL::is_zero(b))
+     {
+ 
+       x = -c/a;
+diff --git a/Cartesian_kernel/include/CGAL/predicates/kernel_ftC2.h b/Cartesian_kernel/include/CGAL/predicates/kernel_ftC2.h
+index 56903c2c921f..c07865e7a21c 100644
+--- a/Cartesian_kernel/include/CGAL/predicates/kernel_ftC2.h
++++ b/Cartesian_kernel/include/CGAL/predicates/kernel_ftC2.h
+@@ -298,14 +298,14 @@ compare_slopesC2(const FT &l1a, const FT &l1b, const FT &l2a, const FT &l2b)
+ {
+    typedef typename Compare<FT>::result_type result_type;
+ 
+-   if (CGAL_NTS is_zero(l1a))  // l1 is horizontal
+-    return CGAL_NTS is_zero(l2b) ? result_type(SMALLER)
++   if (CGAL::is_zero(l1a))  // l1 is horizontal
++    return CGAL::is_zero(l2b) ? result_type(SMALLER)
+                                  : CGAL_NTS sign(l2a) * CGAL_NTS sign(l2b);
+-   if (CGAL_NTS is_zero(l2a)) // l2 is horizontal
+-    return CGAL_NTS is_zero(l1b) ? result_type(LARGER)
++   if (CGAL::is_zero(l2a)) // l2 is horizontal
++    return CGAL::is_zero(l1b) ? result_type(LARGER)
+                                  : - CGAL_NTS sign(l1a) * CGAL_NTS sign(l1b);
+-   if (CGAL_NTS is_zero(l1b)) return CGAL_NTS is_zero(l2b) ? EQUAL : LARGER;
+-   if (CGAL_NTS is_zero(l2b)) return SMALLER;
++   if (CGAL::is_zero(l1b)) return CGAL::is_zero(l2b) ? EQUAL : LARGER;
++   if (CGAL::is_zero(l2b)) return SMALLER;
+    result_type l1_sign = - CGAL_NTS sign(l1a) * CGAL_NTS sign(l1b);
+    result_type l2_sign = - CGAL_NTS sign(l2a) * CGAL_NTS sign(l2b);
+ 
+diff --git a/Homogeneous_kernel/include/CGAL/Homogeneous/ConicHPA2.h b/Homogeneous_kernel/include/CGAL/Homogeneous/ConicHPA2.h
+index 8460bc2eb8e6..de5771f22107 100644
+--- a/Homogeneous_kernel/include/CGAL/Homogeneous/ConicHPA2.h
++++ b/Homogeneous_kernel/include/CGAL/Homogeneous/ConicHPA2.h
+@@ -195,7 +195,7 @@ class ConicHPA2
+             break;
+         case PARABOLA:
+             {
+-                if (!CGAL_NTS is_zero (r())) {
++                if (!CGAL::is_zero (r())) {
+                     trivial         = false;
+                     degenerate      = (t()*u() == RT(2)*r()*v());
+                     if (degenerate) {
+@@ -219,7 +219,7 @@ class ConicHPA2
+                         empty = false;
+                         o = (CGAL::Orientation)(-CGAL_NTS sign (r()));
+                     }
+-                } else if (!CGAL_NTS is_zero (s())) {
++                } else if (!CGAL::is_zero (s())) {
+                     trivial         = false;
+                     degenerate      = (t()*v() == RT(2)*s()*u());
+                     if (degenerate) {
+@@ -245,9 +245,9 @@ class ConicHPA2
+                     }
+                 } else { // r=0, s=0
+                     degenerate      = true;
+-                    bool uv_zero    =    CGAL_NTS is_zero (u())
+-                                      && CGAL_NTS is_zero (v());
+-                    trivial         = uv_zero && CGAL_NTS is_zero (w());
++                    bool uv_zero    =    CGAL::is_zero (u())
++                                      && CGAL::is_zero (v());
++                    trivial         = uv_zero && CGAL::is_zero (w());
+                     empty           = uv_zero && !trivial;
+                     if (empty)
+                         o = (CGAL::Orientation)(CGAL_NTS sign (w()));
+@@ -271,7 +271,7 @@ class ConicHPA2
+                     empty = (CGAL::NEGATIVE == CGAL_NTS sign (z_prime));
+                     empty ? o = CGAL::NEGATIVE : o = CGAL::POSITIVE;
+                 }
+-                degenerate = empty || CGAL_NTS is_zero (z_prime);
++                degenerate = empty || CGAL::is_zero (z_prime);
+             }
+             break;
+         }
+@@ -336,7 +336,7 @@ class ConicHPA2
+ 
+     bool is_circle () const
+     {
+-        return (type == ELLIPSE && (r()==s()) && CGAL_NTS is_zero (t()));
++        return (type == ELLIPSE && (r()==s()) && CGAL::is_zero (t()));
+     }
+ 
+     bool is_empty () const
+@@ -376,12 +376,12 @@ class ConicHPA2
+ 
+     bool has_on_boundary (const PT& p) const
+     {
+-       return (CGAL_NTS is_zero (evaluate(p)));
++       return (CGAL::is_zero (evaluate(p)));
+     }
+ 
+     bool has_on (const PT& p) const
+     {
+-       return (CGAL_NTS is_zero (evaluate(p)));
++       return (CGAL::is_zero (evaluate(p)));
+     }
+ 
+     Convex_side convex_side (const PT& p) const
+@@ -412,22 +412,22 @@ class ConicHPA2
+     {
+         // find coefficient != 0
+         RT  factor1(0);
+-        if ( ! CGAL_NTS is_zero( r())) factor1 = r(); else
+-        if ( ! CGAL_NTS is_zero( s())) factor1 = s(); else
+-        if ( ! CGAL_NTS is_zero( t())) factor1 = t(); else
+-        if ( ! CGAL_NTS is_zero( u())) factor1 = u(); else
+-        if ( ! CGAL_NTS is_zero( v())) factor1 = v(); else
+-        if ( ! CGAL_NTS is_zero( w())) factor1 = w(); else
++        if ( ! CGAL::is_zero( r())) factor1 = r(); else
++        if ( ! CGAL::is_zero( s())) factor1 = s(); else
++        if ( ! CGAL::is_zero( t())) factor1 = t(); else
++        if ( ! CGAL::is_zero( u())) factor1 = u(); else
++        if ( ! CGAL::is_zero( v())) factor1 = v(); else
++        if ( ! CGAL::is_zero( w())) factor1 = w(); else
+         CGAL_kernel_assertion_msg( false, "all coefficients zero");
+ 
+         // find coefficient != 0
+         RT  factor2(0);
+-        if ( ! CGAL_NTS is_zero( c.r())) factor2 = c.r(); else
+-        if ( ! CGAL_NTS is_zero( c.s())) factor2 = c.s(); else
+-        if ( ! CGAL_NTS is_zero( c.t())) factor2 = c.t(); else
+-        if ( ! CGAL_NTS is_zero( c.u())) factor2 = c.u(); else
+-        if ( ! CGAL_NTS is_zero( c.v())) factor2 = c.v(); else
+-        if ( ! CGAL_NTS is_zero( c.w())) factor2 = c.w(); else
++        if ( ! CGAL::is_zero( c.r())) factor2 = c.r(); else
++        if ( ! CGAL::is_zero( c.s())) factor2 = c.s(); else
++        if ( ! CGAL::is_zero( c.t())) factor2 = c.t(); else
++        if ( ! CGAL::is_zero( c.u())) factor2 = c.u(); else
++        if ( ! CGAL::is_zero( c.v())) factor2 = c.v(); else
++        if ( ! CGAL::is_zero( c.w())) factor2 = c.w(); else
+         CGAL_kernel_assertion_msg( false, "all coefficients zero");
+ 
+         return(    ( r()*factor2 == c.r()*factor1)
+@@ -460,7 +460,7 @@ class ConicHPA2
+ 
+      // precondition: p1, p2, p3 not collinear
+      RT det = -h1*x3*y2+h3*x1*y2+h1*x2*y3-h2*x1*y3+h2*x3*y1-h3*x2*y1;
+-     CGAL_kernel_precondition (!CGAL_NTS is_zero (det));
++     CGAL_kernel_precondition (!CGAL::is_zero (det));
+ 
+      // Cramer's rule
+      RT sqr1 = (-x1*x1 - y1*y1)*h2*h3;
+@@ -521,7 +521,7 @@ class ConicHPA2
+ 
+         // precondition: p1, p2, p3 not collinear
+         RT det = -h1*x3*y2+h3*x1*y2+h1*x2*y3-h2*x1*y3+h2*x3*y1-h3*x2*y1;
+-        CGAL_kernel_precondition (!CGAL_NTS is_zero (det));
++        CGAL_kernel_precondition (!CGAL::is_zero (det));
+ 
+         RT x1x1 = x1*x1, y1y1 = y1*y1,
+            x2x2 = x2*x2, y2y2 = y2*y2,
+diff --git a/Homogeneous_kernel/include/CGAL/Homogeneous/function_objects.h b/Homogeneous_kernel/include/CGAL/Homogeneous/function_objects.h
+index 3b69c4776763..138b835f678c 100644
+--- a/Homogeneous_kernel/include/CGAL/Homogeneous/function_objects.h
++++ b/Homogeneous_kernel/include/CGAL/Homogeneous/function_objects.h
+@@ -551,7 +551,7 @@ namespace HomogeneousKernelFunctors {
+         }
+       */
+ 
+-      return CGAL_NTS is_zero(det);
++      return CGAL::is_zero(det);
+     }
+   };
+ 
+diff --git a/Intersections_3/include/CGAL/Intersections_3/internal/Line_3_Line_3_intersection.h b/Intersections_3/include/CGAL/Intersections_3/internal/Line_3_Line_3_intersection.h
+index d2fe3e1a170d..7aac97f8d1de 100644
+--- a/Intersections_3/include/CGAL/Intersections_3/internal/Line_3_Line_3_intersection.h
++++ b/Intersections_3/include/CGAL/Intersections_3/internal/Line_3_Line_3_intersection.h
+@@ -59,7 +59,7 @@ intersection(const typename K::Line_3& l1,
+   const Vector_3 v3v2 = cross_product(v3,v2);
+   const Vector_3 v1v2 = cross_product(v1,v2);
+   const FT sl = v1v2.squared_length();
+-  if(certainly(is_zero(sl)))
++  if(certainly(CGAL::is_zero(sl)))
+     return intersection_return<typename K::Intersect_3, typename K::Line_3, typename K::Line_3>();
+ 
+   const FT t = ((v3v2.x()*v1v2.x()) + (v3v2.y()*v1v2.y()) + (v3v2.z()*v1v2.z())) / sl;
+diff --git a/Intersections_3/include/CGAL/Intersections_3/internal/Plane_3_Sphere_3_intersection.h b/Intersections_3/include/CGAL/Intersections_3/internal/Plane_3_Sphere_3_intersection.h
+index c76c2ed54e84..84f71f830571 100644
+--- a/Intersections_3/include/CGAL/Intersections_3/internal/Plane_3_Sphere_3_intersection.h
++++ b/Intersections_3/include/CGAL/Intersections_3/internal/Plane_3_Sphere_3_intersection.h
+@@ -38,7 +38,7 @@ intersection(const typename K::Plane_3& p,
+ 
+   const FT cmp = d2 - s.squared_radius();
+ 
+-  if(CGAL_NTS is_zero(cmp)) // tangent
++  if(CGAL::is_zero(cmp)) // tangent
+   {
+     return intersection_return<typename K::Intersect_3, typename K::Plane_3, typename K::Sphere_3>(
+              p.projection(s.center()));
+diff --git a/Kernel_23/include/CGAL/Circle_2.h b/Kernel_23/include/CGAL/Circle_2.h
+index d4f12d902d2f..1fc060eba8fc 100644
+--- a/Kernel_23/include/CGAL/Circle_2.h
++++ b/Kernel_23/include/CGAL/Circle_2.h
+@@ -160,7 +160,7 @@ public:
+   typename R::Boolean
+   is_degenerate() const
+   {
+-    return CGAL_NTS is_zero(squared_radius());
++    return CGAL::is_zero(squared_radius());
+   }
+ 
+   Circle_2
+diff --git a/Kernel_23/include/CGAL/Kernel/Conic_misc.h b/Kernel_23/include/CGAL/Kernel/Conic_misc.h
+index 478d6e982440..7e3cdcbffe01 100644
+--- a/Kernel_23/include/CGAL/Kernel/Conic_misc.h
++++ b/Kernel_23/include/CGAL/Kernel/Conic_misc.h
+@@ -62,7 +62,7 @@ NT best_value (NT *values, int nr_values,
+         // being considered; however, d should be very small
+         // in this case as well, so that det won't compete
+         // for max_det below.
+-        if (CGAL_NTS is_positive(det) && !CGAL_NTS is_zero(q))
++        if (CGAL::is_positive(det) && !CGAL::is_zero(q))
+             if (!det_positive || (det > max_det)) {
+                 max_det = det;
+                 best = x;
+diff --git a/Kernel_23/include/CGAL/Kernel/function_objects.h b/Kernel_23/include/CGAL/Kernel/function_objects.h
+index b70bab2baa1d..6231cddcaa28 100644
+--- a/Kernel_23/include/CGAL/Kernel/function_objects.h
++++ b/Kernel_23/include/CGAL/Kernel/function_objects.h
+@@ -3616,7 +3616,7 @@ namespace CommonKernelFunctors {
+ 
+     result_type
+     operator()( const Line_2& l) const
+-    { return CGAL_NTS is_zero(l.a())  && CGAL_NTS is_zero(l.b()); }
++    { return CGAL::is_zero(l.a())  && CGAL::is_zero(l.b()); }
+ 
+     result_type
+     operator()( const Ray_2& r) const
+@@ -3699,7 +3699,7 @@ namespace CommonKernelFunctors {
+ 
+     result_type
+     operator()( const Line_2& l) const
+-    { return CGAL_NTS is_zero(l.a()); }
++    { return CGAL::is_zero(l.a()); }
+ 
+     result_type
+     operator()( const Segment_2& s) const
+@@ -3721,7 +3721,7 @@ namespace CommonKernelFunctors {
+ 
+     result_type
+     operator()( const Line_2& l) const
+-    { return CGAL_NTS is_zero(l.b()); }
++    { return CGAL::is_zero(l.b()); }
+ 
+     result_type
+     operator()( const Segment_2& s) const
+diff --git a/Number_types/include/CGAL/Lazy_exact_nt.h b/Number_types/include/CGAL/Lazy_exact_nt.h
+index 3d62ac6a7793..8024756f57c8 100644
+--- a/Number_types/include/CGAL/Lazy_exact_nt.h
++++ b/Number_types/include/CGAL/Lazy_exact_nt.h
+@@ -720,7 +720,7 @@ template< class NT, class Functor >
+ struct Is_zero_selector {
+   struct Is_zero : public CGAL::cpp98::unary_function<NT, bool > {
+     bool operator()( const NT& x ) const {
+-      return CGAL_NTS is_zero( x.exact() );
++      return CGAL::is_zero( x.exact() );
+     }
+   };
+ };
+diff --git a/Number_types/include/CGAL/Sqrt_extension/Sqrt_extension_type.h b/Number_types/include/CGAL/Sqrt_extension/Sqrt_extension_type.h
+index 95fd32ac9546..4a4d6d9591c2 100644
+--- a/Number_types/include/CGAL/Sqrt_extension/Sqrt_extension_type.h
++++ b/Number_types/include/CGAL/Sqrt_extension/Sqrt_extension_type.h
+@@ -167,7 +167,7 @@ public:
+           a1_(a1),
+           root_(root),
+           is_extended_( true ){
+-      CGAL_precondition( ACDE_TAG_::value || !CGAL_NTS is_zero(root) ); //if ACDE_TAG_ is Tag_true, we allow root to be 0
++      CGAL_precondition( ACDE_TAG_::value || !CGAL::is_zero(root) ); //if ACDE_TAG_ is Tag_true, we allow root to be 0
+     }
+ 
+     /*! \brief Constructor of Sqrt_extension, from
+@@ -187,7 +187,7 @@ public:
+     if ( a != 0 ) {
+       a0_ = compose_nt(-b,2*a);
+       root_ = CGAL_NTS square(a0_) - compose_root(c,a);
+-      if(CGAL_NTS is_zero(root_)) {
++      if(CGAL::is_zero(root_)) {
+         is_extended_ = false;
+       } else {
+         a1_ = (is_smaller ? -1 : 1);
+@@ -233,7 +233,7 @@ public:
+ 
+     //!check if the number is an extension (test the values) and update the internal flag
+     inline bool check_if_is_extended() {
+-      if(CGAL_NTS is_zero(a1_) || CGAL_NTS is_zero(root_))
++      if(CGAL::is_zero(a1_) || CGAL::is_zero(root_))
+         is_extended_ = false;
+       return is_extended_;
+     }
+@@ -280,7 +280,7 @@ public:
+     //! propagates the simplify command to the members of xx
+     void simplify(){
+       if(is_extended_){
+-        if(CGAL_NTS is_zero(a1_)){
++        if(CGAL::is_zero(a1_)){
+           is_extended_ = false;
+         }else{
+           CGAL_NTS simplify(a1_);
+@@ -424,12 +424,12 @@ public:
+     Self& operator /= (const Self& p) {
+       this->invalidate_interval();
+ 
+-        CGAL_assertion( ! CGAL_NTS is_zero(p) );
++        CGAL_assertion( ! CGAL::is_zero(p) );
+         typename CGAL::Algebraic_structure_traits<NT>::Integral_division idiv;
+ 
+         if(p.is_extended_){
+             NT denom = p.a0_*p.a0_ - p.a1_*p.a1_ * Root_nt_cast()(p.root_);
+-            if ( CGAL_NTS is_zero(denom) ) {
++            if ( CGAL::is_zero(denom) ) {
+                 // this is for the rare case in which root is a square
+                 // and the (pseudo) algebraic conjugate of p becomes zero
+                 *this = Self(idiv(a0_, NT(2)*p.a0_) + idiv( a1_, NT(2)*p.a1_));
+@@ -468,7 +468,7 @@ public:
+     }
+     Self& operator /= (const NT& num) {
+       this->invalidate_interval();
+-        CGAL_assertion(! CGAL_NTS is_zero(num));
++        CGAL_assertion(! CGAL::is_zero(num));
+         a0() /= NT(num);
+         a1() /= NT(num);
+         return *this;
+@@ -492,7 +492,7 @@ public:
+     }
+     Self& operator /= (CGAL_int(NT) num) {
+       this->invalidate_interval();
+-        CGAL_assertion(! CGAL_NTS is_zero(num));
++        CGAL_assertion(! CGAL::is_zero(num));
+         a0() /= NT(num);
+         a1() /= NT(num);
+         return *this;
+diff --git a/QP_solver/include/CGAL/QP_solver/QP_functions_impl.h b/QP_solver/include/CGAL/QP_solver/QP_functions_impl.h
+index 37496f161367..1e093c2ebd10 100644
+--- a/QP_solver/include/CGAL/QP_solver/QP_functions_impl.h
++++ b/QP_solver/include/CGAL/QP_solver/QP_functions_impl.h
+@@ -304,12 +304,12 @@ namespace QP_functions_detail {
+       // make sure that variable appears here even if it has only
+       // zero coefficients
+       bool written = false;
+-      if (!CGAL_NTS is_zero (*c)) {
++      if (!CGAL::is_zero (*c)) {
+         out << "  x" << j << "  obj  " << *c << "\n";
+         written = true;
+       }
+       for (int i=0; i<m; ++i) {
+-        if (!CGAL_NTS is_zero (*((*a)+i))) {
++        if (!CGAL::is_zero (*((*a)+i))) {
+           out << "  x" << j << "  c" << i << "  " << *((*a)+i) << "\n";
+           written = true;
+         }
+@@ -321,10 +321,10 @@ namespace QP_functions_detail {
+     // RHS section:
+     typename P::B_iterator b = p.get_b();
+     out << "RHS\n";
+-    if (!CGAL_NTS is_zero (p.get_c0()))
++    if (!CGAL::is_zero (p.get_c0()))
+       out << "  rhs obj " << -p.get_c0() << "\n";
+     for (int i=0; i<m; ++i, ++b)
+-      if (!CGAL_NTS is_zero (*b))
++      if (!CGAL::is_zero (*b))
+         out << "  rhs c" << i << "  " << *b << "\n";
+ 
+     // BOUNDS section:
+-- 
+2.55.0
+

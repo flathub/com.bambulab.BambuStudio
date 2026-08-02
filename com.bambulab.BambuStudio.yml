@@ -93,6 +93,9 @@ modules:
       # https://github.com/bambulab/BambuStudio/blob/master/deps/CGAL/0001-clang19.patch
       - type: patch
         path: patches/cgal-clang19.patch
+      # FIXME
+      - type: patch
+        path: patches/cgal-new-boost.patch
     cleanup:
       - /include
       - /lib/cmake
