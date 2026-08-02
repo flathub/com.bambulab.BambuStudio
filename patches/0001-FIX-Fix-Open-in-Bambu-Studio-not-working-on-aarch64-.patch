@@ -1,0 +1,51 @@
+From 9f9b289cea9c9116b0e8d488137e0eb3f03bad4c Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Mon, 3 Aug 2026 00:33:57 +0200
+Subject: [PATCH] FIX: Fix "Open in Bambu Studio" not working on aarch64 and
+ cURL 8.x
+
+src/slic3r/Utils/Http.cpp has 2 conditionals that don't evaluate the way
+they were intended with cURL 8.x and will carry on being wrong until a
+cURL 8.x version with a high enough minor version gets released.
+
+The 2 conditionals read:
+ #if LIBCURL_VERSION_MAJOR >= 7 && LIBCURL_VERSION_MINOR >= 32
+and:
+ #if LIBCURL_VERSION_MAJOR >= 7 && LIBCURL_VERSION_MINOR >= 48
+
+Use LIBCURL_VERSION_NUM instead so that we have a conditional that
+takes both the major and minor versions into consideration.
+
+This fixes the wrong callback being used on Flathub builds with a newer
+cURL, something which is only visible on aarch64.
+
+Suggested-by: Thanos Zolotas
+---
+ src/slic3r/Utils/Http.cpp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/slic3r/Utils/Http.cpp b/src/slic3r/Utils/Http.cpp
+index 0d404d52f22d..8f8d543f292d 100644
+--- a/src/slic3r/Utils/Http.cpp
++++ b/src/slic3r/Utils/Http.cpp
+@@ -196,7 +196,7 @@ bool Http::priv::ca_file_supported(::CURL *curl)
+ 
+ 	if (curl == nullptr) { return res; }
+ 
+-#if LIBCURL_VERSION_MAJOR >= 7 && LIBCURL_VERSION_MINOR >= 48
++#if LIBCURL_VERSION_NUM >= 0x073000 /* 7.48.0 */
+ 	::curl_tlssessioninfo *tls;
+ 	if (::curl_easy_getinfo(curl, CURLINFO_TLS_SSL_PTR, &tls) == CURLE_OK) {
+ 		if (tls->backend == CURLSSLBACKEND_SCHANNEL || tls->backend == CURLSSLBACKEND_DARWINSSL) {
+@@ -399,7 +399,7 @@ void Http::priv::http_perform()
+ 	::curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, headers_cb);
+ 
+ 	::curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
+-#if LIBCURL_VERSION_MAJOR >= 7 && LIBCURL_VERSION_MINOR >= 32
++#if LIBCURL_VERSION_NUM >= 0x072000 /* 7.32.0 */
+ 	::curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, xfercb);
+ 	::curl_easy_setopt(curl, CURLOPT_XFERINFODATA, static_cast<void*>(this));
+ #ifndef _WIN32
+-- 
+2.55.0
+

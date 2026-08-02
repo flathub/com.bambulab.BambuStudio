@@ -371,6 +371,10 @@ modules:
       - type: patch
         path: patches/2.7.1-fixes.patch
 
+      # https://github.com/bambulab/BambuStudio/pull/11804
+      - type: patch
+        path: patches/0001-FIX-Fix-Open-in-Bambu-Studio-not-working-on-aarch64-.patch
+
       - type: patch
         path: patches/offline-npm.patch
 
