@@ -1,0 +1,66 @@
+From 78e757f974d338e7cce3912dcd5bbb629acb175a Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Wed, 5 Aug 2026 00:19:18 +0200
+Subject: [PATCH] ENH: Allow using system CGAL
+
+To make it easier to test newer versions, or apply system specific
+patches.
+
+This also fixes Cereal's CFLAGS not being checked or used, but still
+being findable as they were installed in the same prefix as CGAL...
+---
+ deps/CMakeLists.txt          | 9 +++++++--
+ src/libslic3r/CMakeLists.txt | 3 ++-
+ 2 files changed, 9 insertions(+), 3 deletions(-)
+
+diff --git a/deps/CMakeLists.txt b/deps/CMakeLists.txt
+index 1fc0bbe3ed78..d53043181922 100644
+--- a/deps/CMakeLists.txt
++++ b/deps/CMakeLists.txt
+@@ -45,6 +45,7 @@ option(DEP_BUILD_FREETYPE "Compile freetype" ON)
+ option(DEP_BUILD_WXWIDGETS "Compile wxWidgets" ON)
+ option(DEP_BUILD_GMP "Compile GMP" ON)
+ option(DEP_BUILD_MPFR "Compile MPFR" ON)
++option(DEP_BUILD_CGAL "Compile CGAL" ON)
+ option(DEP_BUILD_FFMPEG "Compile ffmpeg" ON)
+ option(DEP_BUILD_LIBHARU "Compile libharu" ON)
+ 
+@@ -268,7 +269,11 @@ if (DEP_BUILD_MPFR)
+     include(MPFR/MPFR.cmake)
+     set(MPFR_PKG dep_MPFR)
+ endif ()
+-include(CGAL/CGAL.cmake)
++set(CGAL_PKG "")
++if (DEP_BUILD_CGAL)
++    include(CGAL/CGAL.cmake)
++    set(CGAL_PKG dep_CGAL)
++endif()
+ 
+ include(NLopt/NLopt.cmake)
+ 
+@@ -314,7 +319,7 @@ set(_dep_list
+     dep_OpenVDB
+     dep_OpenCSG
+     dep_OpenCV
+-    dep_CGAL
++    ${CGAL_PKG}
+     ${OPENSSL_PKG}
+     ${GLFW_PKG}
+     ${PNG_PKG}
+diff --git a/src/libslic3r/CMakeLists.txt b/src/libslic3r/CMakeLists.txt
+index be7db427ffc1..b6ee26e3c48e 100644
+--- a/src/libslic3r/CMakeLists.txt
++++ b/src/libslic3r/CMakeLists.txt
+@@ -561,7 +561,8 @@ if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 14.1)
+     set_property(TARGET libslic3r_cgal PROPERTY CXX_EXTENSIONS OFF)
+ endif()
+ 
+-target_link_libraries(libslic3r_cgal PRIVATE ${_cgal_tgt} libigl mcut)
++find_package(cereal REQUIRED)
++target_link_libraries(libslic3r_cgal PRIVATE ${_cgal_tgt} libigl mcut cereal)
+ 
+ if (MSVC AND "${CMAKE_SIZEOF_VOID_P}" STREQUAL "4") # 32 bit MSVC workaround
+     target_compile_definitions(libslic3r_cgal PRIVATE CGAL_DO_NOT_USE_MPZF)
+-- 
+2.55.0
+
