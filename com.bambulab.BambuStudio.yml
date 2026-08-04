@@ -380,7 +380,7 @@ modules:
 
       # https://github.com/bambulab/BambuStudio/pull/11058
       - type: patch
-        path: patches/system-cgal.patch
+        path: patches/system-gmp-mpfr.patch
 
       # Patched TBB cmake to make build without lto flag
       - type: file
