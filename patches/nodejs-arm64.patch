@@ -1,4 +1,4 @@
-From 539ab5c669340513b83fe0b22e133c09e1122524 Mon Sep 17 00:00:00 2001
+From 8bb2e8d95df303b00043b02548d8c366de69979c Mon Sep 17 00:00:00 2001
 From: Bastien Nocera <hadess@hadess.net>
 Date: Thu, 14 May 2026 19:20:27 +0200
 Subject: [PATCH 1/4] FIX: Add Linux ARM64 support to new nodejs dep
@@ -13,7 +13,7 @@ and pnpm.
  1 file changed, 21 insertions(+), 9 deletions(-)
 
 diff --git a/src/slic3r/GUI/DeviceWeb/CMakeLists.txt b/src/slic3r/GUI/DeviceWeb/CMakeLists.txt
-index 5706ce34015e..3a38bccd34d9 100644
+index bb65ab0ec8bb..0366daff35cb 100644
 --- a/src/slic3r/GUI/DeviceWeb/CMakeLists.txt
 +++ b/src/slic3r/GUI/DeviceWeb/CMakeLists.txt
 @@ -44,15 +44,27 @@ function(prepare_node_env)
@@ -57,7 +57,7 @@ index 5706ce34015e..3a38bccd34d9 100644
 2.54.0
 
 
-From b862141b43be7a2d4dd9523829a4f97645747118 Mon Sep 17 00:00:00 2001
+From 5cd14cad850555d62f071d0d84a02d0ee8d85b1e Mon Sep 17 00:00:00 2001
 From: Bastien Nocera <hadess@hadess.net>
 Date: Thu, 14 May 2026 19:21:53 +0200
 Subject: [PATCH 2/4] ENH: Add some debug to nodejs/pnpm detection
@@ -70,7 +70,7 @@ downloading is not permitted, such as during Flatpak builds.
  1 file changed, 3 insertions(+)
 
 diff --git a/src/slic3r/GUI/DeviceWeb/CMakeLists.txt b/src/slic3r/GUI/DeviceWeb/CMakeLists.txt
-index 3a38bccd34d9..f0ad4047531a 100644
+index 0366daff35cb..f3e3af84e4d7 100644
 --- a/src/slic3r/GUI/DeviceWeb/CMakeLists.txt
 +++ b/src/slic3r/GUI/DeviceWeb/CMakeLists.txt
 @@ -72,6 +72,9 @@ function(prepare_node_env)
@@ -87,38 +87,42 @@ index 3a38bccd34d9..f0ad4047531a 100644
 2.54.0
 
 
-From bb793cc1ab246a7463213c1586dad8cb2e9dbd1e Mon Sep 17 00:00:00 2001
+From 32023f5e30020496bdfcf21e7620fbda2ebc152b Mon Sep 17 00:00:00 2001
 From: Bastien Nocera <hadess@hadess.net>
 Date: Tue, 2 Jun 2026 23:37:46 +0200
 Subject: [PATCH 3/4] FIX: Add debug to web resources creation commands
 
 ---
- src/slic3r/GUI/DeviceWeb/CMakeLists.txt | 4 ++++
- 1 file changed, 4 insertions(+)
+ src/slic3r/GUI/DeviceWeb/CMakeLists.txt | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
 diff --git a/src/slic3r/GUI/DeviceWeb/CMakeLists.txt b/src/slic3r/GUI/DeviceWeb/CMakeLists.txt
-index f0ad4047531a..2034691f734d 100644
+index f3e3af84e4d7..56117988acdf 100644
 --- a/src/slic3r/GUI/DeviceWeb/CMakeLists.txt
 +++ b/src/slic3r/GUI/DeviceWeb/CMakeLists.txt
-@@ -195,9 +195,13 @@ set(PNPM_STORE_DIR "${CMAKE_CURRENT_BINARY_DIR}/.pnpm-store")
- file(MAKE_DIRECTORY "${PNPM_STORE_DIR}")
+@@ -223,11 +223,17 @@ set(DEVICE_PAGE_BUILD_INPUTS
  
- add_custom_target(device_page_build ALL
+ add_custom_command(
+     OUTPUT "${DEVICE_PAGE_BUILD_STAMP}"
 +    COMMAND echo "Running PNPM install"
      COMMAND ${CMAKE_COMMAND} -E env "PATH=${DEVICE_PAGE_PATH}" "PNPM_STORE_DIR=${PNPM_STORE_DIR}" ${PNPM_EXECUTABLE} install
 +    COMMAND echo "Running PNPM run build"
      COMMAND ${CMAKE_COMMAND} -E env "PATH=${DEVICE_PAGE_PATH}" "PNPM_STORE_DIR=${PNPM_STORE_DIR}" ${PNPM_EXECUTABLE} run build
++    COMMAND echo "Removing page target directory"
+     COMMAND ${CMAKE_COMMAND} -E remove_directory "${DEVICE_PAGE_TARGET_DIR}"
 +    COMMAND echo "Creating page target directory"
-     COMMAND  ${CMAKE_COMMAND} -E make_directory "${DEVICE_PAGE_TARGET_DIR}"
+     COMMAND ${CMAKE_COMMAND} -E make_directory "${DEVICE_PAGE_TARGET_DIR}"
 +    COMMAND echo "Copying directory to target"
-     COMMAND  ${CMAKE_COMMAND} -E copy_directory "${DEVICE_PAGE_DIST_DIR}" "${DEVICE_PAGE_TARGET_DIR}"
+     COMMAND ${CMAKE_COMMAND} -E copy_directory "${DEVICE_PAGE_DIST_DIR}" "${DEVICE_PAGE_TARGET_DIR}"
++    COMMAND echo "Create device page stamp file"
+     COMMAND ${CMAKE_COMMAND} -E touch "${DEVICE_PAGE_BUILD_STAMP}"
+     DEPENDS ${DEVICE_PAGE_BUILD_INPUTS}
      WORKING_DIRECTORY ${DEVICE_PAGE_SRC_DIR}
-     COMMENT "Installing dependencies and building device_page..."
 -- 
 2.54.0
 
 
-From d00ca654a2d91991e52502d243844ed4b1a55108 Mon Sep 17 00:00:00 2001
+From a1ccc018ad765e3d516121c02d94186238994b0c Mon Sep 17 00:00:00 2001
 From: Bastien Nocera <hadess@hadess.net>
 Date: Sat, 6 Jun 2026 19:04:23 +0200
 Subject: [PATCH 4/4] FIX: Fix useless PNPM_STORE_DIR envvar
@@ -130,21 +134,21 @@ when running PNPM. Use the --store-dir command-line option instead.
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/src/slic3r/GUI/DeviceWeb/CMakeLists.txt b/src/slic3r/GUI/DeviceWeb/CMakeLists.txt
-index 2034691f734d..d5ba292b4660 100644
+index 56117988acdf..2b1e8a3c2917 100644
 --- a/src/slic3r/GUI/DeviceWeb/CMakeLists.txt
 +++ b/src/slic3r/GUI/DeviceWeb/CMakeLists.txt
-@@ -196,9 +196,9 @@ file(MAKE_DIRECTORY "${PNPM_STORE_DIR}")
- 
- add_custom_target(device_page_build ALL
+@@ -224,9 +224,9 @@ set(DEVICE_PAGE_BUILD_INPUTS
+ add_custom_command(
+     OUTPUT "${DEVICE_PAGE_BUILD_STAMP}"
      COMMAND echo "Running PNPM install"
 -    COMMAND ${CMAKE_COMMAND} -E env "PATH=${DEVICE_PAGE_PATH}" "PNPM_STORE_DIR=${PNPM_STORE_DIR}" ${PNPM_EXECUTABLE} install
 +    COMMAND ${CMAKE_COMMAND} -E env "PATH=${DEVICE_PAGE_PATH}" ${PNPM_EXECUTABLE} install --store-dir ${PNPM_STORE_DIR}
      COMMAND echo "Running PNPM run build"
 -    COMMAND ${CMAKE_COMMAND} -E env "PATH=${DEVICE_PAGE_PATH}" "PNPM_STORE_DIR=${PNPM_STORE_DIR}" ${PNPM_EXECUTABLE} run build
-+    COMMAND ${CMAKE_COMMAND} -E env "PATH=${DEVICE_PAGE_PATH}" ${PNPM_EXECUTABLE} run build --store-dir ${PNPM_STORE_DIR}
++    COMMAND ${CMAKE_COMMAND} -E env "PATH=${DEVICE_PAGE_PATH}" ${PNPM_EXECUTABLE} run build
+     COMMAND echo "Removing page target directory"
+     COMMAND ${CMAKE_COMMAND} -E remove_directory "${DEVICE_PAGE_TARGET_DIR}"
      COMMAND echo "Creating page target directory"
-     COMMAND  ${CMAKE_COMMAND} -E make_directory "${DEVICE_PAGE_TARGET_DIR}"
-     COMMAND echo "Copying directory to target"
 -- 
 2.54.0
 

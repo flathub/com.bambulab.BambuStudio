@@ -1,17 +1,17 @@
-From c9f568a2b61a1e33cf7632b2c3b8ff0002c53ebf Mon Sep 17 00:00:00 2001
+From 5ac761e639b7d42dd9141476c6082fecc302ae47 Mon Sep 17 00:00:00 2001
 From: Bastien Nocera <hadess@hadess.net>
 Date: Sat, 6 Jun 2026 21:48:32 +0200
 Subject: [PATCH] Use pnpm offline when building in Flatpak
 
 ---
- src/slic3r/GUI/DeviceWeb/CMakeLists.txt | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ src/slic3r/GUI/DeviceWeb/CMakeLists.txt | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/src/slic3r/GUI/DeviceWeb/CMakeLists.txt b/src/slic3r/GUI/DeviceWeb/CMakeLists.txt
-index d5ba292b4660..ddc2b9e2f3e2 100644
+index adde0d18c1a5..136e7cc242ff 100644
 --- a/src/slic3r/GUI/DeviceWeb/CMakeLists.txt
 +++ b/src/slic3r/GUI/DeviceWeb/CMakeLists.txt
-@@ -191,14 +191,14 @@ else()
+@@ -191,7 +191,7 @@ else()
      set(DEVICE_PAGE_PATH "${NODE_BIN_PATH}:$ENV{PATH}")
  endif()
  
@@ -19,16 +19,16 @@ index d5ba292b4660..ddc2b9e2f3e2 100644
 +set(PNPM_STORE_DIR "${CMAKE_SOURCE_DIR}/flatpak-node/pnpm-store")
  file(MAKE_DIRECTORY "${PNPM_STORE_DIR}")
  
- add_custom_target(device_page_build ALL
+ set(DEVICE_PAGE_BUILD_STAMP "${CMAKE_CURRENT_BINARY_DIR}/device_page.stamp")
+@@ -224,7 +224,7 @@ set(DEVICE_PAGE_BUILD_INPUTS
+ add_custom_command(
+     OUTPUT "${DEVICE_PAGE_BUILD_STAMP}"
      COMMAND echo "Running PNPM install"
 -    COMMAND ${CMAKE_COMMAND} -E env "PATH=${DEVICE_PAGE_PATH}" ${PNPM_EXECUTABLE} install --store-dir ${PNPM_STORE_DIR}
 +    COMMAND ${CMAKE_COMMAND} -E env "PATH=${DEVICE_PAGE_PATH}" ${PNPM_EXECUTABLE} install --store-dir ${PNPM_STORE_DIR} --offline --frozen-lockfile
      COMMAND echo "Running PNPM run build"
--    COMMAND ${CMAKE_COMMAND} -E env "PATH=${DEVICE_PAGE_PATH}" ${PNPM_EXECUTABLE} run build --store-dir ${PNPM_STORE_DIR}
-+    COMMAND ${CMAKE_COMMAND} -E env "PATH=${DEVICE_PAGE_PATH}" ${PNPM_EXECUTABLE} run build
-     COMMAND echo "Creating page target directory"
-     COMMAND  ${CMAKE_COMMAND} -E make_directory "${DEVICE_PAGE_TARGET_DIR}"
-     COMMAND echo "Copying directory to target"
+     COMMAND ${CMAKE_COMMAND} -E env "PATH=${DEVICE_PAGE_PATH}" ${PNPM_EXECUTABLE} run build
+     COMMAND echo "Removing page target directory"
 -- 
 2.54.0
 
