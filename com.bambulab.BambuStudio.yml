@@ -369,16 +369,20 @@ modules:
       # BambuStudio Source Archive
       - type: git
         url: https://github.com/bambulab/BambuStudio.git
-        tag: v02.08.01.55
-        commit: ba049f6a2e08c3b6033660bb84da80c08722974b
+        tag: v02.08.02.60
+        commit: 9a530f77c23d8c3430d1dbef02e103cd8bd6480e
+
+      # https://github.com/bambulab/BambuStudio/pull/11833
+      - type: patch
+        path: patches/0001-FIX-Match-D-Bus-names-to-the-verified-Flatpak.patch
 
       # https://github.com/bambulab/BambuStudio/pull/11754
       - type: patch
         path: patches/0001-FIX-Fix-boost-format-declaration.patch
 
-      # https://github.com/bambulab/BambuStudio/pull/10712
+      # https://github.com/bambulab/BambuStudio/pull/11895
       - type: patch
-        path: patches/nodejs-arm64.patch
+        path: patches/2.8.2-fixes.patch
 
       # flatpak-node-generator --no-devel pnpm src/slic3r/GUI/DeviceWeb/device_page/pnpm-lock.yaml
       - generated-sources.json

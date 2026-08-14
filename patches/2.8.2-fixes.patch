@@ -1,0 +1,103 @@
+From b657a25cd16b89e7e2386bbc26e984a779ac3fa7 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Fri, 14 Aug 2026 18:07:41 +0200
+Subject: [PATCH 1/3] =?UTF-8?q?FIX:=20Fix=20=E2=80=98map=E2=80=99=20in=20n?=
+ =?UTF-8?q?amespace=20=E2=80=98std=E2=80=99=20does=20not=20name=20a=20temp?=
+ =?UTF-8?q?late=20type?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+/run/build/BambuStudio/src/libslic3r/FilamentMixer.hpp:152:6: error: ‘map’ in namespace ‘std’ does not name a template type
+  152 | std::map<std::string, std::string> validate_mixed_filament_params(
+      |      ^~~
+/run/build/BambuStudio/src/libslic3r/FilamentMixer.hpp:9:1: note: ‘std::map’ is defined in header ‘<map>’; this is probably fixable by adding ‘#include <map>’
+    8 | #include <vector>
+  +++ |+#include <map>
+    9 |
+---
+ src/libslic3r/FilamentMixer.hpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/libslic3r/FilamentMixer.hpp b/src/libslic3r/FilamentMixer.hpp
+index 46b028e22af3..a2a7e33bc4c0 100644
+--- a/src/libslic3r/FilamentMixer.hpp
++++ b/src/libslic3r/FilamentMixer.hpp
+@@ -2,6 +2,7 @@
+ #define SLIC3R_FILAMENT_MIXER_HPP
+ 
+ #include <limits>
++#include <map>
+ #include <set>
+ #include <string>
+ #include <utility>
+-- 
+2.55.0
+
+
+From 4f8d27f68bdb28f697757ad60bae1eb3b35d7ab2 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Fri, 14 Aug 2026 19:32:45 +0200
+Subject: [PATCH 2/3] =?UTF-8?q?FIX:=20Fix=20incomplete=20type=20=E2=80=98w?=
+ =?UTF-8?q?xBitmap=E2=80=99=20error?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+In file included from /run/build/BambuStudio/src/slic3r/GUI/MediaPlayCtrl.h:17,
+                 from /run/build/BambuStudio/src/slic3r/GUI/MediaPlayCtrl.cpp:1:
+/run/build/BambuStudio/src/slic3r/GUI/wxMediaCtrl3.h:120:14: error: field ‘m_logo_bitmap’ has incomplete type ‘wxBitmap’
+  120 |     wxBitmap m_logo_bitmap;      // cached rasterized logo (UI thread only)
+      |              ^~~~~~~~~~~~~
+---
+ src/slic3r/GUI/wxMediaCtrl3.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/slic3r/GUI/wxMediaCtrl3.h b/src/slic3r/GUI/wxMediaCtrl3.h
+index 1cae9fa14656..9e56b1eb2e3a 100644
+--- a/src/slic3r/GUI/wxMediaCtrl3.h
++++ b/src/slic3r/GUI/wxMediaCtrl3.h
+@@ -8,6 +8,7 @@
+ #ifndef wxMediaCtrl3_h
+ #define wxMediaCtrl3_h
+ 
++#include "wx/bitmap.h"
+ #include "wx/uri.h"
+ #include "wx/mediactrl.h"
+ #include "wx/timer.h"
+-- 
+2.55.0
+
+
+From e77c44e43ca8d0c4a79ac5e9defbcb259ff7df7b Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Fri, 14 Aug 2026 20:38:26 +0200
+Subject: [PATCH 3/3] FIX: Fix DynamicPrintConfig declaration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+In file included from /run/build/BambuStudio/src/slic3r/GUI/FilamentBitmapUtils.cpp:8:
+/run/build/BambuStudio/src/slic3r/GUI/FilamentBitmapUtils.hpp:50:48: error: ‘DynamicPrintConfig’ in namespace ‘Slic3r’ does not name a type
+   50 |                                  const Slic3r::DynamicPrintConfig& cfg);
+      |                                                ^~~~~~~~~~~~~~~~~~
+---
+ src/slic3r/GUI/FilamentBitmapUtils.hpp | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/slic3r/GUI/FilamentBitmapUtils.hpp b/src/slic3r/GUI/FilamentBitmapUtils.hpp
+index 380195d15363..818859b26e66 100644
+--- a/src/slic3r/GUI/FilamentBitmapUtils.hpp
++++ b/src/slic3r/GUI/FilamentBitmapUtils.hpp
+@@ -7,6 +7,8 @@
+ #include <wx/gdicmn.h>
+ #include <vector>
+ 
++#include "libslic3r/PrintConfig.hpp"
++
+ namespace Slic3r { namespace GUI {
+ 
+ // Fills a rect with a west->east linear gradient by drawing solid 1px columns.
+-- 
+2.55.0
+
