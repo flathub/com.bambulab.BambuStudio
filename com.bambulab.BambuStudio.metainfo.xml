@@ -34,6 +34,9 @@
       </p>
     </description>
     <releases>
+        <release version="2.8.2.61 Public Release" date="2026-08-21">
+            <url>https://github.com/bambulab/BambuStudio/tree/v02.08.02.61</url>
+        </release>
         <release version="2.8.2 Public Release" date="2026-08-14">
             <url>https://github.com/bambulab/BambuStudio/tree/v02.08.02.60</url>
         </release>
