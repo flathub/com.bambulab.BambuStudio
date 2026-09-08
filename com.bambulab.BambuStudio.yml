@@ -215,7 +215,7 @@ modules:
           -DDEP_BUILD_GMP=OFF \
           -DDEP_BUILD_MPFR=OFF \
           -DDEP_BUILD_CGAL=OFF
-        cmake --build . --target dep_TBB dep_Cereal dep_NLopt dep_libnoise dep_OpenVDB dep_Qhull dep_OpenCSG dep_OpenCV dep_Assimp dep_OCCT
+        cmake --build . --target dep_TBB dep_Cereal dep_NLopt dep_libnoise dep_OpenMeshCraft dep_OpenVDB dep_Qhull dep_OpenCSG dep_OpenCV dep_Assimp dep_OCCT
       - |
         mkdir -p build && cd build
         mkdir -p ../../node-cache/ && pushd ../../node-cache/ && tar xJf ../BambuStudio/external-packages/node*.tar.xz && cp -a ../BambuStudio/external-packages/pnpm node-*/bin/ && chmod +x node-*/bin/pnpm && popd
@@ -313,6 +313,13 @@ modules:
         dest: external-packages/libnoise
         sha256: 7aae3433e4c841a1b15ddf40dc995b3d32efb154b92b6796888002e275bff859
 
+      # OpenMeshCraft
+      # https://github.com/bambulab/BambuStudio/blob/master/deps/OpenMeshCraft/OpenMeshCraft.cmake
+      - type: file
+        url: https://github.com/bambulab/OpenMeshCraft/archive/0e8d12c3df54804393593ab5d86c05caa340cbee.zip
+        dest: external-packages/OpenMeshCraft
+        sha256: 632cd806ce932d6a1d76df0e86ecf8bfc22480e76f80a638a28474f5262e2b9e
+
       # OpenVDB
       # https://github.com/bambulab/BambuStudio/blob/master/deps/OpenVDB/OpenVDB.cmake
       - type: file
@@ -369,12 +376,8 @@ modules:
       # BambuStudio Source Archive
       - type: git
         url: https://github.com/bambulab/BambuStudio.git
-        tag: v02.08.02.61
-        commit: 926a7192574bcb9b3a732e1ec59a46d79cb45466
-
-      # https://github.com/bambulab/BambuStudio/pull/11833
-      - type: patch
-        path: patches/0001-FIX-Match-D-Bus-names-to-the-verified-Flatpak.patch
+        tag: v02.08.03.66
+        commit: 1b22065a91bc342e53a7520b0614aad823e7fa05
 
       # https://github.com/bambulab/BambuStudio/pull/11754
       - type: patch
@@ -386,10 +389,6 @@ modules:
 
       # flatpak-node-generator --no-devel pnpm src/slic3r/GUI/DeviceWeb/device_page/pnpm-lock.yaml
       - generated-sources.json
-
-      # https://github.com/bambulab/BambuStudio/pull/11804
-      - type: patch
-        path: patches/0001-FIX-Fix-Open-in-Bambu-Studio-not-working-on-aarch64-.patch
 
       - type: patch
         path: patches/offline-npm.patch

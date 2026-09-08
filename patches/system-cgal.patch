@@ -1,20 +1,49 @@
-From 78e757f974d338e7cce3912dcd5bbb629acb175a Mon Sep 17 00:00:00 2001
+From 558f56903748408bc07aa1a0b9c8b488f97d7fb4 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Fri, 7 Aug 2026 12:58:12 +0200
+Subject: [PATCH 1/2] FIX: Fix libslic3r_cgal not depending on Cereal
+
+libslic3r_cgal uses Cereal's header-only library but didn't depend on
+it. This means that one of the other dependencies (libigl, mcut or cgal)
+must be installed in the same location for the compiler to be able to
+find the header.
+
+Add the missing dependency to avoid this problem.
+---
+ src/libslic3r/CMakeLists.txt | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/libslic3r/CMakeLists.txt b/src/libslic3r/CMakeLists.txt
+index 46cd7970a373..2667c494910d 100644
+--- a/src/libslic3r/CMakeLists.txt
++++ b/src/libslic3r/CMakeLists.txt
+@@ -577,7 +577,8 @@ if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 14.1)
+     set_property(TARGET libslic3r_cgal PROPERTY CXX_EXTENSIONS OFF)
+ endif()
+ 
+-target_link_libraries(libslic3r_cgal PRIVATE ${_cgal_tgt} libigl mcut)
++find_package(cereal REQUIRED)
++target_link_libraries(libslic3r_cgal PRIVATE ${_cgal_tgt} libigl mcut cereal)
+ if(SLIC3R_HAS_OPENMESHCRAFT_BOOLEAN)
+     # GMP/MPFR usually come with CGAL/DEP, but may not be visible to find_library
+     # in non-standard layouts. Missing deps used to fall back to MCUT silently;
+-- 
+2.55.0
+
+
+From 4b5cf4181307a44e2c2777bfad43c777de6adf96 Mon Sep 17 00:00:00 2001
 From: Bastien Nocera <hadess@hadess.net>
 Date: Wed, 5 Aug 2026 00:19:18 +0200
-Subject: [PATCH] ENH: Allow using system CGAL
+Subject: [PATCH 2/2] ENH: Allow using system CGAL
 
 To make it easier to test newer versions, or apply system specific
 patches.
-
-This also fixes Cereal's CFLAGS not being checked or used, but still
-being findable as they were installed in the same prefix as CGAL...
 ---
- deps/CMakeLists.txt          | 9 +++++++--
- src/libslic3r/CMakeLists.txt | 3 ++-
- 2 files changed, 9 insertions(+), 3 deletions(-)
+ deps/CMakeLists.txt | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
 diff --git a/deps/CMakeLists.txt b/deps/CMakeLists.txt
-index 1fc0bbe3ed78..d53043181922 100644
+index 2fb2282a85a9..f426a0b2ce0a 100644
 --- a/deps/CMakeLists.txt
 +++ b/deps/CMakeLists.txt
 @@ -45,6 +45,7 @@ option(DEP_BUILD_FREETYPE "Compile freetype" ON)
@@ -38,7 +67,7 @@ index 1fc0bbe3ed78..d53043181922 100644
  
  include(NLopt/NLopt.cmake)
  
-@@ -314,7 +319,7 @@ set(_dep_list
+@@ -317,7 +322,7 @@ set(_dep_list
      dep_OpenVDB
      dep_OpenCSG
      dep_OpenCV
@@ -47,20 +76,6 @@ index 1fc0bbe3ed78..d53043181922 100644
      ${OPENSSL_PKG}
      ${GLFW_PKG}
      ${PNG_PKG}
-diff --git a/src/libslic3r/CMakeLists.txt b/src/libslic3r/CMakeLists.txt
-index be7db427ffc1..b6ee26e3c48e 100644
---- a/src/libslic3r/CMakeLists.txt
-+++ b/src/libslic3r/CMakeLists.txt
-@@ -561,7 +561,8 @@ if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 14.1)
-     set_property(TARGET libslic3r_cgal PROPERTY CXX_EXTENSIONS OFF)
- endif()
- 
--target_link_libraries(libslic3r_cgal PRIVATE ${_cgal_tgt} libigl mcut)
-+find_package(cereal REQUIRED)
-+target_link_libraries(libslic3r_cgal PRIVATE ${_cgal_tgt} libigl mcut cereal)
- 
- if (MSVC AND "${CMAKE_SIZEOF_VOID_P}" STREQUAL "4") # 32 bit MSVC workaround
-     target_compile_definitions(libslic3r_cgal PRIVATE CGAL_DO_NOT_USE_MPZF)
 -- 
 2.55.0
 
