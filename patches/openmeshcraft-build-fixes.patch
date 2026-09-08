@@ -1,0 +1,130 @@
+From bb0dbe3635709f8ec0e1b90daac37a20a3c3b8f0 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 13 Oct 2026 11:11:11 +0200
+Subject: [PATCH 1/2] Prefer OpenMeshCraft modules downloaded in
+ deps/OpenMeshCraft
+
+Prefer using OpenMeshCraft modules from well-known locations, such as
+deps/${projectname}, making it easier for build systems to pre-download
+archives for offline builds.
+
+If the archive doesn't exist in deps/OpenMeshCraft, or its checksum
+verification fails, try to use a previously downloaded copy from the
+work directory, and verify its checksum. Download the archive if all
+else fails.
+---
+ deps/OpenMeshCraft/OpenMeshCraft.cmake | 49 +++++++++++++++++++++-----
+ 1 file changed, 41 insertions(+), 8 deletions(-)
+
+diff --git a/deps/OpenMeshCraft/OpenMeshCraft.cmake b/deps/OpenMeshCraft/OpenMeshCraft.cmake
+index 6779262e4fd1..d6f916422260 100644
+--- a/deps/OpenMeshCraft/OpenMeshCraft.cmake
++++ b/deps/OpenMeshCraft/OpenMeshCraft.cmake
+@@ -31,20 +31,52 @@ if(NOT DEFINED OMC_SOURCE_DIR)
+ endif()
+ 
+ function(omc_fetch_zip url sha256 out_dir strip_prefix marker_file)
++  message(STATUS "[OpenMeshCraft] looking for '${marker_file}' in '${out_dir}'")
+   if(EXISTS "${out_dir}/${marker_file}")
+     message(STATUS "[OpenMeshCraft] Already present: ${out_dir}")
+     return()
+   endif()
+   set(_workdir "${OMC_SOURCE_DIR}/.omc_fetch")
+-  file(MAKE_DIRECTORY "${_workdir}")
+-  set(_archive "${_workdir}/${strip_prefix}.zip")
+-  message(STATUS "[OpenMeshCraft] Downloading ${url}")
+-  file(DOWNLOAD "${url}" "${_archive}" EXPECTED_HASH SHA256=${sha256} SHOW_PROGRESS STATUS _st)
+-  list(GET _st 0 _code)
+-  if(NOT _code EQUAL 0)
+-    list(GET _st 1 _msg)
+-    message(FATAL_ERROR "[OpenMeshCraft] Download failed: ${_msg}")
++  # Try to use build system downloaded archive
++  set(_archive "${DOWNLOAD_DIR}/${strip_prefix}.zip")
++  set(_archive_fallback 0)
++  message(STATUS "[OpenMeshCraft] Checking ${_archive}")
++  if(EXISTS "${_archive}")
++    message(STATUS "[OpenMeshCraft] Checking SHA256 for ${_archive}")
++    file(SHA256 "${_archive}" _checksum)
++    string(TOLOWER "${sha256}" _sha256_lower)
++    if(NOT ${_checksum} STREQUAL ${_sha256_lower})
++      message(STATUS "[OpenMeshCraft] ${_archive} SHA256 failed (expected: ${_sha256_lower}, got: ${_checksum}")
++      set(_archive "${_workdir}/${strip_prefix}.zip")
++      set(_archive_fallback 1)
++    endif()
++  else()
++    set(_archive "${_workdir}/${strip_prefix}.zip")
++    set(_archive_fallback 1)
++  endif()
++  # Verify previously self-downloaded archive
++  if(_archive_fallback EQUAL 1)
++    if(EXISTS "${_archive}")
++      file(SHA256 "${_archive}" _checksum)
++      string(TOLOWER "${sha256}" _sha256_lower)
++      if(NOT ${_checksum} STREQUAL ${_sha256_lower})
++        message(STATUS "[OpenMeshCraft] ${_archive} SHA256 failed (expected: ${_sha256_lower}, got: ${_checksum}")
++        message(STATUS "[OpenMeshCraft] Removing invalid download ${_archive}")
++        file(REMOVE ${_archive})
++      endif()
++    endif()
++  endif()
++  # Download if archive doesn't exist
++  if(NOT EXISTS "${_archive}")
++    message(STATUS "[OpenMeshCraft] Downloading ${url}")
++    file(DOWNLOAD "${url}" "${_archive}" EXPECTED_HASH SHA256=${sha256} SHOW_PROGRESS STATUS _st)
++    list(GET _st 0 _code)
++    if(NOT _code EQUAL 0)
++      list(GET _st 1 _msg)
++      message(FATAL_ERROR "[OpenMeshCraft] Download failed: ${_msg}")
++    endif()
+   endif()
++  file(MAKE_DIRECTORY "${_workdir}")
+   set(_extract "${_workdir}/${strip_prefix}_extract")
+   file(REMOVE_RECURSE "${_extract}")
+   file(MAKE_DIRECTORY "${_extract}")
+@@ -266,6 +298,7 @@ bambustudio_add_cmake_project(OpenMeshCraft
+   ${_OMC_DEPENDS}
+   PATCH_COMMAND ${CMAKE_COMMAND}
+     -DOMC_SOURCE_DIR=<SOURCE_DIR>
++    -DDOWNLOAD_DIR=${DEP_DOWNLOAD_DIR}/OpenMeshCraft
+     -P ${_OMC_GEN_DIR}/prepare_source.cmake
+   COMMAND ${CMAKE_COMMAND} -E copy
+     ${_OMC_DIR}/CMakeLists.txt.in
+-- 
+2.55.0
+
+
+From 9e3574e83b0cd8677ba814f54401eb09fdb7a0d8 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 13 Oct 2026 16:29:06 +0200
+Subject: [PATCH 2/2] FIX: Fix building OpenMeshCraft on Linux aarch64
+
+Disable x86-64 SIMD instructions on Linux ARM64 targets.
+
+Tested on Flathub beta builds:
+https://github.com/flathub/com.bambulab.BambuStudio/pull/122
+---
+ deps/OpenMeshCraft/CMakeLists.txt.in | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/deps/OpenMeshCraft/CMakeLists.txt.in b/deps/OpenMeshCraft/CMakeLists.txt.in
+index 93bbcb80a76c..e7e46f544301 100644
+--- a/deps/OpenMeshCraft/CMakeLists.txt.in
++++ b/deps/OpenMeshCraft/CMakeLists.txt.in
+@@ -19,10 +19,13 @@ option(OMC_CMAKE_ENABLE_EXPENSIVE_ASSERT "Enable expensive assertion in OpenMesh
+ # x86 SIMD is not meaningful for Apple Silicon; default OFF on APPLE so the
+ # overlay matches OpenMeshCraft.cmake (-DOMC_CMAKE_ENABLE_*=OFF) and does not
+ # mislead readers into thinking SSE/AVX is active on macOS.
++set(_OMC_SIMD_DEFAULT ON)
+ if(APPLE)
+   set(_OMC_SIMD_DEFAULT OFF)
+ else()
+-  set(_OMC_SIMD_DEFAULT ON)
++  if("${CMAKE_CXX_COMPILER_ARCHITECTURE_ID}" STREQUAL "aarch64")
++    set(_OMC_SIMD_DEFAULT OFF)
++  endif()
+ endif()
+ option(OMC_CMAKE_ENABLE_SSE2 "Enable SSE2 instruction set in OpenMeshCraft" ${_OMC_SIMD_DEFAULT})
+ option(OMC_CMAKE_ENABLE_AVX "Enable AVX instruction set in OpenMeshCraft" ${_OMC_SIMD_DEFAULT})
+-- 
+2.55.0
+

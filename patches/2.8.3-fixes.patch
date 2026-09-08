@@ -1,0 +1,113 @@
+From a7a2548fbbb236fed7a459508efa6d175cf74900 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 13 Oct 2026 11:23:37 +0200
+Subject: [PATCH 1/3] FIX: Fix undeclared Vec3i
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+/run/build/BambuStudio/src/libslic3r/MeshDiagnostics.hpp: At global scope:
+/run/build/BambuStudio/src/libslic3r/MeshDiagnostics.hpp:24:87: error: ‘Vec3i’ was not declared in this scope
+   24 | MeshDiagnosticStats its_edge_diagnostics(const indexed_triangle_set &its, std::vector<Vec3i> *neighbors = nullptr);
+      |                                                                                       ^~~~~
+---
+ src/libslic3r/MeshDiagnostics.hpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/libslic3r/MeshDiagnostics.hpp b/src/libslic3r/MeshDiagnostics.hpp
+index 7f77172f432d..f6327a3b3bfa 100644
+--- a/src/libslic3r/MeshDiagnostics.hpp
++++ b/src/libslic3r/MeshDiagnostics.hpp
+@@ -2,6 +2,7 @@
+ #define slic3r_MeshDiagnostics_hpp_
+ 
+ #include <admesh/stl.h>
++#include <Point.hpp>
+ 
+ #include <vector>
+ 
+-- 
+2.55.0
+
+
+From 3c0a8692ebb23705f97ca57713965cefb7d80bb4 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 13 Oct 2026 11:43:33 +0200
+Subject: [PATCH 2/3] FIX: Fix undeclared offset()
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+/run/build/BambuStudio/src/slic3r/GUI/WipeTowerPlacement.cpp: In function ‘void Slic3r::GUI::try_optimal_wipe_tower_position_for_plate(PartPlate&, int, Slic3r::Model&, PartPlateList&, Slic3r::ConfigOptionFloats&, Slic3r::ConfigOptionFloats&, const Slic3r::DynamicPrintConfig&, const Slic3r::arrangement::ArrangeParams&)’:
+/run/build/BambuStudio/src/slic3r/GUI/WipeTowerPlacement.cpp:487:34: error: ‘offset’ was not declared in this scope; did you mean ‘off_t’?
+  487 |                 Polygons grown = offset(c, (float) infl);
+      |                                  ^~~~~~
+      |                                  off_t
+---
+ src/slic3r/GUI/WipeTowerPlacement.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/slic3r/GUI/WipeTowerPlacement.cpp b/src/slic3r/GUI/WipeTowerPlacement.cpp
+index b07b2f950506..332318357777 100644
+--- a/src/slic3r/GUI/WipeTowerPlacement.cpp
++++ b/src/slic3r/GUI/WipeTowerPlacement.cpp
+@@ -7,6 +7,7 @@
+ 
+ #include "libslic3r/libslic3r.h"
+ #include "libslic3r/AppConfig.hpp"
++#include "libslic3r/ClipperUtils.hpp"
+ #include "libslic3r/Geometry/ConvexHull.hpp"
+ #include "libslic3r/GCode/WipeTower.hpp"
+ #include "libslic3r/Model.hpp"
+-- 
+2.55.0
+
+
+From 80426fe8e652ec6e242b170c48b7317ef59a38b2 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Tue, 13 Oct 2026 12:36:03 +0200
+Subject: [PATCH 3/3] FIX: Fix undeclared std::set
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+In file included from /run/build/BambuStudio/src/slic3r/GUI/fila_manager/wgtFilaManagerSync.cpp:1:
+/run/build/BambuStudio/src/slic3r/GUI/fila_manager/wgtFilaManagerSync.h:42:10: error: ‘set’ in namespace ‘std’ does not name a template type
+   42 |     std::set<std::string> m_auto_added_rfid_uuids;
+      |          ^~~
+/run/build/BambuStudio/src/slic3r/GUI/fila_manager/wgtFilaManagerSync.h:8:1: note: ‘std::set’ is defined in header ‘<set>’; this is probably fixable by adding ‘#include <set>’
+    7 | #include <vector>
+  +++ |+#include <set>
+    8 |
+---
+ src/slic3r/GUI/fila_manager/wgtFilaManagerSync.cpp | 1 -
+ src/slic3r/GUI/fila_manager/wgtFilaManagerSync.h   | 1 +
+ 2 files changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/slic3r/GUI/fila_manager/wgtFilaManagerSync.cpp b/src/slic3r/GUI/fila_manager/wgtFilaManagerSync.cpp
+index 704d66aec9e0..c20bed476979 100644
+--- a/src/slic3r/GUI/fila_manager/wgtFilaManagerSync.cpp
++++ b/src/slic3r/GUI/fila_manager/wgtFilaManagerSync.cpp
+@@ -15,7 +15,6 @@
+ #include <boost/log/trivial.hpp>
+ 
+ #include <cmath>
+-#include <set>
+ 
+ namespace Slic3r { namespace GUI {
+ 
+diff --git a/src/slic3r/GUI/fila_manager/wgtFilaManagerSync.h b/src/slic3r/GUI/fila_manager/wgtFilaManagerSync.h
+index 2f42ea4d02ff..3d0f3d6a5f37 100644
+--- a/src/slic3r/GUI/fila_manager/wgtFilaManagerSync.h
++++ b/src/slic3r/GUI/fila_manager/wgtFilaManagerSync.h
+@@ -5,6 +5,7 @@
+ #include <string>
+ #include <utility>
+ #include <vector>
++#include <set>
+ 
+ namespace Slic3r {
+ class MachineObject;
+-- 
+2.55.0
+
