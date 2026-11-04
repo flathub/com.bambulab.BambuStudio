@@ -1,4 +1,4 @@
-From 5ac761e639b7d42dd9141476c6082fecc302ae47 Mon Sep 17 00:00:00 2001
+From f8a7abde961de00ae52981252ea1bcc43931dedc Mon Sep 17 00:00:00 2001
 From: Bastien Nocera <hadess@hadess.net>
 Date: Sat, 6 Jun 2026 21:48:32 +0200
 Subject: [PATCH] Use pnpm offline when building in Flatpak
@@ -8,7 +8,7 @@ Subject: [PATCH] Use pnpm offline when building in Flatpak
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/src/slic3r/GUI/DeviceWeb/CMakeLists.txt b/src/slic3r/GUI/DeviceWeb/CMakeLists.txt
-index adde0d18c1a5..136e7cc242ff 100644
+index 130896bececb..2f6285d2a72c 100644
 --- a/src/slic3r/GUI/DeviceWeb/CMakeLists.txt
 +++ b/src/slic3r/GUI/DeviceWeb/CMakeLists.txt
 @@ -191,7 +191,7 @@ else()
@@ -20,15 +20,15 @@ index adde0d18c1a5..136e7cc242ff 100644
  file(MAKE_DIRECTORY "${PNPM_STORE_DIR}")
  
  set(DEVICE_PAGE_BUILD_STAMP "${CMAKE_CURRENT_BINARY_DIR}/device_page.stamp")
-@@ -224,7 +224,7 @@ set(DEVICE_PAGE_BUILD_INPUTS
+@@ -226,7 +226,7 @@ set(DEVICE_PAGE_BUILD_INPUTS
  add_custom_command(
      OUTPUT "${DEVICE_PAGE_BUILD_STAMP}"
      COMMAND echo "Running PNPM install"
--    COMMAND ${CMAKE_COMMAND} -E env "PATH=${DEVICE_PAGE_PATH}" ${PNPM_EXECUTABLE} install --store-dir ${PNPM_STORE_DIR}
-+    COMMAND ${CMAKE_COMMAND} -E env "PATH=${DEVICE_PAGE_PATH}" ${PNPM_EXECUTABLE} install --store-dir ${PNPM_STORE_DIR} --offline --frozen-lockfile
+-    COMMAND ${CMAKE_COMMAND} -E env "PATH=${DEVICE_PAGE_PATH}" ${PNPM_EXECUTABLE} install --store-dir ${PNPM_STORE_DIR} --config.confirm-modules-purge=false
++    COMMAND ${CMAKE_COMMAND} -E env "PATH=${DEVICE_PAGE_PATH}" ${PNPM_EXECUTABLE} install --store-dir ${PNPM_STORE_DIR} --offline --frozen-lockfile --config.confirm-modules-purge=false
      COMMAND echo "Running PNPM run build"
      COMMAND ${CMAKE_COMMAND} -E env "PATH=${DEVICE_PAGE_PATH}" ${PNPM_EXECUTABLE} run build
      COMMAND echo "Removing page target directory"
 -- 
-2.54.0
+2.56.0
 
