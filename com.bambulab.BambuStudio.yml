@@ -190,6 +190,9 @@ modules:
         commit: 8fe5a738541a04642885fb7a75b2b5b9c5b416fa
       - type: patch
         path: patches/0001-Install-hpdf.h-to-usr-include-hpdf-hpdf.h.patch
+    cleanup:
+      - /include
+      - /share/libharu
 
   - name: BambuStudio
     buildsystem: simple
