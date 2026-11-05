@@ -21,35 +21,6 @@ finish-args:
 
 modules:
 
-  # For libOSMesa
-  - name: mesa
-    buildsystem: meson
-    config-opts:
-      - -Dosmesa=classic
-      - -Ddri-drivers=[]
-      - -Dgallium-drivers=[]
-      - -Dvulkan-drivers=[]
-      - -Dplatforms=[]
-    build-options:
-      arch:
-        aarch64:
-          config-opts:
-            - -Dlibunwind=disabled
-    cleanup:
-      - /share/drirc.d
-      - /include
-      - '*.a'
-    sources:
-      - type: archive
-        url: https://archive.mesa3d.org/older-versions/20.x/mesa-20.2.6.tar.xz
-        sha256: f12ca3c6c622f11cd79ad66b4220f04514fa96f795062fe92a37339ab19885db
-        x-checker-data:
-          type: anitya
-          project-id: 1970
-          versions: {<: 20.3.0}
-          stable-only: true
-          url-template: https://archive.mesa3d.org/older-versions/20.x/mesa-$version.tar.xz
-
   - name: glu
     buildsystem: meson
     sources:
@@ -404,6 +375,10 @@ modules:
       # https://github.com/bambulab/BambuStudio/pull/12975
       - type: patch
         path: patches/2.9.1-fixes.patch
+
+      # https://github.com/bambulab/BambuStudio/pull/12988
+      - type: patch
+        path: patches/0001-ENH-Remove-OSMesa-dependency.patch
 
       # https://github.com/bambulab/BambuStudio/pull/12597
       - type: patch

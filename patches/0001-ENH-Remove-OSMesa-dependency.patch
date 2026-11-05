@@ -1,0 +1,87 @@
+From 115a3c4dbca12614a29ea87d35cb5673479282e8 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Fri, 15 Aug 2025 18:04:23 +0200
+Subject: [PATCH] ENH: Remove OSMesa dependency
+
+Remove the dependency so that we don't depend on functionality that's
+been removed from newer mesa:
+https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/33836
+
+Originally submitted as:
+https://github.com/bambulab/BambuStudio/pull/7899
+See also:
+https://github.com/OrcaSlicer/OrcaSlicer/pull/9708
+---
+ Containerfile             | 1 -
+ Dockerfile                | 1 -
+ linux.d/debian            | 1 -
+ linux.d/fedora            | 1 -
+ src/slic3r/CMakeLists.txt | 2 +-
+ 5 files changed, 1 insertion(+), 5 deletions(-)
+
+diff --git a/Containerfile b/Containerfile
+index a328f4843550..ed9e5ea04540 100644
+--- a/Containerfile
++++ b/Containerfile
+@@ -44,7 +44,6 @@ RUN apt-get update && apt-get install  -y \
+     libgtk-3-dev libwebkit2gtk-4.1-dev \
+     libsoup-3.0-dev \
+     libgstreamer1.0-dev libgstreamer-plugins-good1.0-dev libgstreamer-plugins-base1.0-dev libgstreamerd-3-dev \
+-    libosmesa6-dev \
+     libssl3 libssl-dev libcurl4-openssl-dev libsecret-1-dev \
+     libudev-dev \
+     curl \
+diff --git a/Dockerfile b/Dockerfile
+index edbf8d019667..dc778217b7f7 100644
+--- a/Dockerfile
++++ b/Dockerfile
+@@ -32,7 +32,6 @@ RUN apt-get update && apt-get install  -y \
+     libgstreamer-plugins-good1.0-dev \
+     libgtk-3-dev \
+     libgtk-3-dev \
+-    libosmesa6-dev \
+     libsecret-1-dev \
+     libsoup2.4-dev \
+     libssl3 \
+diff --git a/linux.d/debian b/linux.d/debian
+index f76d5e0acc3e..2f9fd785dd4c 100644
+--- a/linux.d/debian
++++ b/linux.d/debian
+@@ -12,7 +12,6 @@ REQUIRED_DEV_PACKAGES=(
+     wget
+     libgstreamerd-3-dev
+     libsecret-1-dev
+-    libosmesa6-dev
+     libssl-dev
+     eglexternalplatform-dev
+     libcurl4-openssl-dev
+diff --git a/linux.d/fedora b/linux.d/fedora
+index da9cfc836182..939de54eb39c 100644
+--- a/linux.d/fedora
++++ b/linux.d/fedora
+@@ -23,7 +23,6 @@ REQUIRED_DEV_PACKAGES=(
+     libtool
+     m4
+     mesa-libGLU-devel
+-    mesa-libOSMesa-devel
+     mesa-libGL-devel
+     ninja-build
+     openssl-devel
+diff --git a/src/slic3r/CMakeLists.txt b/src/slic3r/CMakeLists.txt
+index 4a3a83b2f4b2..6e7e629df021 100644
+--- a/src/slic3r/CMakeLists.txt
++++ b/src/slic3r/CMakeLists.txt
+@@ -890,9 +890,9 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+     FIND_LIBRARY(WAYLAND_EGL_LIBRARIES    NAMES wayland-egl)
+     FIND_LIBRARY(WAYLAND_CLIENT_LIBRARIES NAMES wayland-client)
+     find_package(CURL REQUIRED)
+-    target_link_libraries(libslic3r_gui ${DBUS_LIBRARIES} OSMesa)
+     target_link_libraries(libslic3r_gui
+         OpenGL::EGL
++        ${DBUS_LIBRARIES}
+         ${WAYLAND_SERVER_LIBRARIES}
+         ${WAYLAND_EGL_LIBRARIES}
+         ${WAYLAND_CLIENT_LIBRARIES}
+-- 
+2.56.0
+
