@@ -125,6 +125,11 @@ modules:
           tag-pattern: ^v([\d\.]+)$
           versions:
             <: '3.3'
+      # Backport of GtkFileChooserNative support from wxWidgets 3.3 so that
+      # file dialogs go through the FileChooser portal (e.g. KDE dialogs)
+      # https://github.com/wxWidgets/wxWidgets/commit/071b4dd0f1
+      - type: patch
+        path: patches/wxwidgets-gtk-file-chooser-native.patch
     cleanup:
       - /include
       - /lib/cmake

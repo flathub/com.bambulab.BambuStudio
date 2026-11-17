@@ -1,0 +1,912 @@
+From 5a2fb082b4cd3aeefa40be431b5cab84e9b6fd7e Mon Sep 17 00:00:00 2001
+From: paulcor <paulcor@users.noreply.github.com>
+Date: Sun, 9 Feb 2025 21:26:47 -0800
+Subject: [PATCH 1/6] Use GtkFileChooserNative for wxFileDialog/wxDirDialog
+ when possible
+
+This allows "native" dialogs with KDE. Not supported for extra control or wxFD_PREVIEW.
+See #24486, #25104
+
+(cherry picked from commit 071b4dd0f105e6d6ecd210190ce65bf41d6f1e2a)
+---
+ include/wx/gtk/dirdlg.h  |  19 ++++---
+ include/wx/gtk/filedlg.h |   5 ++
+ src/gtk/dirdlg.cpp       |  61 ++++++++++++++++++----
+ src/gtk/filedlg.cpp      | 109 ++++++++++++++++++++++++++++++++++-----
+ 4 files changed, 163 insertions(+), 31 deletions(-)
+
+diff --git a/include/wx/gtk/dirdlg.h b/include/wx/gtk/dirdlg.h
+index e25e0b293d..f3aa755771 100644
+--- a/include/wx/gtk/dirdlg.h
++++ b/include/wx/gtk/dirdlg.h
+@@ -6,8 +6,10 @@
+ // Licence:     wxWindows licence
+ /////////////////////////////////////////////////////////////////////////////
+ 
+-#ifndef __GTKDIRDLGH__
+-#define __GTKDIRDLGH__
++#ifndef _WX_GTKDIRDLG_H_
++#define _WX_GTKDIRDLG_H_
++
++typedef struct _GtkFileChooser GtkFileChooser;
+ 
+ //-------------------------------------------------------------------------
+ // wxDirDialog
+@@ -15,6 +17,7 @@
+ 
+ class WXDLLIMPEXP_CORE wxDirDialog : public wxDirDialogBase
+ {
++    typedef wxDirDialogBase BaseType;
+ public:
+     wxDirDialog() { }
+ 
+@@ -32,14 +35,11 @@ public:
+                 const wxPoint& pos = wxDefaultPosition,
+                 const wxSize& size = wxDefaultSize,
+                 const wxString& name = wxASCII_STR(wxDirDialogNameStr));
+-    virtual ~wxDirDialog() { }
+-
+-
+-public:     // overrides from wxGenericDirDialog
++    ~wxDirDialog();
+ 
++    virtual int ShowModal() wxOVERRIDE;
+     void SetPath(const wxString& path) wxOVERRIDE;
+ 
+-
+     // Implementation only.
+ 
+     void GTKOnAccept();
+@@ -54,7 +54,10 @@ protected:
+ 
+ 
+ private:
++    void GTKAccept();
++    GtkFileChooser* m_fileChooser = nullptr;
++
+     wxDECLARE_DYNAMIC_CLASS(wxDirDialog);
+ };
+ 
+-#endif // __GTKDIRDLGH__
++#endif // _WX_GTKDIRDLG_H_
+diff --git a/include/wx/gtk/filedlg.h b/include/wx/gtk/filedlg.h
+index 809805d68f..687a929042 100644
+--- a/include/wx/gtk/filedlg.h
++++ b/include/wx/gtk/filedlg.h
+@@ -11,12 +11,15 @@
+ 
+ #include "wx/gtk/filectrl.h"    // for wxGtkFileChooser
+ 
++typedef struct _GtkFileChooser GtkFileChooser;
++
+ //-------------------------------------------------------------------------
+ // wxFileDialog
+ //-------------------------------------------------------------------------
+ 
+ class WXDLLIMPEXP_CORE wxFileDialog: public wxFileDialogBase
+ {
++    typedef wxFileDialogBase BaseType;
+ public:
+     wxFileDialog() { }
+ 
+@@ -78,6 +81,8 @@ private:
+     virtual void AddChildGTK(wxWindowGTK* child) wxOVERRIDE;
+ 
+     wxGtkFileChooser    m_fc;
++    wxGtkFileChooser* m_fcNative = nullptr;
++    GtkFileChooser* m_fileChooserNative = nullptr;
+ 
+     wxDECLARE_DYNAMIC_CLASS(wxFileDialog);
+     wxDECLARE_EVENT_TABLE();
+diff --git a/src/gtk/dirdlg.cpp b/src/gtk/dirdlg.cpp
+index 317acab13e..f845f54a75 100644
+--- a/src/gtk/dirdlg.cpp
++++ b/src/gtk/dirdlg.cpp
+@@ -28,8 +28,10 @@
+     #include "wx/filedlg.h"
+ #endif
+ 
++#include "wx/modalhook.h"
+ #include "wx/gtk/private.h"
+ #include "wx/gtk/private/mnemonics.h"
++#include "wx/gtk/private/gtk3-compat.h"
+ #include "wx/stockitem.h"
+ 
+ extern "C" {
+@@ -108,22 +110,36 @@ bool wxDirDialog::Create(wxWindow* parent,
+ 
+     g_object_ref(m_widget);
+ 
++#if GTK_CHECK_VERSION(3,20,0)
++    if (wx_is_at_least_gtk3(20))
++    {
++        m_fileChooser = GTK_FILE_CHOOSER(gtk_file_chooser_native_new(
++            m_message.utf8_str(),
++            gtk_parent,
++            GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER,
++            nullptr, nullptr));
++    }
++    else
++#endif
++    {
++        m_fileChooser = GTK_FILE_CHOOSER(m_widget);
++        g_object_ref(m_fileChooser);
++    }
++
+     gtk_dialog_set_default_response(GTK_DIALOG(m_widget), GTK_RESPONSE_ACCEPT);
+ #if GTK_CHECK_VERSION(2,18,0)
+     if (wx_is_at_least_gtk2(18))
+     {
+         gtk_file_chooser_set_create_folders(
+-            GTK_FILE_CHOOSER(m_widget), !HasFlag(wxDD_DIR_MUST_EXIST) );
++            m_fileChooser, !HasFlag(wxDD_DIR_MUST_EXIST));
+     }
+ #endif
+ 
+     // Enable multiple selection if desired
+-    gtk_file_chooser_set_select_multiple(
+-        GTK_FILE_CHOOSER(m_widget), HasFlag(wxDD_MULTIPLE) );
++    gtk_file_chooser_set_select_multiple(m_fileChooser, HasFlag(wxDD_MULTIPLE));
+ 
+     // Enable show hidden folders if desired
+-    gtk_file_chooser_set_show_hidden(
+-        GTK_FILE_CHOOSER(m_widget), HasFlag(wxDD_SHOW_HIDDEN) );
++    gtk_file_chooser_set_show_hidden(m_fileChooser, HasFlag(wxDD_SHOW_HIDDEN));
+ 
+     // local-only property could be set to false to allow non-local files to be loaded.
+     // In that case get/set_uri(s) should be used instead of get/set_filename(s) everywhere
+@@ -141,9 +157,14 @@ bool wxDirDialog::Create(wxWindow* parent,
+     return true;
+ }
+ 
+-void wxDirDialog::GTKOnAccept()
++wxDirDialog::~wxDirDialog()
++{
++    g_object_unref(m_fileChooser);
++}
++
++void wxDirDialog::GTKAccept()
+ {
+-    GSList *fnamesi = gtk_file_chooser_get_filenames(GTK_FILE_CHOOSER(m_widget));
++    GSList *fnamesi = gtk_file_chooser_get_filenames(m_fileChooser);
+     GSList *fnames = fnamesi;
+ 
+     while ( fnamesi )
+@@ -167,7 +188,11 @@ void wxDirDialog::GTKOnAccept()
+     {
+         m_path = m_paths.Last();
+     }
++}
+ 
++void wxDirDialog::GTKOnAccept()
++{
++    GTKAccept();
+     EndDialog(wxID_OK);
+ }
+ 
+@@ -176,6 +201,25 @@ void wxDirDialog::GTKOnCancel()
+     EndDialog(wxID_CANCEL);
+ }
+ 
++int wxDirDialog::ShowModal()
++{
++    WX_HOOK_MODAL_DIALOG();
++
++#if GTK_CHECK_VERSION(3,20,0)
++    if (m_fileChooser != (GtkFileChooser*)m_widget)
++    {
++        int res = gtk_native_dialog_run(GTK_NATIVE_DIALOG(m_fileChooser));
++        if (res == GTK_RESPONSE_ACCEPT)
++        {
++            GTKAccept();
++            return wxID_OK;
++        }
++        return wxID_CANCEL;
++    }
++#endif
++    return BaseType::ShowModal();
++}
++
+ void wxDirDialog::DoSetSize(int x, int y, int width, int height, int sizeFlags)
+ {
+     if (!m_wxwindow)
+@@ -188,8 +232,7 @@ void wxDirDialog::SetPath(const wxString& dir)
+ {
+     if (wxDirExists(dir))
+     {
+-        gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(m_widget),
+-                                            wxGTK_CONV_FN(dir));
++        gtk_file_chooser_set_current_folder(m_fileChooser, wxGTK_CONV_FN(dir));
+     }
+ }
+ 
+diff --git a/src/gtk/filedlg.cpp b/src/gtk/filedlg.cpp
+index 408ee20d28..f81e8ddadd 100644
+--- a/src/gtk/filedlg.cpp
++++ b/src/gtk/filedlg.cpp
+@@ -22,6 +22,7 @@
+ #include "wx/gtk/private.h"
+ #include "wx/gtk/private/error.h"
+ #include "wx/gtk/private/mnemonics.h"
++#include "wx/gtk/private/gtk3-compat.h"
+ 
+ #ifdef __UNIX__
+ #include <unistd.h> // chdir
+@@ -254,10 +255,24 @@ bool wxFileDialog::Create(wxWindow *parent, const wxString& message,
+ 
+     m_fc.SetWidget(file_chooser);
+ 
++#if GTK_CHECK_VERSION(3,20,0)
++    if (wx_is_at_least_gtk3(20) && (style & wxFD_PREVIEW) == 0)
++    {
++        m_fileChooserNative = GTK_FILE_CHOOSER(gtk_file_chooser_native_new(
++            m_message.utf8_str(), gtk_parent, gtk_action, nullptr, nullptr));
++        m_fcNative = new wxGtkFileChooser;
++        m_fcNative->SetWidget(m_fileChooserNative);
++    }
++#endif
++
+     gtk_dialog_set_default_response(GTK_DIALOG(m_widget), GTK_RESPONSE_ACCEPT);
+ 
+     if ( style & wxFD_MULTIPLE )
++    {
+         gtk_file_chooser_set_select_multiple(file_chooser, true);
++        if (m_fileChooserNative)
++            gtk_file_chooser_set_select_multiple(m_fileChooserNative, true);
++    }
+ 
+     // local-only property could be set to false to allow non-local files to be
+     // loaded. In that case get/set_uri(s) should be used instead of
+@@ -311,7 +326,10 @@ bool wxFileDialog::Create(wxWindow *parent, const wxString& message,
+     const wxString dir = fn.GetPath();
+     if ( !dir.empty() )
+     {
+-        gtk_file_chooser_set_current_folder(file_chooser, wxGTK_CONV_FN(dir));
++        const auto folder(wxGTK_CONV_FN(dir));
++        gtk_file_chooser_set_current_folder(file_chooser, folder);
++        if (m_fileChooserNative)
++            gtk_file_chooser_set_current_folder(m_fileChooserNative, folder);
+     }
+ 
+     const wxString fname = fn.GetFullName();
+@@ -319,13 +337,18 @@ bool wxFileDialog::Create(wxWindow *parent, const wxString& message,
+     {
+         if ( !fname.empty() )
+         {
+-            gtk_file_chooser_set_current_name(file_chooser, wxGTK_CONV_FN(fname));
++            const auto curName(wxGTK_CONV_FN(fname));
++            gtk_file_chooser_set_current_name(file_chooser, curName);
++            if (m_fileChooserNative)
++                gtk_file_chooser_set_current_name(m_fileChooserNative, curName);
+         }
+ 
+ #if GTK_CHECK_VERSION(2,7,3)
+         if ((style & wxFD_OVERWRITE_PROMPT) && wx_is_at_least_gtk2(8))
+         {
+             gtk_file_chooser_set_do_overwrite_confirmation(file_chooser, true);
++            if (m_fileChooserNative)
++                gtk_file_chooser_set_do_overwrite_confirmation(m_fileChooserNative, true);
+         }
+ #endif
+     }
+@@ -333,8 +356,10 @@ bool wxFileDialog::Create(wxWindow *parent, const wxString& message,
+     {
+         if ( !fname.empty() )
+         {
+-            gtk_file_chooser_set_filename(file_chooser,
+-                                          wxGTK_CONV_FN(fn.GetFullPath()));
++            const auto filename(wxGTK_CONV_FN(fn.GetFullPath()));
++            gtk_file_chooser_set_filename(file_chooser, filename);
++            if (m_fileChooserNative)
++                gtk_file_chooser_set_filename(m_fileChooserNative, filename);
+         }
+     }
+ 
+@@ -348,8 +373,12 @@ bool wxFileDialog::Create(wxWindow *parent, const wxString& message,
+                          previewImage);
+     }
+ 
+-    gtk_file_chooser_set_show_hidden(file_chooser,
+-                                     style & wxFD_SHOW_HIDDEN ? TRUE : FALSE);
++    if (style & wxFD_SHOW_HIDDEN)
++    {
++        gtk_file_chooser_set_show_hidden(file_chooser, true);
++        if (m_fileChooserNative)
++            gtk_file_chooser_set_show_hidden(m_fileChooserNative, true);
++    }
+ 
+     return true;
+ }
+@@ -363,6 +392,9 @@ wxFileDialog::~wxFileDialog()
+         gtk_file_chooser_set_extra_widget(
+             GTK_FILE_CHOOSER(m_widget), NULL);
+     }
++    delete m_fcNative;
++    if (m_fileChooserNative)
++        g_object_unref(m_fileChooserNative);
+ }
+ 
+ void wxFileDialog::OnFakeOk(wxCommandEvent& WXUNUSED(event))
+@@ -384,6 +416,32 @@ int wxFileDialog::ShowModal()
+ 
+     CreateExtraControl();
+ 
++#if GTK_CHECK_VERSION(3,20,0)
++    if (m_fileChooserNative && m_extraControl)
++    {
++        // GtkFileChooserNative does not support extra controls
++        delete m_fcNative;
++        m_fcNative = nullptr;
++        g_object_unref(m_fileChooserNative);
++        m_fileChooserNative = nullptr;
++    }
++    if (m_fileChooserNative)
++    {
++        int res = gtk_native_dialog_run(GTK_NATIVE_DIALOG(m_fileChooserNative));
++        if (res == GTK_RESPONSE_ACCEPT)
++        {
++            if (HasFlag(wxFD_CHANGE_DIR))
++            {
++                wxGtkString filename(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(m_fileChooserNative)));
++                wxGtkString dir(g_path_get_dirname(filename));
++                chdir(dir);
++            }
++            return wxID_OK;
++        }
++        return wxID_CANCEL;
++    }
++#endif
++
+     return wxDialog::ShowModal();
+ }
+ 
+@@ -402,17 +460,20 @@ void wxFileDialog::OnSize(wxSizeEvent&)
+ wxString wxFileDialog::GetPath() const
+ {
+     wxCHECK_MSG( !HasFlag(wxFD_MULTIPLE), wxString(), "When using wxFD_MULTIPLE, must call GetPaths() instead" );
+-    return m_fc.GetPath();
++    const wxGtkFileChooser& fc = m_fcNative ? *m_fcNative : m_fc;
++    return fc.GetPath();
+ }
+ 
+ void wxFileDialog::GetFilenames(wxArrayString& files) const
+ {
+-    m_fc.GetFilenames( files );
++    const wxGtkFileChooser& fc = m_fcNative ? *m_fcNative : m_fc;
++    fc.GetFilenames(files);
+ }
+ 
+ void wxFileDialog::GetPaths(wxArrayString& paths) const
+ {
+-    m_fc.GetPaths( paths );
++    const wxGtkFileChooser& fc = m_fcNative ? *m_fcNative : m_fc;
++    fc.GetPaths(paths);
+ }
+ 
+ void wxFileDialog::SetMessage(const wxString& message)
+@@ -434,7 +495,10 @@ void wxFileDialog::SetPath(const wxString& path)
+     // we need an absolute path for GTK native chooser so ensure that we have
+     // it: use the initial directory if it was set or just CWD otherwise (this
+     // is the default behaviour if m_dir is empty)
+-    m_fc.SetPath(wxFileName(path).GetAbsolutePath(m_dir));
++    const wxString str(wxFileName(path).GetAbsolutePath(m_dir));
++    m_fc.SetPath(str);
++    if (m_fcNative)
++        m_fcNative->SetPath(str);
+ }
+ 
+ void wxFileDialog::SetDirectory(const wxString& dir)
+@@ -442,6 +506,8 @@ void wxFileDialog::SetDirectory(const wxString& dir)
+     wxFileDialogBase::SetDirectory(dir);
+ 
+     m_fc.SetDirectory(dir);
++    if (m_fcNative)
++        m_fcNative->SetDirectory(dir);
+ }
+ 
+ void wxFileDialog::SetFilename(const wxString& name)
+@@ -450,7 +516,10 @@ void wxFileDialog::SetFilename(const wxString& name)
+ 
+     if (HasFdFlag(wxFD_SAVE))
+     {
+-        gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(m_widget), wxGTK_CONV(name));
++        const wxScopedCharBuffer curName(name.utf8_str());
++        gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(m_widget), curName);
++        if (m_fileChooserNative)
++            gtk_file_chooser_set_current_name(m_fileChooserNative, curName);
+     }
+ 
+     else
+@@ -469,7 +538,8 @@ wxString wxFileDialog::GetFilename() const
+ {
+     wxCHECK_MSG( !HasFlag(wxFD_MULTIPLE), wxString(), "When using wxFD_MULTIPLE, must call GetFilenames() instead" );
+ 
+-    wxString currentFilename( m_fc.GetFilename() );
++    const wxGtkFileChooser& fc = m_fcNative ? *m_fcNative : m_fc;
++    wxString currentFilename(fc.GetFilename());
+     if (currentFilename.empty())
+     {
+         // m_fc.GetFilename() will return empty until the dialog has been shown
+@@ -483,16 +553,21 @@ void wxFileDialog::SetWildcard(const wxString& wildCard)
+ {
+     wxFileDialogBase::SetWildcard(wildCard);
+     m_fc.SetWildcard( GetWildcard() );
++    if (m_fcNative)
++        m_fcNative->SetWildcard(wildCard);
+ }
+ 
+ void wxFileDialog::SetFilterIndex(int filterIndex)
+ {
+     m_fc.SetFilterIndex( filterIndex);
++    if (m_fcNative)
++        m_fcNative->SetFilterIndex(filterIndex);
+ }
+ 
+ int wxFileDialog::GetFilterIndex() const
+ {
+-    return m_fc.GetFilterIndex();
++    const wxGtkFileChooser& fc = m_fcNative ? *m_fcNative : m_fc;
++    return fc.GetFilterIndex();
+ }
+ 
+ void wxFileDialog::GTKSelectionChanged(const wxString& filename)
+@@ -507,8 +582,9 @@ bool wxFileDialog::AddShortcut(const wxString& directory, int WXUNUSED(flags))
+ {
+     wxGtkError error;
+ 
++    const auto folder(directory.utf8_str());
+     if ( !gtk_file_chooser_add_shortcut_folder(GTK_FILE_CHOOSER(m_widget),
+-                                               directory.utf8_str(),
++                                               folder,
+                                                error.Out()) )
+     {
+         wxLogDebug("Failed to add shortcut \"%s\": %s",
+@@ -516,6 +592,11 @@ bool wxFileDialog::AddShortcut(const wxString& directory, int WXUNUSED(flags))
+ 
+         return false;
+     }
++    if (m_fileChooserNative)
++    {
++        gtk_file_chooser_add_shortcut_folder(
++            GTK_FILE_CHOOSER(m_fileChooserNative), folder, nullptr);
++    }
+ 
+     return true;
+ }
+
+From 106670b01da38a3304893bcc53d72e48ab58f50b Mon Sep 17 00:00:00 2001
+From: Paul Cornett <paulcor@users.noreply.github.com>
+Date: Sat, 22 Feb 2025 08:59:42 -0800
+Subject: [PATCH 2/6] Fix EndModal() for wxFileDialog/wxDirDialog when using
+ GtkFileChooserNative
+
+See #25190
+
+(cherry picked from commit 9036a0b0a5cf8dcec3d931df6ac1e4c72c4ce95a)
+---
+ include/wx/gtk/dirdlg.h  |  1 +
+ include/wx/gtk/filedlg.h |  1 +
+ src/gtk/dirdlg.cpp       | 25 ++++++++++++++++++++++---
+ src/gtk/filedlg.cpp      | 35 +++++++++++++++++++++++++++--------
+ 4 files changed, 51 insertions(+), 11 deletions(-)
+
+diff --git a/include/wx/gtk/dirdlg.h b/include/wx/gtk/dirdlg.h
+index f3aa755771..ecc18f0425 100644
+--- a/include/wx/gtk/dirdlg.h
++++ b/include/wx/gtk/dirdlg.h
+@@ -38,6 +38,7 @@ public:
+     ~wxDirDialog();
+ 
+     virtual int ShowModal() wxOVERRIDE;
++    virtual void EndModal(int retCode) wxOVERRIDE;
+     void SetPath(const wxString& path) wxOVERRIDE;
+ 
+     // Implementation only.
+diff --git a/include/wx/gtk/filedlg.h b/include/wx/gtk/filedlg.h
+index 687a929042..7a837d308e 100644
+--- a/include/wx/gtk/filedlg.h
++++ b/include/wx/gtk/filedlg.h
+@@ -57,6 +57,7 @@ public:
+     virtual void SetFilterIndex(int filterIndex) wxOVERRIDE;
+ 
+     virtual int ShowModal() wxOVERRIDE;
++    virtual void EndModal(int retCode) wxOVERRIDE;
+ 
+ #if wxABI_VERSION >= 30201
+     bool AddShortcut(const wxString& directory, int flags = 0);
+diff --git a/src/gtk/dirdlg.cpp b/src/gtk/dirdlg.cpp
+index f845f54a75..47585fc1af 100644
+--- a/src/gtk/dirdlg.cpp
++++ b/src/gtk/dirdlg.cpp
+@@ -208,24 +208,43 @@ int wxDirDialog::ShowModal()
+ #if GTK_CHECK_VERSION(3,20,0)
+     if (m_fileChooser != (GtkFileChooser*)m_widget)
+     {
++        m_returnCode = 0;
+         int res = gtk_native_dialog_run(GTK_NATIVE_DIALOG(m_fileChooser));
+         if (res == GTK_RESPONSE_ACCEPT)
+         {
+             GTKAccept();
+-            return wxID_OK;
++            m_returnCode = wxID_OK;
+         }
+-        return wxID_CANCEL;
++        else if (m_returnCode == 0)
++            m_returnCode = wxID_CANCEL;
++
++        return m_returnCode;
+     }
+ #endif
+     return BaseType::ShowModal();
+ }
+ 
++void wxDirDialog::EndModal(int retCode)
++{
++#if GTK_CHECK_VERSION(3,20,0)
++    if (m_fileChooser != (GtkFileChooser*)m_widget)
++    {
++        m_returnCode = retCode;
++        gtk_native_dialog_hide(GTK_NATIVE_DIALOG(m_fileChooser));
++    }
++    else
++#endif
++    {
++        BaseType::EndModal(retCode);
++    }
++}
++
+ void wxDirDialog::DoSetSize(int x, int y, int width, int height, int sizeFlags)
+ {
+     if (!m_wxwindow)
+         return;
+ 
+-    wxDirDialogBase::DoSetSize( x, y, width, height, sizeFlags );
++    BaseType::DoSetSize(x, y, width, height, sizeFlags);
+ }
+ 
+ void wxDirDialog::SetPath(const wxString& dir)
+diff --git a/src/gtk/filedlg.cpp b/src/gtk/filedlg.cpp
+index f81e8ddadd..75a88d6d1e 100644
+--- a/src/gtk/filedlg.cpp
++++ b/src/gtk/filedlg.cpp
+@@ -198,7 +198,7 @@ bool wxFileDialog::Create(wxWindow *parent, const wxString& message,
+ {
+     parent = GetParentForModalDialog(parent, style);
+ 
+-    if (!wxFileDialogBase::Create(parent, message, defaultDir, defaultFileName,
++    if (!BaseType::Create(parent, message, defaultDir, defaultFileName,
+                                   wildCard, style, pos, sz, name))
+     {
+         return false;
+@@ -427,6 +427,7 @@ int wxFileDialog::ShowModal()
+     }
+     if (m_fileChooserNative)
+     {
++        m_returnCode = 0;
+         int res = gtk_native_dialog_run(GTK_NATIVE_DIALOG(m_fileChooserNative));
+         if (res == GTK_RESPONSE_ACCEPT)
+         {
+@@ -436,13 +437,31 @@ int wxFileDialog::ShowModal()
+                 wxGtkString dir(g_path_get_dirname(filename));
+                 chdir(dir);
+             }
+-            return wxID_OK;
++            m_returnCode = wxID_OK;
+         }
+-        return wxID_CANCEL;
++        else if (m_returnCode == 0)
++            m_returnCode = wxID_CANCEL;
++
++        return m_returnCode;
+     }
+ #endif
+ 
+-    return wxDialog::ShowModal();
++    return BaseType::ShowModal();
++}
++
++void wxFileDialog::EndModal(int retCode)
++{
++#if GTK_CHECK_VERSION(3,20,0)
++    if (m_fileChooserNative)
++    {
++        m_returnCode = retCode;
++        gtk_native_dialog_hide(GTK_NATIVE_DIALOG(m_fileChooserNative));
++    }
++    else
++#endif
++    {
++        BaseType::EndModal(retCode);
++    }
+ }
+ 
+ void wxFileDialog::DoSetSize(int WXUNUSED(x), int WXUNUSED(y),
+@@ -484,7 +503,7 @@ void wxFileDialog::SetMessage(const wxString& message)
+ 
+ void wxFileDialog::SetPath(const wxString& path)
+ {
+-    wxFileDialogBase::SetPath(path);
++    BaseType::SetPath(path);
+ 
+     // Don't do anything if no path is specified, in particular don't set the
+     // path to m_dir below as this would result in opening the dialog in the
+@@ -503,7 +522,7 @@ void wxFileDialog::SetPath(const wxString& path)
+ 
+ void wxFileDialog::SetDirectory(const wxString& dir)
+ {
+-    wxFileDialogBase::SetDirectory(dir);
++    BaseType::SetDirectory(dir);
+ 
+     m_fc.SetDirectory(dir);
+     if (m_fcNative)
+@@ -512,7 +531,7 @@ void wxFileDialog::SetDirectory(const wxString& dir)
+ 
+ void wxFileDialog::SetFilename(const wxString& name)
+ {
+-    wxFileDialogBase::SetFilename(name);
++    BaseType::SetFilename(name);
+ 
+     if (HasFdFlag(wxFD_SAVE))
+     {
+@@ -551,7 +570,7 @@ wxString wxFileDialog::GetFilename() const
+ 
+ void wxFileDialog::SetWildcard(const wxString& wildCard)
+ {
+-    wxFileDialogBase::SetWildcard(wildCard);
++    BaseType::SetWildcard(wildCard);
+     m_fc.SetWildcard( GetWildcard() );
+     if (m_fcNative)
+         m_fcNative->SetWildcard(wildCard);
+
+From cdae007577dbde4fe0bea8cc95e409f64cef932e Mon Sep 17 00:00:00 2001
+From: Vadim Zeitlin <vadim@wxwidgets.org>
+Date: Thu, 3 Jul 2025 00:47:58 +0200
+Subject: [PATCH 3/6] Add wxFileDialog::GetFileChooser() helper
+
+Simplify the code by adding a trivial member function returning the
+right wxGtkFileChooser to use instead of repeating the same fragment in
+multiple places.
+
+No real changes.
+
+(cherry picked from commit 9b3a4c47f7f6b6b79bd84262296d428aa510f02e)
+---
+ include/wx/gtk/filedlg.h |  5 +++++
+ src/gtk/filedlg.cpp      | 15 +++++----------
+ 2 files changed, 10 insertions(+), 10 deletions(-)
+
+diff --git a/include/wx/gtk/filedlg.h b/include/wx/gtk/filedlg.h
+index 7a837d308e..8982f0b12f 100644
+--- a/include/wx/gtk/filedlg.h
++++ b/include/wx/gtk/filedlg.h
+@@ -81,6 +81,11 @@ private:
+     void OnSize(wxSizeEvent&);
+     virtual void AddChildGTK(wxWindowGTK* child) wxOVERRIDE;
+ 
++    const wxGtkFileChooser& GetFileChooser() const
++    {
++        return m_fcNative ? *m_fcNative : m_fc;
++    }
++
+     wxGtkFileChooser    m_fc;
+     wxGtkFileChooser* m_fcNative = nullptr;
+     GtkFileChooser* m_fileChooserNative = nullptr;
+diff --git a/src/gtk/filedlg.cpp b/src/gtk/filedlg.cpp
+index 75a88d6d1e..bd195b4891 100644
+--- a/src/gtk/filedlg.cpp
++++ b/src/gtk/filedlg.cpp
+@@ -479,20 +479,17 @@ void wxFileDialog::OnSize(wxSizeEvent&)
+ wxString wxFileDialog::GetPath() const
+ {
+     wxCHECK_MSG( !HasFlag(wxFD_MULTIPLE), wxString(), "When using wxFD_MULTIPLE, must call GetPaths() instead" );
+-    const wxGtkFileChooser& fc = m_fcNative ? *m_fcNative : m_fc;
+-    return fc.GetPath();
++    return GetFileChooser().GetPath();
+ }
+ 
+ void wxFileDialog::GetFilenames(wxArrayString& files) const
+ {
+-    const wxGtkFileChooser& fc = m_fcNative ? *m_fcNative : m_fc;
+-    fc.GetFilenames(files);
++    GetFileChooser().GetFilenames(files);
+ }
+ 
+ void wxFileDialog::GetPaths(wxArrayString& paths) const
+ {
+-    const wxGtkFileChooser& fc = m_fcNative ? *m_fcNative : m_fc;
+-    fc.GetPaths(paths);
++    GetFileChooser().GetPaths(paths);
+ }
+ 
+ void wxFileDialog::SetMessage(const wxString& message)
+@@ -557,8 +554,7 @@ wxString wxFileDialog::GetFilename() const
+ {
+     wxCHECK_MSG( !HasFlag(wxFD_MULTIPLE), wxString(), "When using wxFD_MULTIPLE, must call GetFilenames() instead" );
+ 
+-    const wxGtkFileChooser& fc = m_fcNative ? *m_fcNative : m_fc;
+-    wxString currentFilename(fc.GetFilename());
++    wxString currentFilename(GetFileChooser().GetFilename());
+     if (currentFilename.empty())
+     {
+         // m_fc.GetFilename() will return empty until the dialog has been shown
+@@ -585,8 +581,7 @@ void wxFileDialog::SetFilterIndex(int filterIndex)
+ 
+ int wxFileDialog::GetFilterIndex() const
+ {
+-    const wxGtkFileChooser& fc = m_fcNative ? *m_fcNative : m_fc;
+-    return fc.GetFilterIndex();
++    return GetFileChooser().GetFilterIndex();
+ }
+ 
+ void wxFileDialog::GTKSelectionChanged(const wxString& filename)
+
+From 820bce94776189b5bea76c2602a59e610bb71712 Mon Sep 17 00:00:00 2001
+From: Vadim Zeitlin <vadim@wxwidgets.org>
+Date: Thu, 3 Jul 2025 14:38:20 +0200
+Subject: [PATCH 4/6] Check result of chdir() when using native file dialog
+
+Do it for consistency with the case when we use the GTK dialog and also
+to avoid -Wunused-result from gcc due to not checking the return value
+of chdir().
+
+(cherry picked from commit ae8998c7e08889b632f573cd5508068798b0a96a)
+---
+ src/gtk/filedlg.cpp | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/src/gtk/filedlg.cpp b/src/gtk/filedlg.cpp
+index bd195b4891..334a3a3003 100644
+--- a/src/gtk/filedlg.cpp
++++ b/src/gtk/filedlg.cpp
+@@ -435,7 +435,11 @@ int wxFileDialog::ShowModal()
+             {
+                 wxGtkString filename(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(m_fileChooserNative)));
+                 wxGtkString dir(g_path_get_dirname(filename));
+-                chdir(dir);
++                if ( chdir(dir) != 0 )
++                {
++                    wxLogSysError(_("Changing current directory to \"%s\" failed"),
++                                  wxString::FromUTF8(dir));
++                }
+             }
+             m_returnCode = wxID_OK;
+         }
+
+From 292eac0d3764d7cf9e14d234b40df6a34e09ffc7 Mon Sep 17 00:00:00 2001
+From: Paul Cornett <paulcor@users.noreply.github.com>
+Date: Fri, 4 Jul 2025 17:27:19 -0700
+Subject: [PATCH 5/6] Fix wxFilePickerCtrl with GTK >= 3.20
+
+GtkFileChooserNative will not be used when wxFileDialog is used by
+wxFilePickerCtrl, so make sure values will be retrieved from
+GtkFileChooserDialog and not the unused "native" chooser.
+See #25590
+
+(cherry picked from commit ec57a70bc2ffbc6525321ee06f8d05b084808c6a)
+---
+ include/wx/gtk/filedlg.h |  1 +
+ src/gtk/filedlg.cpp      | 28 +++++++++++++++++++++++-----
+ 2 files changed, 24 insertions(+), 5 deletions(-)
+
+diff --git a/include/wx/gtk/filedlg.h b/include/wx/gtk/filedlg.h
+index 8982f0b12f..7e4082af24 100644
+--- a/include/wx/gtk/filedlg.h
++++ b/include/wx/gtk/filedlg.h
+@@ -66,6 +66,7 @@ public:
+ 
+     // Implementation only.
+     void GTKSelectionChanged(const wxString& filename);
++    void GTKDropNative();
+ 
+ 
+ protected:
+diff --git a/src/gtk/filedlg.cpp b/src/gtk/filedlg.cpp
+index 334a3a3003..b088c6a0f8 100644
+--- a/src/gtk/filedlg.cpp
++++ b/src/gtk/filedlg.cpp
+@@ -153,6 +153,15 @@ static void gtk_filedialog_update_preview_callback(GtkFileChooser *chooser,
+     gtk_file_chooser_set_preview_widget_active(chooser, have_preview);
+ }
+ 
++#if GTK_CHECK_VERSION(3,20,0)
++static void wx_filedialog_show(GtkWidget*, wxFileDialog* win)
++{
++    // If m_widget is shown, then GtkFileChooserNative is not being used.
++    // This happens when using wxFilePickerCtrl, for example.
++    win->GTKDropNative();
++}
++#endif
++
+ } // extern "C"
+ 
+ void wxFileDialog::AddChildGTK(wxWindowGTK* child)
+@@ -262,6 +271,7 @@ bool wxFileDialog::Create(wxWindow *parent, const wxString& message,
+             m_message.utf8_str(), gtk_parent, gtk_action, nullptr, nullptr));
+         m_fcNative = new wxGtkFileChooser;
+         m_fcNative->SetWidget(m_fileChooserNative);
++        g_signal_connect(m_widget, "show", G_CALLBACK(wx_filedialog_show), this);
+     }
+ #endif
+ 
+@@ -410,6 +420,17 @@ void wxFileDialog::OnFakeOk(wxCommandEvent& WXUNUSED(event))
+     EndDialog(wxID_OK);
+ }
+ 
++void wxFileDialog::GTKDropNative()
++{
++    if (m_fileChooserNative)
++    {
++        delete m_fcNative;
++        m_fcNative = nullptr;
++        g_object_unref(m_fileChooserNative);
++        m_fileChooserNative = nullptr;
++    }
++}
++
+ int wxFileDialog::ShowModal()
+ {
+     WX_HOOK_MODAL_DIALOG();
+@@ -417,13 +438,10 @@ int wxFileDialog::ShowModal()
+     CreateExtraControl();
+ 
+ #if GTK_CHECK_VERSION(3,20,0)
+-    if (m_fileChooserNative && m_extraControl)
++    if (m_extraControl)
+     {
+         // GtkFileChooserNative does not support extra controls
+-        delete m_fcNative;
+-        m_fcNative = nullptr;
+-        g_object_unref(m_fileChooserNative);
+-        m_fileChooserNative = nullptr;
++        GTKDropNative();
+     }
+     if (m_fileChooserNative)
+     {
+
+From 9aae5345253e6784dae27352f85f34899829da0c Mon Sep 17 00:00:00 2001
+From: Scott Hanson <scooter_seh@yahoo.com>
+Date: Mon, 17 Nov 2025 10:04:39 -0500
+Subject: [PATCH 6/6] Fix wxFileDialog::GetDirectory() when using wxFD_MULTIPLE
+ in wxGTK
+
+This function returned an empty string, override it to forward it to the
+file chooser actually being used to fix this.
+
+Closes #25976.
+
+Closes #25977.
+
+(cherry picked from commit de0c23ea026114b72e306a6076dffe01ebf9fa2a)
+---
+ include/wx/gtk/filedlg.h | 1 +
+ src/gtk/filedlg.cpp      | 5 +++++
+ 2 files changed, 6 insertions(+)
+
+diff --git a/include/wx/gtk/filedlg.h b/include/wx/gtk/filedlg.h
+index 7e4082af24..39f9900768 100644
+--- a/include/wx/gtk/filedlg.h
++++ b/include/wx/gtk/filedlg.h
+@@ -48,6 +48,7 @@ public:
+     virtual wxString GetFilename() const wxOVERRIDE;
+     virtual void GetFilenames(wxArrayString& files) const wxOVERRIDE;
+     virtual int GetFilterIndex() const wxOVERRIDE;
++    virtual wxString GetDirectory() const wxOVERRIDE;
+ 
+     virtual void SetMessage(const wxString& message) wxOVERRIDE;
+     virtual void SetPath(const wxString& path) wxOVERRIDE;
+diff --git a/src/gtk/filedlg.cpp b/src/gtk/filedlg.cpp
+index b088c6a0f8..13140bf4cd 100644
+--- a/src/gtk/filedlg.cpp
++++ b/src/gtk/filedlg.cpp
+@@ -514,6 +514,11 @@ void wxFileDialog::GetPaths(wxArrayString& paths) const
+     GetFileChooser().GetPaths(paths);
+ }
+ 
++wxString wxFileDialog::GetDirectory() const
++{
++    return GetFileChooser().GetDirectory();
++}
++
+ void wxFileDialog::SetMessage(const wxString& message)
+ {
+     m_message = message;
