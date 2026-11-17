@@ -6,4 +6,14 @@ grep -q org.freedesktop.Platform.GL.nvidia /.flatpak-info && export WEBKIT_DISAB
 # Work-around https://github.com/bambulab/BambuStudio/issues/3440
 export LC_ALL=C.UTF-8
 
+# Work-around https://github.com/bambulab/BambuStudio/issues/13201
+# With IBus, the number inputs do not accept keys, and the GNOME Shell keyboard
+# can stop after Bambu Studio closes. Use the GTK simple input method instead.
+# To keep the input method of the host (for example, for CJK input), set
+# BAMBU_STUDIO_USE_HOST_IM=1:
+#   flatpak override --user --env=BAMBU_STUDIO_USE_HOST_IM=1 com.bambulab.BambuStudio
+if [ "${BAMBU_STUDIO_USE_HOST_IM:-0}" != 1 ]; then
+    export GTK_IM_MODULE=gtk-im-context-simple
+fi
+
 exec /app/bin/bambu-studio "$@"
