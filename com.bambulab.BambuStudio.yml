@@ -369,12 +369,8 @@ modules:
       # BambuStudio Source Archive
       - type: git
         url: https://github.com/bambulab/BambuStudio.git
-        tag: v02.09.01.70
-        commit: 56a57d00a591360cf41bf21383915ee5bf357be5
-
-      # https://github.com/bambulab/BambuStudio/pull/12975
-      - type: patch
-        path: patches/2.9.1-fixes.patch
+        tag: v02.09.02.62
+        commit: 23a33758933e712c6041e1f8f135f7d6b50004aa
 
       # https://github.com/bambulab/BambuStudio/pull/12988
       - type: patch
