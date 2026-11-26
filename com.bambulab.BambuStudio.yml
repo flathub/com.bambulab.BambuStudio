@@ -117,14 +117,14 @@ modules:
       - -DwxUSE_GLCANVAS_EGL=OFF
     sources:
       - type: archive
-        url: https://github.com/wxWidgets/wxWidgets/releases/download/v3.2.9/wxWidgets-3.2.9.tar.bz2
-        sha256: fb90f9538bffd6a02edbf80037a0c14c2baf9f509feac8f76ab2a5e4321f112b
+        url: https://github.com/wxWidgets/wxWidgets/releases/download/v3.3.4/wxWidgets-3.3.4.tar.bz2
+        sha256: 815c16cafa4fcbfcf25c5c0a3418309c62257b8a3b6f91d85a1367a134f98c98
         x-checker-data:
           is-important: true
           type: git
           tag-pattern: ^v([\d\.]+)$
           versions:
-            <: '3.3'
+            <: '3.5'
     cleanup:
       - /include
       - /lib/cmake
@@ -393,6 +393,11 @@ modules:
       # https://github.com/bambulab/BambuStudio/pull/11782
       - type: patch
         path: patches/no-boost-system.patch
+
+      # Build fixes for wxWidgets 3.3
+      # https://github.com/bambulab/BambuStudio/pull/13336
+      - type: patch
+        path: patches/bambustudio-wxwidgets-3.3.patch
 
       # AppData metainfo for Gnome Software & Co.
       - type: file
