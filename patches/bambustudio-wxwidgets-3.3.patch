@@ -1,0 +1,398 @@
+diff --git a/src/slic3r/GUI/Auxiliary.cpp b/src/slic3r/GUI/Auxiliary.cpp
+index f78f682c9..e7e9fc350 100644
+--- a/src/slic3r/GUI/Auxiliary.cpp
++++ b/src/slic3r/GUI/Auxiliary.cpp
+@@ -349,7 +349,7 @@ void AuFile::on_input_enter(wxCommandEvent &evt)
+     auto     new_fullname = new_file_name + m_file_path.extension().string();
+ 
+     
+-    wxString new_fullname_path = dir.wstring() + "/" + new_fullname;
++    wxString new_fullname_path = wxString(dir.wstring()) + "/" + new_fullname;
+     fs::path new_dir_path(new_fullname_path.c_str());
+     
+ 
+@@ -933,7 +933,7 @@ void AuxiliaryPanel::on_import_file(wxCommandEvent &event)
+             }
+             
+             if (!is_exist) {
+-                dir_path += "/" + src_bfs_path.filename().generic_wstring();
++                dir_path += wxString("/") + src_bfs_path.filename().generic_wstring();
+             } else {
+                 time_t t1 = time(0);
+                 char   ch1[64];
+@@ -943,7 +943,7 @@ void AuxiliaryPanel::on_import_file(wxCommandEvent &event)
+                 wxString name = src_bfs_path.filename().generic_wstring();
+                 auto before_name = replaceSpace(name.ToStdString(), src_bfs_path.extension().string(), "");
+                 time_text = replaceSpace(time_text, ":", "_");
+-                dir_path += "/" + before_name + "_" + time_text + src_bfs_path.extension().wstring();
++                dir_path += wxString("/" + before_name + "_" + time_text) + src_bfs_path.extension().wstring();
+             }
+            
+ 
+diff --git a/src/slic3r/GUI/AuxiliaryDataViewModel.cpp b/src/slic3r/GUI/AuxiliaryDataViewModel.cpp
+index 11a171f3e..5adf1aa84 100644
+--- a/src/slic3r/GUI/AuxiliaryDataViewModel.cpp
++++ b/src/slic3r/GUI/AuxiliaryDataViewModel.cpp
+@@ -332,7 +332,7 @@ wxDataViewItemArray AuxiliaryModel::ImportFile(AuxiliaryModelNode* sel, wxArrayS
+         wxString dir_path = m_root_dir;
+         if (sel != m_root)
+             dir_path += "\\" + sel->name;
+-        dir_path += "\\" + src_bfs_path.filename().generic_wstring();
++        dir_path += wxString("\\") + src_bfs_path.filename().generic_wstring();
+ 
+         boost::system::error_code ec;
+         if (!fs::copy_file(src_bfs_path, fs::path(dir_path.ToStdWstring()), fs::copy_option::overwrite_if_exists, ec))
+diff --git a/src/slic3r/GUI/CalibrationPanel.cpp b/src/slic3r/GUI/CalibrationPanel.cpp
+index 362ea4b8c..150af8952 100644
+--- a/src/slic3r/GUI/CalibrationPanel.cpp
++++ b/src/slic3r/GUI/CalibrationPanel.cpp
+@@ -271,7 +271,7 @@ void SelectMObjectPopup::Popup(wxWindow* WXUNUSED(focus))
+         }
+     }
+ 
+-    wxPostEvent(this, wxTimerEvent());
++    wxPostEvent(this, wxTimerEvent(*m_refresh_timer));
+     PopupWindow::Popup();
+ }
+ 
+@@ -686,7 +686,7 @@ void CalibrationPanel::resume_on_show(bool shown)
+         if (shown) {
+             m_refresh_timer->SetOwner(this);
+             m_refresh_timer->Start(REFRESH_INTERVAL);
+-            wxPostEvent(this, wxTimerEvent());
++            wxPostEvent(this, wxTimerEvent(*m_refresh_timer));
+         }
+     }
+     if (!shown)
+diff --git a/src/slic3r/GUI/FilamentMapPanel.cpp b/src/slic3r/GUI/FilamentMapPanel.cpp
+index 22d4a8ac8..bd5072ef5 100644
+--- a/src/slic3r/GUI/FilamentMapPanel.cpp
++++ b/src/slic3r/GUI/FilamentMapPanel.cpp
+@@ -931,7 +931,7 @@ bool FilamentMapManualPanel::Show(bool show)
+     const bool ret = FilamentMapPanel::Show(show);
+     // Validate at once rather than on the first tick: until then OK stays enabled for an invalid grouping.
+     if (show) {
+-        wxTimerEvent evt;
++        wxTimerEvent evt(*m_timer);
+         OnTimer(evt);
+     }
+     return ret;
+@@ -1569,7 +1569,7 @@ bool FilamentMapMultiNozzlePanel::Show(bool show)
+     const bool ret = FilamentMapPanel::Show(show);
+     // Validate at once rather than on the first tick: until then OK stays enabled for an invalid grouping.
+     if (show) {
+-        wxTimerEvent evt;
++        wxTimerEvent evt(*m_timer);
+         OnTimer(evt);
+     }
+     return ret;
+diff --git a/src/slic3r/GUI/GUI.cpp b/src/slic3r/GUI/GUI.cpp
+index 2e898305c..d44b0cb4a 100644
+--- a/src/slic3r/GUI/GUI.cpp
++++ b/src/slic3r/GUI/GUI.cpp
+@@ -453,7 +453,7 @@ unsigned int combochecklist_get_flags(wxComboCtrl* comboCtrl)
+ {
+ 	unsigned int flags = 0;
+ 
+-	wxCheckListBoxComboPopup* popup = wxDynamicCast(comboCtrl->GetPopupControl(), wxCheckListBoxComboPopup);
++	wxCheckListBoxComboPopup* popup = dynamic_cast<wxCheckListBoxComboPopup*>(comboCtrl->GetPopupControl());
+ 	if (popup != nullptr) {
+ 		for (unsigned int i = 0; i < popup->GetCount(); ++i) {
+ 			if (popup->IsChecked(i))
+@@ -466,7 +466,7 @@ unsigned int combochecklist_get_flags(wxComboCtrl* comboCtrl)
+ 
+ void combochecklist_set_flags(wxComboCtrl* comboCtrl, unsigned int flags)
+ {
+-	wxCheckListBoxComboPopup* popup = wxDynamicCast(comboCtrl->GetPopupControl(), wxCheckListBoxComboPopup);
++	wxCheckListBoxComboPopup* popup = dynamic_cast<wxCheckListBoxComboPopup*>(comboCtrl->GetPopupControl());
+ 	if (popup != nullptr) {
+ 		for (unsigned int i = 0; i < popup->GetCount(); ++i) {
+ 			popup->Check(i, (flags & (1 << i)) != 0);
+diff --git a/src/slic3r/GUI/GUI_ObjectTable.cpp b/src/slic3r/GUI/GUI_ObjectTable.cpp
+index ebf8f7cf8..bab6cf790 100644
+--- a/src/slic3r/GUI/GUI_ObjectTable.cpp
++++ b/src/slic3r/GUI/GUI_ObjectTable.cpp
+@@ -201,9 +201,16 @@ void GridCellFilamentsEditor::SetSize(const wxRect& rect)
+     DoPositionEditor(size, rect);*/
+ }
+ 
++static void dismiss_grid_editor(wxWindow* control)
++{
++    // wxGridCellChoiceEditor::OnComboCloseUp() was removed in wxWidgets 3.3, do what it did.
++    if (auto* evtHandler = wxDynamicCast(control->GetEventHandler(), wxGridCellEditorEvtHandler))
++        evtHandler->DismissEditor();
++}
++
+ void GridCellFilamentsEditor::OnComboCloseUp(wxCommandEvent& evt)
+ {
+-    wxGridCellChoiceEditor::OnComboCloseUp(evt);
++    dismiss_grid_editor(m_control);
+ }
+ 
+ void GridCellFilamentsEditor::BeginEdit(int row, int col, wxGrid* grid)
+@@ -418,7 +425,7 @@ void GridCellChoiceEditor::SetSize(const wxRect &rect)
+     wxGridCellChoiceEditor::SetSize(rect);
+ }
+ 
+-void GridCellChoiceEditor::OnComboCloseUp(wxCommandEvent &evt) { wxGridCellChoiceEditor::OnComboCloseUp(evt); }
++void GridCellChoiceEditor::OnComboCloseUp(wxCommandEvent &evt) { dismiss_grid_editor(m_control); }
+ 
+ void GridCellChoiceEditor::BeginEdit(int row, int col, wxGrid *grid)
+ {
+diff --git a/src/slic3r/GUI/ImageGrid.cpp b/src/slic3r/GUI/ImageGrid.cpp
+index a90aa0946..2906a4d64 100644
+--- a/src/slic3r/GUI/ImageGrid.cpp
++++ b/src/slic3r/GUI/ImageGrid.cpp
+@@ -704,11 +704,16 @@ void Slic3r::GUI::ImageGrid::renderContent1(wxDC &dc, wxPoint const &pt, int ind
+         }
+         // Draw buttons on hovered item
+         wxRect rect{pt.x, pt.y + m_content_rect.GetBottom() - m_buttons_background.GetHeight(), m_content_rect.GetWidth(), m_buttons_background.GetHeight()};
++        wxArrayString texts;
+         if (hit) {
+-            renderButtons(dc, {_L("Delete"), (wxChar const *) secondAction, thirdAction.IsEmpty() ? nullptr : (wxChar const *) thirdAction, nullptr}, rect,
+-                          m_hit_type == HIT_ACTION ? m_hit_item & 3 : -1, states);
++            texts.Add(_L("Delete"));
++            texts.Add(secondAction);
++            if (!thirdAction.IsEmpty())
++                texts.Add(thirdAction);
++            renderButtons(dc, texts, rect, m_hit_type == HIT_ACTION ? m_hit_item & 3 : -1, states);
+         } else if (!nonHoverText.IsEmpty()) {
+-            renderButtons(dc, {(wxChar const *) nonHoverText, nullptr}, rect, -1, states);
++            texts.Add(nonHoverText);
++            renderButtons(dc, texts, rect, -1, states);
+         }
+     } else {
+         dc.SetTextForeground(*wxWHITE); // time text color
+@@ -754,7 +759,7 @@ void Slic3r::GUI::ImageGrid::renderContent2(wxDC &dc, wxPoint const &pt, int ind
+     renderIconText(dc, m_model_weight_icon, file.Metadata("Weight", "0g"), rect);
+ }
+ 
+-void Slic3r::GUI::ImageGrid::renderButtons(wxDC &dc, wxStringList const &texts, wxRect const &rect2, size_t hit, int states)
++void Slic3r::GUI::ImageGrid::renderButtons(wxDC &dc, wxArrayString const &texts, wxRect const &rect2, size_t hit, int states)
+ {
+     // Draw background
+     {
+diff --git a/src/slic3r/GUI/ImageGrid.h b/src/slic3r/GUI/ImageGrid.h
+index a978b9fb0..88b0a9f01 100644
+--- a/src/slic3r/GUI/ImageGrid.h
++++ b/src/slic3r/GUI/ImageGrid.h
+@@ -92,7 +92,7 @@ protected:
+ 
+     void renderContent2(wxDC &dc, wxPoint const &pt, int index, bool hit);
+ 
+-    void renderButtons(wxDC &dc, wxStringList const &texts, wxRect const &rect, size_t hit, int states);
++    void renderButtons(wxDC &dc, wxArrayString const &texts, wxRect const &rect, size_t hit, int states);
+ 
+     void renderText(wxDC &dc, wxString const &text, wxRect const &rect, int states);
+ 
+diff --git a/src/slic3r/GUI/MultiMachineManagerPage.cpp b/src/slic3r/GUI/MultiMachineManagerPage.cpp
+index 54d88695a..ff3fae5f8 100644
+--- a/src/slic3r/GUI/MultiMachineManagerPage.cpp
++++ b/src/slic3r/GUI/MultiMachineManagerPage.cpp
+@@ -677,7 +677,7 @@ void MultiMachineManagerPage::start_timer()
+ 
+     m_flipping_timer->SetOwner(this);
+     m_flipping_timer->Start(1000);
+-    wxPostEvent(this, wxTimerEvent());
++    wxPostEvent(this, wxTimerEvent(*m_flipping_timer));
+ }
+ 
+ void MultiMachineManagerPage::update_page_number()
+diff --git a/src/slic3r/GUI/MultiMachinePage.cpp b/src/slic3r/GUI/MultiMachinePage.cpp
+index ddc3a0441..4582cbcac 100644
+--- a/src/slic3r/GUI/MultiMachinePage.cpp
++++ b/src/slic3r/GUI/MultiMachinePage.cpp
+@@ -61,7 +61,7 @@ bool MultiMachinePage::Show(bool show)
+         m_refresh_timer->Stop();
+         m_refresh_timer->SetOwner(this);
+         m_refresh_timer->Start(2000);
+-        wxPostEvent(this, wxTimerEvent());
++        wxPostEvent(this, wxTimerEvent(*m_refresh_timer));
+     }
+     else {
+         m_refresh_timer->Stop();
+diff --git a/src/slic3r/GUI/MultiTaskManagerPage.cpp b/src/slic3r/GUI/MultiTaskManagerPage.cpp
+index bf0310bcc..faec56c2b 100644
+--- a/src/slic3r/GUI/MultiTaskManagerPage.cpp
++++ b/src/slic3r/GUI/MultiTaskManagerPage.cpp
+@@ -1405,7 +1405,7 @@ void CloudTaskManagerPage::start_timer()
+ 
+     m_flipping_timer->SetOwner(this);
+     m_flipping_timer->Start(1000);
+-    wxPostEvent(this, wxTimerEvent());
++    wxPostEvent(this, wxTimerEvent(*m_flipping_timer));
+ }
+ 
+ void CloudTaskManagerPage::on_timer(wxTimerEvent& event)
+diff --git a/src/slic3r/GUI/PlateMoveDialog.cpp b/src/slic3r/GUI/PlateMoveDialog.cpp
+index 909703b10..2864caa51 100644
+--- a/src/slic3r/GUI/PlateMoveDialog.cpp
++++ b/src/slic3r/GUI/PlateMoveDialog.cpp
+@@ -94,7 +94,7 @@ PlateMoveDialog::PlateMoveDialog(wxWindow *parent, wxWindowID id, const wxString
+     m_specify_plate_idx            = GUI::wxGetApp().plater()->get_partplate_list().get_curr_plate_index();
+     for (size_t i = 0; i < plate_list.get_plate_count(); i++) {
+         if (i < 9) {
+-            m_plate_number_choices_str.Add("0" + std::to_wstring(i + 1));
++            m_plate_number_choices_str.Add(wxString("0") + std::to_wstring(i + 1));
+         } else if (i == 9) {
+             m_plate_number_choices_str.Add("10");
+         } else {
+diff --git a/src/slic3r/GUI/Plater.cpp b/src/slic3r/GUI/Plater.cpp
+index 3e15b120b..fcdbd9e79 100644
+--- a/src/slic3r/GUI/Plater.cpp
++++ b/src/slic3r/GUI/Plater.cpp
+@@ -26794,7 +26794,7 @@ wxBoxSizer *ProjectDropDialog::create_item_checkbox(wxString title, wxWindow *pa
+ void ProjectDropDialog::select_radio(int index)
+ {
+     m_action                         = index;
+-    RadioSelectorList::Node *node    = m_radio_group.GetFirst();
++    RadioSelectorList::compatibility_iterator node    = m_radio_group.GetFirst();
+     auto                     groupid = 0;
+ 
+     while (node) {
+@@ -26814,7 +26814,7 @@ void ProjectDropDialog::select_radio(int index)
+ 
+ int ProjectDropDialog::get_select_radio(int groupid)
+ {
+-    RadioSelectorList::Node *node = m_radio_group.GetFirst();
++    RadioSelectorList::compatibility_iterator node = m_radio_group.GetFirst();
+     while (node) {
+         RadioSelector *rs = node->GetData();
+         if (rs->m_groupid == groupid && rs->m_radiobox->GetValue()) { return rs->m_select_id; }
+@@ -26825,7 +26825,7 @@ int ProjectDropDialog::get_select_radio(int groupid)
+ }
+ void ProjectDropDialog::on_select_radio(wxMouseEvent &event)
+ {
+-    RadioSelectorList::Node *node    = m_radio_group.GetFirst();
++    RadioSelectorList::compatibility_iterator node    = m_radio_group.GetFirst();
+     auto                     groupid = 0;
+ 
+     while (node) {
+diff --git a/src/slic3r/GUI/Preferences.cpp b/src/slic3r/GUI/Preferences.cpp
+index dff8ae0c8..9ad30dfbc 100644
+--- a/src/slic3r/GUI/Preferences.cpp
++++ b/src/slic3r/GUI/Preferences.cpp
+@@ -442,7 +442,7 @@ wxBoxSizer *PreferencesDialog::create_item_language_combobox(
+         if (combobox->GetSelection() == m_current_language_selected)
+             return;
+ 
+-        if (e.GetString().mb_str() != app_config->get(param)) {
++        if (std::string(e.GetString().mb_str()) != app_config->get(param)) {
+             {
+                 //check if the project has changed
+                 if (wxGetApp().plater()->is_project_dirty()) {
+@@ -2197,7 +2197,7 @@ void PreferencesDialog::on_reset_preferences()
+ 
+ void PreferencesDialog::on_select_radio(std::string param)
+ {
+-    RadioSelectorList::Node *node    = m_radio_group.GetFirst();
++    RadioSelectorList::compatibility_iterator node    = m_radio_group.GetFirst();
+     auto                     groupid = 0;
+ 
+     while (node) {
+@@ -2217,7 +2217,7 @@ void PreferencesDialog::on_select_radio(std::string param)
+ 
+ wxString PreferencesDialog::get_select_radio(int groupid)
+ {
+-    RadioSelectorList::Node *node = m_radio_group.GetFirst();
++    RadioSelectorList::compatibility_iterator node = m_radio_group.GetFirst();
+     while (node) {
+         RadioSelector *rs = node->GetData();
+         if (rs->m_groupid == groupid && rs->m_radiobox->GetValue()) { return rs->m_param_name; }
+@@ -2229,7 +2229,7 @@ wxString PreferencesDialog::get_select_radio(int groupid)
+ 
+ void PreferencesDialog::OnSelectRadio(wxMouseEvent &event)
+ {
+-    RadioSelectorList::Node *node    = m_radio_group.GetFirst();
++    RadioSelectorList::compatibility_iterator node    = m_radio_group.GetFirst();
+     auto                     groupid = 0;
+ 
+     while (node) {
+diff --git a/src/slic3r/GUI/Search.cpp b/src/slic3r/GUI/Search.cpp
+index b20d1fc5a..3d2d2d19d 100644
+--- a/src/slic3r/GUI/Search.cpp
++++ b/src/slic3r/GUI/Search.cpp
+@@ -233,7 +233,7 @@ bool OptionsSearcher::search(const std::string &search, bool force /* = false*/,
+     };
+ 
+     auto get_tooltip = [this, &sep](const Option &opt) {
+-        return marker_by_type(opt.type, printer_technology) + opt.category_local + sep + opt.group_local + sep + opt.label_local;
++        return wxString(marker_by_type(opt.type, printer_technology)) + opt.category_local + sep + opt.group_local + sep + opt.label_local;
+     };
+ 
+     std::vector<uint16_t> matches, matches2;
+diff --git a/src/slic3r/GUI/SendMultiMachinePage.cpp b/src/slic3r/GUI/SendMultiMachinePage.cpp
+index ef81dcef9..5601cb2e6 100644
+--- a/src/slic3r/GUI/SendMultiMachinePage.cpp
++++ b/src/slic3r/GUI/SendMultiMachinePage.cpp
+@@ -458,7 +458,7 @@ BBL::PrintParams SendMultiMachinePage::request_params(MachineObject* obj)
+     bool timelapse = app_config->get("print", "timelapse") == "1" ? true : false;
+     auto use_ams = false;
+ 
+-    AmsRadioSelectorList::Node* node = m_radio_group.GetFirst();
++    AmsRadioSelectorList::compatibility_iterator node = m_radio_group.GetFirst();
+     auto                     groupid = 0;
+ 
+ 
+@@ -816,7 +816,7 @@ bool SendMultiMachinePage::Show(bool show)
+         m_refresh_timer->Stop();
+         m_refresh_timer->SetOwner(this);
+         m_refresh_timer->Start(4000);
+-        wxPostEvent(this, wxTimerEvent());
++        wxPostEvent(this, wxTimerEvent(*m_refresh_timer));
+     }
+     else {
+         m_refresh_timer->Stop();
+@@ -953,7 +953,7 @@ wxBoxSizer* SendMultiMachinePage::create_item_radiobox(wxString title, wxWindow*
+ 
+ void SendMultiMachinePage::OnSelectRadio(wxMouseEvent& event)
+ {
+-    AmsRadioSelectorList::Node* node = m_radio_group.GetFirst();
++    AmsRadioSelectorList::compatibility_iterator node = m_radio_group.GetFirst();
+     auto                     groupid = 0;
+ 
+     //while (node) {
+@@ -990,7 +990,7 @@ void SendMultiMachinePage::OnSelectRadio(wxMouseEvent& event)
+ 
+ void SendMultiMachinePage::on_select_radio(std::string param)
+ {
+-    AmsRadioSelectorList::Node* node = m_radio_group.GetFirst();
++    AmsRadioSelectorList::compatibility_iterator node = m_radio_group.GetFirst();
+     auto                     groupid = 0;
+ 
+     while (node) {
+@@ -1010,7 +1010,7 @@ void SendMultiMachinePage::on_select_radio(std::string param)
+ 
+ bool SendMultiMachinePage::get_value_radio(std::string param)
+ {
+-    AmsRadioSelectorList::Node* node = m_radio_group.GetFirst();
++    AmsRadioSelectorList::compatibility_iterator node = m_radio_group.GetFirst();
+     auto                     groupid = 0;
+     while (node) {
+         AmsRadioSelector* rs = node->GetData();
+diff --git a/src/slic3r/GUI/UnsavedChangesDialog.cpp b/src/slic3r/GUI/UnsavedChangesDialog.cpp
+index fb9c8b608..3caf3e326 100644
+--- a/src/slic3r/GUI/UnsavedChangesDialog.cpp
++++ b/src/slic3r/GUI/UnsavedChangesDialog.cpp
+@@ -1992,7 +1992,7 @@ void UnsavedChangesDialog::update_tree(Preset::Type type, PresetCollection* pres
+                         category = category + (wxString(" {") + (extruder_id->values[variant_index] == 1 ? _L("Left: ") : _L("Right: "))
+                                 + L(extruder_variant->values[variant_index]) + "}");
+                     else
+-                        category = category + (" {" + L(extruder_variant->values[variant_index]) + "}");
++                        category = category + (wxString(" {") + L(extruder_variant->values[variant_index]) + "}");
+                     }
+             }
+ 
+diff --git a/src/slic3r/GUI/Widgets/Button.cpp b/src/slic3r/GUI/Widgets/Button.cpp
+index 1d227fcd6..3e43cfc01 100644
+--- a/src/slic3r/GUI/Widgets/Button.cpp
++++ b/src/slic3r/GUI/Widgets/Button.cpp
+@@ -46,7 +46,7 @@ Button::Button(wxWindow* parent, wxString text, wxString icon, long style, int i
+ bool Button::Create(wxWindow* parent, wxString text, wxString icon, long style, int iconSize, wxWindowID btn_id)
+ {
+     StaticBox::Create(parent, btn_id, wxDefaultPosition, wxDefaultSize, style);
+-    state_handler.attach({&text_color});
++    state_handler.attach(std::vector<StateColor const *>{&text_color});
+     state_handler.update_binds();
+     //BBS set default font
+     SetFont(Label::Body_14);
